@@ -10,6 +10,12 @@ class TrangDacSan extends StatefulWidget {
 
 class _TrangDacSanState extends State<TrangDacSan> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Flexible(
       flex: 1,
@@ -18,10 +24,10 @@ class _TrangDacSanState extends State<TrangDacSan> {
           Flexible(
             flex: 1,
             child: Container(
-              constraints: BoxConstraints(maxHeight: 600),
+              constraints: const BoxConstraints(maxHeight: 600),
               child: PaginatedDataTable2(
                 rowsPerPage: 10,
-                columns: [
+                columns: const [
                   DataColumn2(
                     label: Text('ID'),
                     size: ColumnSize.L,
@@ -61,29 +67,29 @@ class _TrangDacSanState extends State<TrangDacSan> {
                   children: [
                     TextFormField(
                       decoration: InputDecoration(
-                          label: Text("Tên"),
+                          label: const Text("Tên"),
                           hintText: "Nhập tên đặc sản",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                           )),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 15,
                     ),
                     TextFormField(
                       decoration: InputDecoration(
-                          label: Text("Mô tả"),
+                          label: const Text("Mô tả"),
                           hintText: "Nhập thông tin mô tả đặc sản",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                           )),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 15,
                     ),
                     TextFormField(
                       decoration: InputDecoration(
-                          label: Text("Cách chế biến"),
+                          label: const Text("Cách chế biến"),
                           hintText: "Nhập cách thức chế biến đặc sản (nếu có)",
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),

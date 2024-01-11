@@ -1,4 +1,5 @@
 import 'package:app_dac_san/page/trang_dac_san.dart';
+import 'package:app_dac_san/page/trang_tinh_thanh.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -57,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: const Icon(
                     Icons.food_bank,
                     color: Colors.white,
-                    size: 48,
+                    size: 32,
                   ),
                   tooltip: "Đặc sản",
                 ),
@@ -66,27 +67,58 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: const Icon(
                     Icons.home,
                     color: Colors.white,
-                    size: 48,
+                    size: 32,
                   ),
-                  tooltip: "Đặc sản",
+                  tooltip: "Nơi bán",
                 ),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(
                     Icons.account_box,
                     color: Colors.white,
-                    size: 48,
+                    size: 32,
                   ),
-                  tooltip: "Đặc sản",
+                  tooltip: "Người dùng",
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      mainPage = const TrangTinhThanh();
+                    });
+                  },
+                  icon: const Icon(
+                    Icons.map,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  tooltip: "Tỉnh thành",
                 ),
                 IconButton(
                   onPressed: () {},
                   icon: const Icon(
-                    Icons.map,
+                    Icons.science,
                     color: Colors.white,
-                    size: 48,
+                    size: 32,
                   ),
-                  tooltip: "Đặc sản",
+                  tooltip: "Nguyên liệu",
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.place,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  tooltip: "Vùng miền",
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.shopping_bag,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                  tooltip: "Mùa đặc sản",
                 ),
               ],
             ),
