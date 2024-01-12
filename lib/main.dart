@@ -1,4 +1,5 @@
 import 'package:app_dac_san/page/trang_dac_san.dart';
+import 'package:app_dac_san/page/trang_noi_ban.dart';
 import 'package:app_dac_san/page/trang_tinh_thanh.dart';
 import 'package:flutter/material.dart';
 
@@ -63,7 +64,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   tooltip: "Đặc sản",
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      mainPage = const TrangNoiBan();
+                    });
+                  },
                   icon: const Icon(
                     Icons.home,
                     color: Colors.white,

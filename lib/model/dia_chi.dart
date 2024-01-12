@@ -18,24 +18,18 @@ class DiaChi {
   });
 
   factory DiaChi.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'id': int id,
-        'soNha': String soNha,
-        'tenDuong': String tenDuong,
-        'phuongXa': String phuongXa,
-        'quanHuyen': String quanHuyen,
-        'tinhThanh': TinhThanh tinhThanh,
-      } =>
-        DiaChi(
-          id: id,
-          soNha: soNha,
-          tenDuong: tenDuong,
-          phuongXa: phuongXa,
-          quanHuyen: quanHuyen,
-          tinhThanh: tinhThanh,
-        ),
-      _ => throw const FormatException('Đọc địa chỉ thất bại.'),
-    };
+    return DiaChi(
+      id: json['id'],
+      soNha: json['so_nha'],
+      tenDuong: json['ten_duong'],
+      phuongXa: json['phuong_xa'],
+      quanHuyen: json['quan_huyen'],
+      tinhThanh: TinhThanh.fromJson(json['tinh_thanh']),
+    );
+  }
+
+  @override
+  String toString() {
+    return "$soNha $tenDuong, $phuongXa, $quanHuyen, ${tinhThanh.ten}";
   }
 }

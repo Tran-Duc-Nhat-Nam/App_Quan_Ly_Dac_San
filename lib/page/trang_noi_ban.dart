@@ -1,25 +1,25 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/model/tinh_thanh.dart';
+import 'package:app_dac_san/model/noi_ban.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-class TrangTinhThanh extends StatefulWidget {
-  const TrangTinhThanh({super.key});
+class TrangNoiBan extends StatefulWidget {
+  const TrangNoiBan({super.key});
 
   @override
-  State<TrangTinhThanh> createState() => _TrangTinhThanhState();
+  State<TrangNoiBan> createState() => _TrangNoiBanState();
 }
 
-class _TrangTinhThanhState extends State<TrangTinhThanh> {
-  List<TinhThanh> dsTinhThanh = [];
+class _TrangNoiBanState extends State<TrangNoiBan> {
+  List<NoiBan> dsNoiBan = [];
   late Future myFuture;
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
-      dsTinhThanh = await docTinhThanh();
+      dsNoiBan = await docNoiBan();
     });
     super.initState();
   }
@@ -42,12 +42,37 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                   columns: const [
                     DataColumn2(
                       label: Text('ID'),
+                      size: ColumnSize.S,
                     ),
-                    DataColumn(
+                    DataColumn2(
                       label: Text('Tên'),
+                      size: ColumnSize.M,
+                    ),
+                    DataColumn2(
+                      label: Text('Mô tả'),
+                      size: ColumnSize.L,
+                    ),
+                    DataColumn2(
+                      label: Text('Địa chỉ'),
+                      size: ColumnSize.L,
+                    ),
+                    DataColumn2(
+                      label: Text('Lượt xem'),
+                      size: ColumnSize.S,
+                      numeric: true,
+                    ),
+                    DataColumn2(
+                      label: Text('Điểm đánh giá'),
+                      size: ColumnSize.S,
+                      numeric: true,
+                    ),
+                    DataColumn2(
+                      label: Text('Lượt đánh giá'),
+                      size: ColumnSize.S,
+                      numeric: true,
                     ),
                   ],
-                  source: TinhThanhDataTableSource(dsTinhThanh: dsTinhThanh),
+                  source: NoiBanDataTableSource(dsNoiBan: dsNoiBan),
                 ),
               ),
             ),
@@ -61,7 +86,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                       TextFormField(
                         decoration: InputDecoration(
                             label: const Text("Tên"),
-                            hintText: "Nhập tên đặc sản",
+                            hintText: "Nhập tên nơi bán",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25),
                             )),
@@ -72,19 +97,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                       TextFormField(
                         decoration: InputDecoration(
                             label: const Text("Mô tả"),
-                            hintText: "Nhập thông tin mô tả đặc sản",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            label: const Text("Cách chế biến"),
-                            hintText:
-                                "Nhập cách thức chế biến đặc sản (nếu có)",
+                            hintText: "Nhập thông tin mô tả nơi bán",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25),
                             )),
@@ -103,16 +116,20 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
   }
 }
 
-class TinhThanhDataTableSource extends DataTableSource {
-  List<TinhThanh> dsTinhThanh = [];
-  TinhThanhDataTableSource({required this.dsTinhThanh});
+class NoiBanDataTableSource extends DataTableSource {
+  List<NoiBan> dsNoiBan = [];
+  NoiBanDataTableSource({required this.dsNoiBan});
   @override
   DataRow? getRow(int index) {
-    // TODO: implement getRow
     return DataRow2(
       cells: [
-        DataCell(Text(dsTinhThanh[index].id.toString())),
-        DataCell(Text(dsTinhThanh[index].ten)),
+        DataCell(Text(dsNoiBan[index].id.toString())),
+        DataCell(Text(dsNoiBan[index].ten)),
+        DataCell(Text(dsNoiBan[index].moTa ?? "Chưa có thông tin")),
+        DataCell(Text(dsNoiBan[index].diaChi.toString())),
+        DataCell(Text(dsNoiBan[index].luotXem.toString())),
+        DataCell(Text(dsNoiBan[index].diemDanhGia.toString())),
+        DataCell(Text(dsNoiBan[index].luotDanhGia.toString())),
       ],
     );
   }
@@ -121,25 +138,25 @@ class TinhThanhDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsTinhThanh.length;
+  int get rowCount => dsNoiBan.length;
 
   @override
   int get selectedRowCount => 0;
 }
 
-Future<List<TinhThanh>> docTinhThanh() async {
-  List<TinhThanh> dsTinhThanh = [];
+Future<List<NoiBan>> docNoiBan() async {
+  List<NoiBan> dsNoiBan = [];
 
   var reponse = await get(
-    Uri.parse('http://localhost:8080/tinhthanh'),
+    Uri.parse('http://localhost:8080/noiban'),
     headers: {"Access-Control-Allow-Origin": "*"},
   );
   var result = json.decode(utf8.decode(reponse.bodyBytes));
 
   for (var document in result) {
-    TinhThanh tinhThanh = TinhThanh.fromJson(document);
-    dsTinhThanh.add(tinhThanh);
+    NoiBan noiBan = NoiBan.fromJson(document);
+    dsNoiBan.add(noiBan);
   }
 
-  return dsTinhThanh;
+  return dsNoiBan;
 }

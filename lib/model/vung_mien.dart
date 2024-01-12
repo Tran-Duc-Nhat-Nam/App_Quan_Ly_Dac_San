@@ -1,14 +1,14 @@
-class TinhThanh {
+class VungMien {
   int id;
   String ten;
 
-  TinhThanh({
+  VungMien({
     required this.id,
     required this.ten,
   });
 
-  factory TinhThanh.fromJson(Map<String, dynamic> json) {
-    return TinhThanh(
+  factory VungMien.fromJson(Map<String, dynamic> json) {
+    return VungMien(
       id: json["id"],
       ten: json["ten"],
     );
