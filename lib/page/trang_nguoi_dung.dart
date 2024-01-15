@@ -1,29 +1,33 @@
-import 'package:app_dac_san/model/dia_chi.dart';
-import 'package:app_dac_san/model/noi_ban.dart';
 import 'package:app_dac_san/model/tinh_thanh.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:date_field/date_field.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class TrangNoiBan extends StatefulWidget {
-  TrangNoiBan({super.key});
+import '../model/dia_chi.dart';
+import '../model/nguoi_dung.dart';
+
+class TrangNguoiDung extends StatefulWidget {
+  TrangNguoiDung({super.key});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController tenController = TextEditingController();
-  final TextEditingController moTaController = TextEditingController();
-  final TextEditingController soNhaController = TextEditingController();
-  final TextEditingController tenDuongController = TextEditingController();
+  final TextEditingController soDienThoaiController = TextEditingController();
   @override
-  State<TrangNoiBan> createState() => _TrangNoiBanState();
+  State<TrangNguoiDung> createState() => _TrangNguoiDungState();
 }
 
-class _TrangNoiBanState extends State<TrangNoiBan> {
-  List<NoiBan> dsNoiBan = [];
+class _TrangNguoiDungState extends State<TrangNguoiDung> {
+  List<NguoiDung> dsNguoiDung = [];
   List<TinhThanh> dsTinhThanh = [];
   List<bool> selectedRowsIndex = [];
   late TinhThanh tinhThanh;
-  late NoiBanDataTableSource dataTableSource;
+  DateTime ngaySinh = DateTime.now();
+  bool isNam = true;
+  late NguoiDungDataTableSource dataTableSource;
   late Future myFuture;
 
   void showNotify(BuildContext context, String content) {
@@ -33,14 +37,14 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
 
   void notifyParent(int index) {
     setState(() {
-      widget.tenController.text = dsNoiBan[index].ten;
-      widget.moTaController.text = dsNoiBan[index].moTa ?? "Chưa có thông tin";
+      widget.tenController.text = dsNguoiDung[index].ten;
+      widget.soDienThoaiController.text = dsNguoiDung[index].soDienThoai;
     });
   }
 
   void createTable() {
-    dataTableSource = NoiBanDataTableSource(
-      dsNoiBan: dsNoiBan,
+    dataTableSource = NguoiDungDataTableSource(
+      dsNguoiDung: dsNguoiDung,
       selectedRowIndexs: selectedRowsIndex,
       notifyParent: notifyParent,
     );
@@ -49,9 +53,9 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
-      dsNoiBan = await NoiBan.doc();
+      dsNguoiDung = await NguoiDung.doc();
       dsTinhThanh = await TinhThanh.doc();
-      selectedRowsIndex = dsNoiBan.map((e) => false).toList();
+      selectedRowsIndex = dsNguoiDung.map((e) => false).toList();
       createTable();
     });
     super.initState();
@@ -86,30 +90,29 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                       size: ColumnSize.S,
                     ),
                     DataColumn2(
-                      label: Text('Tên'),
-                      size: ColumnSize.M,
+                      label: Text('Email'),
+                      size: ColumnSize.L,
                     ),
                     DataColumn2(
-                      label: Text('Mô tả'),
+                      label: Text('Tên'),
                       size: ColumnSize.L,
+                    ),
+                    DataColumn2(
+                      label: Text('Giới tính'),
+                      size: ColumnSize.S,
+                    ),
+                    DataColumn2(
+                      label: Text('Ngày sinh'),
+                      size: ColumnSize.M,
                     ),
                     DataColumn2(
                       label: Text('Địa chỉ'),
                       size: ColumnSize.L,
-                    ),
-                    DataColumn2(
-                      label: Text('Lượt xem'),
-                      size: ColumnSize.S,
                       numeric: true,
                     ),
                     DataColumn2(
-                      label: Text('Điểm đánh giá'),
-                      size: ColumnSize.S,
-                      numeric: true,
-                    ),
-                    DataColumn2(
-                      label: Text('Lượt đánh giá'),
-                      size: ColumnSize.S,
+                      label: Text('Số điện thoại'),
+                      size: ColumnSize.M,
                       numeric: true,
                     ),
                   ],
@@ -129,27 +132,60 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                         controller: widget.tenController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên nơi bán";
+                            return "Vui lòng nhập tên người dùng";
                           } else {
                             return null;
                           }
                         },
                         decoration: InputDecoration(
-                            label: const Text("Tên nơi bán"),
-                            hintText: "Nhập tên nơi bán",
+                            label: const Text("Tên người dùng"),
+                            hintText: "Nhập tên người dùng",
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 25,
+                              top: 15,
+                              bottom: 15,
+                            ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(35),
                             )),
                       ),
                       const SizedBox(height: 15),
                       TextFormField(
-                        controller: widget.moTaController,
+                        controller: widget.soDienThoaiController,
                         decoration: InputDecoration(
-                            label: const Text("Mô tả nơi bán"),
+                            label: const Text("Mô tả người dùng"),
                             hintText: "Nhập thông tin mô tả",
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 25,
+                              top: 15,
+                              bottom: 15,
+                            ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(35),
                             )),
+                      ),
+                      const SizedBox(height: 15),
+                      DateTimeFormField(
+                        decoration: InputDecoration(
+                          label: const Text("Ngày sinh người dùng"),
+                          contentPadding: const EdgeInsetsDirectional.only(
+                            start: 25,
+                            top: 15,
+                            bottom: 15,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(35),
+                          ),
+                        ),
+                        dateFormat: DateFormat("dd/MM/yyyy"),
+                        initialPickerDateTime: DateTime.now(),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value != null) {
+                              ngaySinh = value;
+                            }
+                          });
+                        },
                       ),
                       const SizedBox(height: 15),
                       DropdownSearch<TinhThanh>(
@@ -198,40 +234,6 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                         },
                       ),
                       const SizedBox(height: 15),
-                      TextFormField(
-                        controller: widget.soNhaController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập số nhà";
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            label: const Text("Số nhà"),
-                            hintText: "Nhập số nhà",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
-                      ),
-                      const SizedBox(height: 15),
-                      TextFormField(
-                        controller: widget.tenDuongController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên đường";
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            label: const Text("Mô tả tên đường"),
-                            hintText: "Nhập tên đường",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
-                      ),
-                      const SizedBox(height: 15),
                       Row(
                         children: [
                           Flexible(
@@ -241,6 +243,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                               child: const Text("Thêm"),
                             ),
                           ),
+                          const SizedBox(width: 15),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
@@ -248,6 +251,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                               child: const Text("Cập nhật"),
                             ),
                           ),
+                          const SizedBox(width: 15),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
@@ -271,86 +275,100 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
   }
 
   void them(BuildContext context) {
-    NoiBan.them(
-      widget.tenController.text,
-      widget.moTaController.text,
-      DiaChi(
-        id: 0,
-        soNha: "soNha",
-        tenDuong: "tenDuong",
-        phuongXa: "phuongXa",
-        quanHuyen: "quanHuyen",
-        tinhThanh: tinhThanh,
-      ),
-    ).then((value) {
-      if (value != null) {
-        setState(() {
-          dsNoiBan.add(value);
-          selectedRowsIndex.add(false);
-          createTable();
-        });
-      } else {
-        showNotify(context, "Thêm nơi bán thất bại");
-      }
-    });
-  }
-
-  void capNhat(BuildContext context) {
-    if (selectedRowsIndex.where((element) => element).length == 1) {
-      int i = selectedRowsIndex.indexOf(true);
-      NoiBan noiBan = NoiBan(
-        id: dsNoiBan[i].id,
-        ten: widget.tenController.text,
-        moTa: widget.moTaController.text,
-        diaChi: DiaChi(
-          id: dsNoiBan[i].diaChi.id,
-          soNha: dsNoiBan[i].diaChi.soNha,
-          tenDuong: dsNoiBan[i].diaChi.tenDuong,
-          phuongXa: dsNoiBan[i].diaChi.phuongXa,
-          quanHuyen: dsNoiBan[i].diaChi.quanHuyen,
-          tinhThanh: dsNoiBan[i].diaChi.tinhThanh,
+    if (widget.formKey.currentState!.validate()) {
+      NguoiDung.them(
+        widget.tenController.text,
+        widget.emailController.text,
+        isNam,
+        widget.soDienThoaiController.text,
+        DiaChi(
+          id: 0,
+          soNha: "soNha",
+          tenDuong: "tenDuong",
+          phuongXa: "phuongXa",
+          quanHuyen: "quanHuyen",
+          tinhThanh: tinhThanh,
         ),
-      );
-      NoiBan.capNhat(noiBan).then((value) {
-        if (value) {
+        ngaySinh,
+      ).then((value) {
+        if (value != null) {
           setState(() {
-            dsNoiBan[i] = noiBan;
+            dsNguoiDung.add(value);
+            selectedRowsIndex.add(false);
+            widget.tenController.clear();
+            widget.soDienThoaiController.clear();
             createTable();
           });
         } else {
-          showNotify(context, "Cập nhật nơi bán thất bại");
+          showNotify(context, "Thêm người dùng thất bại");
         }
       });
-    } else {
-      showNotify(context, "Vui lòng chỉ chọn một dòng để cập nhật");
+    }
+  }
+
+  void capNhat(BuildContext context) {
+    if (widget.formKey.currentState!.validate()) {
+      if (selectedRowsIndex.where((element) => element).length == 1) {
+        int i = selectedRowsIndex.indexOf(true);
+        NguoiDung nguoiDung = NguoiDung(
+          id: dsNguoiDung[i].id,
+          ten: widget.tenController.text,
+          email: widget.emailController.text,
+          isNam: isNam,
+          soDienThoai: widget.soDienThoaiController.text,
+          diaChi: DiaChi(
+            id: dsNguoiDung[i].diaChi.id,
+            soNha: dsNguoiDung[i].diaChi.soNha,
+            tenDuong: dsNguoiDung[i].diaChi.tenDuong,
+            phuongXa: dsNguoiDung[i].diaChi.phuongXa,
+            quanHuyen: dsNguoiDung[i].diaChi.quanHuyen,
+            tinhThanh: tinhThanh,
+          ),
+          ngaySinh: ngaySinh,
+        );
+        NguoiDung.capNhat(nguoiDung).then((value) {
+          if (value) {
+            setState(() {
+              dsNguoiDung[i] = nguoiDung;
+              createTable();
+            });
+          } else {
+            showNotify(context, "Cập nhật người dùng thất bại");
+          }
+        });
+      } else {
+        showNotify(context, "Vui lòng chỉ chọn một dòng để cập nhật");
+      }
     }
   }
 
   void xoa(BuildContext context) {
-    for (int i = 0; i < selectedRowsIndex.length; i++) {
-      if (selectedRowsIndex[i]) {
-        NoiBan.xoa(dsNoiBan[i].id).then((value) {
-          if (value) {
-            setState(() {
-              dsNoiBan.remove(dsNoiBan[i]);
-              selectedRowsIndex[i] = false;
-              createTable();
-            });
-          } else {
-            showNotify(context, "Xóa nơi bán thất bại");
-          }
-        });
+    if (widget.formKey.currentState!.validate()) {
+      for (int i = 0; i < selectedRowsIndex.length; i++) {
+        if (selectedRowsIndex[i]) {
+          NguoiDung.xoa(dsNguoiDung[i].id).then((value) {
+            if (value) {
+              setState(() {
+                dsNguoiDung.remove(dsNguoiDung[i]);
+                selectedRowsIndex[i] = false;
+                createTable();
+              });
+            } else {
+              showNotify(context, "Xóa người dùng thất bại");
+            }
+          });
+        }
       }
     }
   }
 }
 
-class NoiBanDataTableSource extends DataTableSource {
-  List<NoiBan> dsNoiBan = [];
+class NguoiDungDataTableSource extends DataTableSource {
+  List<NguoiDung> dsNguoiDung = [];
   List<bool> selectedRowIndexs = [];
   void Function(int) notifyParent;
-  NoiBanDataTableSource({
-    required this.dsNoiBan,
+  NguoiDungDataTableSource({
+    required this.dsNguoiDung,
     required this.selectedRowIndexs,
     required this.notifyParent,
   });
@@ -364,13 +382,13 @@ class NoiBanDataTableSource extends DataTableSource {
       },
       selected: selectedRowIndexs[index],
       cells: [
-        DataCell(Text(dsNoiBan[index].id.toString())),
-        DataCell(Text(dsNoiBan[index].ten)),
-        DataCell(Text(dsNoiBan[index].moTa ?? "Chưa có thông tin")),
-        DataCell(Text(dsNoiBan[index].diaChi.toString())),
-        DataCell(Text(dsNoiBan[index].luotXem.toString())),
-        DataCell(Text(dsNoiBan[index].diemDanhGia.toString())),
-        DataCell(Text(dsNoiBan[index].luotDanhGia.toString())),
+        DataCell(Text(dsNguoiDung[index].id.toString())),
+        DataCell(Text(dsNguoiDung[index].email)),
+        DataCell(Text(dsNguoiDung[index].ten)),
+        DataCell(Text(dsNguoiDung[index].isNam ? "Nam" : "Nữ")),
+        DataCell(Text(dsNguoiDung[index].ngaySinh.toString())),
+        DataCell(Text(dsNguoiDung[index].diaChi.toString())),
+        DataCell(Text(dsNguoiDung[index].soDienThoai)),
       ],
     );
   }
@@ -379,7 +397,7 @@ class NoiBanDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsNoiBan.length;
+  int get rowCount => dsNguoiDung.length;
 
   @override
   int get selectedRowCount => 0;

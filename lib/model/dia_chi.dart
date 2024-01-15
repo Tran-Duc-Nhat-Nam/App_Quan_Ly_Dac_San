@@ -28,6 +28,14 @@ class DiaChi {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'so_nha': soNha,
+        'ten_duong': tenDuong,
+        'phuong_xa': phuongXa,
+        'quan_huyen': quanHuyen,
+        'tinh_thanh': tinhThanh.toJson(),
+      };
   @override
   String toString() {
     return "$soNha $tenDuong, $phuongXa, $quanHuyen, ${tinhThanh.ten}";

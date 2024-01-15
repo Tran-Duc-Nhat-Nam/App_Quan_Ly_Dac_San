@@ -1,6 +1,10 @@
 import 'package:app_dac_san/page/trang_dac_san.dart';
+import 'package:app_dac_san/page/trang_mua_dac_san.dart';
+import 'package:app_dac_san/page/trang_nguoi_dung.dart';
+import 'package:app_dac_san/page/trang_nguyen_lieu.dart';
 import 'package:app_dac_san/page/trang_noi_ban.dart';
 import 'package:app_dac_san/page/trang_tinh_thanh.dart';
+import 'package:app_dac_san/page/trang_vung_mien.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -33,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Widget mainPage = const TrangDacSan();
+  Widget mainPage = TrangDacSan();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      mainPage = const TrangDacSan();
+                      mainPage = TrangDacSan();
                     });
                   },
                   icon: const Icon(
@@ -66,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      mainPage = const TrangNoiBan();
+                      mainPage = TrangNoiBan();
                     });
                   },
                   icon: const Icon(
@@ -77,7 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   tooltip: "Nơi bán",
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      mainPage = TrangNguoiDung();
+                    });
+                  },
                   icon: const Icon(
                     Icons.account_box,
                     color: Colors.white,
@@ -88,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      mainPage = const TrangTinhThanh();
+                      mainPage = TrangTinhThanh();
                     });
                   },
                   icon: const Icon(
@@ -99,7 +107,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   tooltip: "Tỉnh thành",
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      mainPage = TrangNguyenLieu();
+                    });
+                  },
                   icon: const Icon(
                     Icons.science,
                     color: Colors.white,
@@ -108,7 +120,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   tooltip: "Nguyên liệu",
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      mainPage = TrangVungMien();
+                    });
+                  },
                   icon: const Icon(
                     Icons.place,
                     color: Colors.white,
@@ -117,7 +133,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   tooltip: "Vùng miền",
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      mainPage = TrangMuaDacSan();
+                    });
+                  },
                   icon: const Icon(
                     Icons.shopping_bag,
                     color: Colors.white,
@@ -130,11 +150,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           mainPage,
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }

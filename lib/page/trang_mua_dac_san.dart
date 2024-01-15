@@ -1,25 +1,25 @@
-import 'package:app_dac_san/model/tinh_thanh.dart';
+import 'package:app_dac_san/model/mua_dac_san.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class TrangTinhThanh extends StatefulWidget {
-  TrangTinhThanh({super.key});
+class TrangMuaDacSan extends StatefulWidget {
+  TrangMuaDacSan({super.key});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
   @override
-  State<TrangTinhThanh> createState() => _TrangTinhThanhState();
+  State<TrangMuaDacSan> createState() => _TrangMuaDacSanState();
 }
 
-class _TrangTinhThanhState extends State<TrangTinhThanh> {
-  List<TinhThanh> dsTinhThanh = [];
+class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
+  List<MuaDacSan> dsMuaDacSan = [];
   List<bool> selectedRowsIndex = [];
-  late TinhThanhDataTableSource dataTableSource;
+  late MuaDacSanDataTableSource dataTableSource;
   late Future myFuture;
   void createTable() {
-    dataTableSource = TinhThanhDataTableSource(
-      dsTinhThanh: dsTinhThanh,
+    dataTableSource = MuaDacSanDataTableSource(
+      dsMuaDacSan: dsMuaDacSan,
       selectedRowIndexs: selectedRowsIndex,
     );
   }
@@ -32,8 +32,8 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
-      dsTinhThanh = await TinhThanh.doc();
-      selectedRowsIndex = dsTinhThanh.map((e) => false).toList();
+      dsMuaDacSan = await MuaDacSan.doc();
+      selectedRowsIndex = dsMuaDacSan.map((e) => false).toList();
       createTable();
     });
     super.initState();
@@ -86,14 +86,14 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                         controller: widget.tenController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên tỉnh thành";
+                            return "Vui lòng nhập tên mùa";
                           } else {
                             return null;
                           }
                         },
                         decoration: InputDecoration(
-                            label: const Text("Tên vùng miền"),
-                            hintText: "Nhập tên vùng miền",
+                            label: const Text("Tên mùa"),
+                            hintText: "Nhập tên mùa",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(25),
                             )),
@@ -108,6 +108,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                               child: const Text("Thêm"),
                             ),
                           ),
+                          const SizedBox(width: 15),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
@@ -115,6 +116,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                               child: const Text("Cập nhật"),
                             ),
                           ),
+                          const SizedBox(width: 15),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
@@ -139,19 +141,17 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
 
   void them(BuildContext context) {
     if (widget.formKey.currentState!.validate()) {
-      TinhThanh.them(widget.tenController.text).then(
-        (value) {
-          if (value != null) {
-            setState(() {
-              dsTinhThanh.add(value);
-              selectedRowsIndex.add(false);
-              createTable();
-            });
-          } else {
-            showNotify(context, "Thêm vùng miền thất bại");
-          }
-        },
-      );
+      MuaDacSan.them(widget.tenController.text).then((value) {
+        if (value != null) {
+          setState(() {
+            dsMuaDacSan.add(value);
+            selectedRowsIndex.add(false);
+            createTable();
+          });
+        } else {
+          showNotify(context, "Thêm mùa thất bại");
+        }
+      });
     }
   }
 
@@ -159,20 +159,18 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
     if (widget.formKey.currentState!.validate()) {
       if (selectedRowsIndex.where((element) => element).length == 1) {
         int i = selectedRowsIndex.indexOf(true);
-        TinhThanh tinhThanh =
-            TinhThanh(id: dsTinhThanh[i].id, ten: widget.tenController.text);
-        TinhThanh.capNhat(tinhThanh).then(
-          (value) {
-            if (value) {
-              setState(() {
-                dsTinhThanh[i] = tinhThanh;
-                createTable();
-              });
-            } else {
-              showNotify(context, "Cập nhật vùng miền thất bại");
-            }
-          },
-        );
+        MuaDacSan vungMien =
+            MuaDacSan(id: dsMuaDacSan[i].id, ten: widget.tenController.text);
+        MuaDacSan.capNhat(vungMien).then((value) {
+          if (value) {
+            setState(() {
+              dsMuaDacSan[i] = vungMien;
+              createTable();
+            });
+          } else {
+            showNotify(context, "Cập nhật mùa thất bại");
+          }
+        });
       }
     }
   }
@@ -181,30 +179,28 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
     if (widget.formKey.currentState!.validate()) {
       for (int i = 0; i < selectedRowsIndex.length; i++) {
         if (selectedRowsIndex[i]) {
-          TinhThanh.xoa(dsTinhThanh[i].id).then(
-            (value) {
-              if (value) {
-                setState(() {
-                  dsTinhThanh.remove(dsTinhThanh[i]);
-                  selectedRowsIndex[i] = false;
-                  createTable();
-                });
-              } else {
-                showNotify(context, "Xóa vùng miền thất bại");
-              }
-            },
-          );
+          MuaDacSan.xoa(dsMuaDacSan[i].id).then((value) {
+            if (value) {
+              setState(() {
+                dsMuaDacSan.remove(dsMuaDacSan[i]);
+                selectedRowsIndex[i] = false;
+                createTable();
+              });
+            } else {
+              showNotify(context, "Xóa mùa thất bại");
+            }
+          });
         }
       }
     }
   }
 }
 
-class TinhThanhDataTableSource extends DataTableSource {
-  List<TinhThanh> dsTinhThanh = [];
+class MuaDacSanDataTableSource extends DataTableSource {
+  List<MuaDacSan> dsMuaDacSan = [];
   List<bool> selectedRowIndexs = [];
-  TinhThanhDataTableSource({
-    required this.dsTinhThanh,
+  MuaDacSanDataTableSource({
+    required this.dsMuaDacSan,
     required this.selectedRowIndexs,
   });
   @override
@@ -217,8 +213,8 @@ class TinhThanhDataTableSource extends DataTableSource {
       },
       selected: selectedRowIndexs[index],
       cells: [
-        DataCell(Text(dsTinhThanh[index].id.toString())),
-        DataCell(Text(dsTinhThanh[index].ten)),
+        DataCell(Text(dsMuaDacSan[index].id.toString())),
+        DataCell(Text(dsMuaDacSan[index].ten)),
       ],
     );
   }
@@ -227,7 +223,7 @@ class TinhThanhDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsTinhThanh.length;
+  int get rowCount => dsMuaDacSan.length;
 
   @override
   int get selectedRowCount => 0;

@@ -1,25 +1,25 @@
-import 'package:app_dac_san/model/tinh_thanh.dart';
+import 'package:app_dac_san/model/vung_mien.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class TrangTinhThanh extends StatefulWidget {
-  TrangTinhThanh({super.key});
+class TrangVungMien extends StatefulWidget {
+  TrangVungMien({super.key});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
   @override
-  State<TrangTinhThanh> createState() => _TrangTinhThanhState();
+  State<TrangVungMien> createState() => _TrangVungMienState();
 }
 
-class _TrangTinhThanhState extends State<TrangTinhThanh> {
-  List<TinhThanh> dsTinhThanh = [];
+class _TrangVungMienState extends State<TrangVungMien> {
+  List<VungMien> dsVungMien = [];
   List<bool> selectedRowsIndex = [];
-  late TinhThanhDataTableSource dataTableSource;
+  late VungMienDataTableSource dataTableSource;
   late Future myFuture;
   void createTable() {
-    dataTableSource = TinhThanhDataTableSource(
-      dsTinhThanh: dsTinhThanh,
+    dataTableSource = VungMienDataTableSource(
+      dsVungMien: dsVungMien,
       selectedRowIndexs: selectedRowsIndex,
     );
   }
@@ -32,8 +32,8 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
-      dsTinhThanh = await TinhThanh.doc();
-      selectedRowsIndex = dsTinhThanh.map((e) => false).toList();
+      dsVungMien = await VungMien.doc();
+      selectedRowsIndex = dsVungMien.map((e) => false).toList();
       createTable();
     });
     super.initState();
@@ -86,7 +86,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
                         controller: widget.tenController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên tỉnh thành";
+                            return "Vui lòng nhập tên vùng miền";
                           } else {
                             return null;
                           }
@@ -139,11 +139,11 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
 
   void them(BuildContext context) {
     if (widget.formKey.currentState!.validate()) {
-      TinhThanh.them(widget.tenController.text).then(
+      VungMien.them(widget.tenController.text).then(
         (value) {
           if (value != null) {
             setState(() {
-              dsTinhThanh.add(value);
+              dsVungMien.add(value);
               selectedRowsIndex.add(false);
               createTable();
             });
@@ -159,13 +159,13 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
     if (widget.formKey.currentState!.validate()) {
       if (selectedRowsIndex.where((element) => element).length == 1) {
         int i = selectedRowsIndex.indexOf(true);
-        TinhThanh tinhThanh =
-            TinhThanh(id: dsTinhThanh[i].id, ten: widget.tenController.text);
-        TinhThanh.capNhat(tinhThanh).then(
+        VungMien vungMien =
+            VungMien(id: dsVungMien[i].id, ten: widget.tenController.text);
+        VungMien.capNhat(vungMien).then(
           (value) {
             if (value) {
               setState(() {
-                dsTinhThanh[i] = tinhThanh;
+                dsVungMien[i] = vungMien;
                 createTable();
               });
             } else {
@@ -181,11 +181,11 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
     if (widget.formKey.currentState!.validate()) {
       for (int i = 0; i < selectedRowsIndex.length; i++) {
         if (selectedRowsIndex[i]) {
-          TinhThanh.xoa(dsTinhThanh[i].id).then(
+          VungMien.xoa(dsVungMien[i].id).then(
             (value) {
               if (value) {
                 setState(() {
-                  dsTinhThanh.remove(dsTinhThanh[i]);
+                  dsVungMien.remove(dsVungMien[i]);
                   selectedRowsIndex[i] = false;
                   createTable();
                 });
@@ -200,11 +200,11 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
   }
 }
 
-class TinhThanhDataTableSource extends DataTableSource {
-  List<TinhThanh> dsTinhThanh = [];
+class VungMienDataTableSource extends DataTableSource {
+  List<VungMien> dsVungMien = [];
   List<bool> selectedRowIndexs = [];
-  TinhThanhDataTableSource({
-    required this.dsTinhThanh,
+  VungMienDataTableSource({
+    required this.dsVungMien,
     required this.selectedRowIndexs,
   });
   @override
@@ -217,8 +217,8 @@ class TinhThanhDataTableSource extends DataTableSource {
       },
       selected: selectedRowIndexs[index],
       cells: [
-        DataCell(Text(dsTinhThanh[index].id.toString())),
-        DataCell(Text(dsTinhThanh[index].ten)),
+        DataCell(Text(dsVungMien[index].id.toString())),
+        DataCell(Text(dsVungMien[index].ten)),
       ],
     );
   }
@@ -227,7 +227,7 @@ class TinhThanhDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsTinhThanh.length;
+  int get rowCount => dsVungMien.length;
 
   @override
   int get selectedRowCount => 0;
