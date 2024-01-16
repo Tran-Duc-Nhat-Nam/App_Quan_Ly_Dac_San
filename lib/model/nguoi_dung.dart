@@ -11,7 +11,7 @@ class NguoiDung {
   DateTime ngaySinh;
   DiaChi diaChi;
   String soDienThoai;
-
+  static const String url = "${ApiHelper.baseUrl}nguoidung";
   NguoiDung({
     required this.id,
     required this.email,
@@ -37,7 +37,7 @@ class NguoiDung {
   static Future<List<NguoiDung>> doc() async {
     List<NguoiDung> dsNguoiDung = [];
 
-    var result = await docJson('http://localhost:8080/nguoidung');
+    var result = await docAPI(url);
 
     for (var document in result) {
       NguoiDung nguoiDung = NguoiDung.fromJson(document);
@@ -49,8 +49,8 @@ class NguoiDung {
 
   static Future<NguoiDung?> them(String ten, String email, bool isNam,
       String soDienThoai, DiaChi diaChi, DateTime ngaySinh) async {
-    final response = await ghiJson(
-      'http://localhost:8080/nguoidung/them',
+    final response = await taoAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': 0,
         'email': email,
@@ -71,8 +71,8 @@ class NguoiDung {
   }
 
   static Future<bool> capNhat(NguoiDung nguoidung) async {
-    final response = await ghiJson(
-      'http://localhost:8080/nguoidung/capnhat',
+    final response = await capNhatAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': nguoidung.id,
         'email': nguoidung.email,
@@ -88,8 +88,8 @@ class NguoiDung {
   }
 
   static Future<bool> xoa(int id) async {
-    final response = await ghiJson(
-      'http://localhost:8080/nguoidung/xoa',
+    final response = await xoaAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': id,
       }),

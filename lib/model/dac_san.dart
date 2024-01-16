@@ -10,6 +10,7 @@ class DacSan {
   int luotXem = 0;
   double diemDanhGia = 0;
   int luotDanhGia = 0;
+  static const String url = "${ApiHelper.baseUrl}dacsan";
 
   DacSan({
     required this.id,
@@ -30,7 +31,7 @@ class DacSan {
   static Future<List<DacSan>> doc() async {
     List<DacSan> dsDacSan = [];
 
-    var result = await docJson('http://localhost:8080/dacsan');
+    var result = await docAPI(url);
 
     for (var document in result) {
       DacSan nguyenLieu = DacSan.fromJson(document);
@@ -42,8 +43,8 @@ class DacSan {
 
   static Future<DacSan?> them(
       String ten, String? moTa, String? cachCheBien) async {
-    final response = await ghiJson(
-      'http://localhost:8080/dacsan/them',
+    final response = await taoAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': 0,
         'ten': ten,
@@ -60,8 +61,8 @@ class DacSan {
   }
 
   static Future<bool> capNhat(DacSan dacSan) async {
-    final response = await ghiJson(
-      'http://localhost:8080/dacsan/capnhat',
+    final response = await capNhatAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': dacSan.id,
         'ten': dacSan.ten,
@@ -74,8 +75,8 @@ class DacSan {
   }
 
   static Future<bool> xoa(int id) async {
-    final response = await ghiJson(
-      'http://localhost:8080/dacsan/xoa',
+    final response = await xoaAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': id,
       }),

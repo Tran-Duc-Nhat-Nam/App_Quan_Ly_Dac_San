@@ -5,7 +5,7 @@ import '../json_helper.dart';
 class VungMien {
   int id;
   String ten;
-
+  static const String url = "${ApiHelper.baseUrl}vungmien";
   VungMien({
     required this.id,
     required this.ten,
@@ -21,7 +21,7 @@ class VungMien {
   static Future<List<VungMien>> doc() async {
     List<VungMien> dsVungMien = [];
 
-    var result = await docJson('http://localhost:8080/vungmien');
+    var result = await docAPI(url);
 
     for (var document in result) {
       VungMien nguyenLieu = VungMien.fromJson(document);
@@ -32,8 +32,8 @@ class VungMien {
   }
 
   static Future<VungMien?> them(String ten) async {
-    final response = await ghiJson(
-      'http://localhost:8080/vungmien/them',
+    final response = await taoAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': 0,
         'ten': ten,
@@ -49,8 +49,8 @@ class VungMien {
   }
 
   static Future<bool> capNhat(VungMien vungMien) async {
-    final response = await ghiJson(
-      'http://localhost:8080/vungmien/capnhat',
+    final response = await capNhatAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': vungMien.id,
         'ten': vungMien.ten,
@@ -61,8 +61,8 @@ class VungMien {
   }
 
   static Future<bool> xoa(int id) async {
-    final response = await ghiJson(
-      'http://localhost:8080/vungmien/xoa',
+    final response = await xoaAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': id,
       }),

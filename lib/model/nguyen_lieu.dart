@@ -5,7 +5,7 @@ import 'package:app_dac_san/json_helper.dart';
 class NguyenLieu {
   int id;
   String ten;
-
+  static const String url = "${ApiHelper.baseUrl}nguyenlieu";
   NguyenLieu({
     required this.id,
     required this.ten,
@@ -21,7 +21,7 @@ class NguyenLieu {
   static Future<List<NguyenLieu>> doc() async {
     List<NguyenLieu> dsNguyenLieu = [];
 
-    var result = await docJson('http://localhost:8080/nguyenlieu');
+    var result = await docAPI(url);
 
     for (var document in result) {
       NguyenLieu nguyenLieu = NguyenLieu.fromJson(document);
@@ -32,8 +32,8 @@ class NguyenLieu {
   }
 
   static Future<NguyenLieu?> them(String ten) async {
-    final response = await ghiJson(
-      'http://localhost:8080/nguyenlieu/them',
+    final response = await taoAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': 0,
         'ten': ten,
@@ -49,8 +49,8 @@ class NguyenLieu {
   }
 
   static Future<bool> capNhat(NguyenLieu nguyenLieu) async {
-    final response = await ghiJson(
-      'http://localhost:8080/nguyenlieu/capnhat',
+    final response = await capNhatAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': nguyenLieu.id,
         'ten': nguyenLieu.ten,
@@ -61,8 +61,8 @@ class NguyenLieu {
   }
 
   static Future<bool> xoa(int id) async {
-    final response = await ghiJson(
-      'http://localhost:8080/nguyenlieu/xoa',
+    final response = await xoaAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': id,
       }),

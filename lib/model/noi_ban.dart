@@ -12,7 +12,7 @@ class NoiBan {
   int luotXem = 0;
   double diemDanhGia = 0;
   int luotDanhGia = 0;
-
+  static const String url = "${ApiHelper.baseUrl}noiban";
   NoiBan({
     required this.id,
     required this.ten,
@@ -32,7 +32,7 @@ class NoiBan {
   static Future<List<NoiBan>> doc() async {
     List<NoiBan> dsNoiBan = [];
 
-    var result = await docJson('http://localhost:8080/noiban');
+    var result = await docAPI(url);
 
     for (var document in result) {
       NoiBan nguyenLieu = NoiBan.fromJson(document);
@@ -43,8 +43,8 @@ class NoiBan {
   }
 
   static Future<NoiBan?> them(String ten, String? moTa, DiaChi diaChi) async {
-    final response = await ghiJson(
-      'http://localhost:8080/noiban/them',
+    final response = await taoAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': 0,
         'ten': ten,
@@ -61,8 +61,8 @@ class NoiBan {
   }
 
   static Future<bool> capNhat(NoiBan noiBan) async {
-    final response = await ghiJson(
-      'http://localhost:8080/noiban/capnhat',
+    final response = await capNhatAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': noiBan.id,
         'ten': noiBan.ten,
@@ -75,8 +75,8 @@ class NoiBan {
   }
 
   static Future<bool> xoa(int id) async {
-    final response = await ghiJson(
-      'http://localhost:8080/noiban/xoa',
+    final response = await xoaAPI(
+      url,
       jsonEncode(<String, dynamic>{
         'id': id,
       }),

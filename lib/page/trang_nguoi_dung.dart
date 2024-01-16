@@ -1,3 +1,5 @@
+import 'package:app_dac_san/model/phuong_xa.dart';
+import 'package:app_dac_san/model/quan_huyen.dart';
 import 'package:app_dac_san/model/tinh_thanh.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -23,8 +25,12 @@ class TrangNguoiDung extends StatefulWidget {
 class _TrangNguoiDungState extends State<TrangNguoiDung> {
   List<NguoiDung> dsNguoiDung = [];
   List<TinhThanh> dsTinhThanh = [];
+  List<QuanHuyen> dsQuanHuyen = [];
+  List<PhuongXa> dsPhuongXa = [];
   List<bool> selectedRowsIndex = [];
-  late TinhThanh tinhThanh;
+  TinhThanh? tinhThanh;
+  QuanHuyen? quanHuyen;
+  PhuongXa? phuongXa;
   DateTime ngaySinh = DateTime.now();
   bool isNam = true;
   late NguoiDungDataTableSource dataTableSource;
@@ -234,6 +240,114 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                         },
                       ),
                       const SizedBox(height: 15),
+                      DropdownSearch<QuanHuyen>(
+                        validator: (value) {
+                          if (value == null) {
+                            return "Vui lòng chọn quận huyện";
+                          }
+                          return null;
+                        },
+                        popupProps: const PopupProps.menu(
+                          title: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Center(
+                              child: Text(
+                                "Danh sách quận huyện",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          showSelectedItems: true,
+                        ),
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            label: const Text("Quận huyện"),
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 25,
+                              top: 15,
+                              bottom: 15,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                          ),
+                        ),
+                        compareFn: (item1, item2) {
+                          return item1 == item2;
+                        },
+                        onBeforePopupOpening: (selectedItem) async {
+                          return Future(() => tinhThanh != null);
+                        },
+                        onChanged: (value) {
+                          if (value != null) {
+                            quanHuyen = value;
+                          }
+                        },
+                        asyncItems: (text) {
+                          if (tinhThanh != null) {
+                            return QuanHuyen.doc(tinhThanh!.id);
+                          }
+                          return Future(() => []);
+                        },
+                        itemAsString: (value) {
+                          return value.ten;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      DropdownSearch<PhuongXa>(
+                        validator: (value) {
+                          if (value == null) {
+                            return "Vui lòng chọn phường xã";
+                          }
+                          return null;
+                        },
+                        popupProps: const PopupProps.menu(
+                          title: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Center(
+                              child: Text(
+                                "Danh sách phường xã",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          showSelectedItems: true,
+                        ),
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            label: const Text("Phường xã"),
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 25,
+                              top: 15,
+                              bottom: 15,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(35),
+                            ),
+                          ),
+                        ),
+                        compareFn: (item1, item2) {
+                          return item1 == item2;
+                        },
+                        onBeforePopupOpening: (selectedItem) async {
+                          return Future(() => quanHuyen != null);
+                        },
+                        onChanged: (value) {
+                          if (value != null) {
+                            phuongXa = value;
+                          }
+                        },
+                        asyncItems: (text) {
+                          if (quanHuyen != null) {
+                            return PhuongXa.doc(quanHuyen!.id);
+                          }
+                          return Future(() => []);
+                        },
+                        itemAsString: (value) {
+                          return value.ten;
+                        },
+                      ),
+                      const SizedBox(height: 15),
                       Row(
                         children: [
                           Flexible(
@@ -285,9 +399,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
           id: 0,
           soNha: "soNha",
           tenDuong: "tenDuong",
-          phuongXa: "phuongXa",
-          quanHuyen: "quanHuyen",
-          tinhThanh: tinhThanh,
+          phuongXa: phuongXa!,
         ),
         ngaySinh,
       ).then((value) {
@@ -321,8 +433,6 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
             soNha: dsNguoiDung[i].diaChi.soNha,
             tenDuong: dsNguoiDung[i].diaChi.tenDuong,
             phuongXa: dsNguoiDung[i].diaChi.phuongXa,
-            quanHuyen: dsNguoiDung[i].diaChi.quanHuyen,
-            tinhThanh: tinhThanh,
           ),
           ngaySinh: ngaySinh,
         );

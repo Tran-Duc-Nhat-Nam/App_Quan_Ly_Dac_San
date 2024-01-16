@@ -1,10 +1,12 @@
 import 'package:app_dac_san/model/nguyen_lieu.dart';
 
+import '../json_helper.dart';
+
 class ThanhPhan {
   NguyenLieu nguyenLieu;
   double soLuong;
   String donViTinh;
-
+  static const String url = "${ApiHelper.baseUrl}thanhphan";
   ThanhPhan({
     required this.nguyenLieu,
     required this.soLuong,

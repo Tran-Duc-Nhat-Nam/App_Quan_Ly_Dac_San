@@ -1,8 +1,11 @@
-import 'package:app_dac_san/model/tinh_thanh.dart';
+import 'package:app_dac_san/model/mua_dac_san.dart';
+import 'package:app_dac_san/model/nguyen_lieu.dart';
+import 'package:app_dac_san/model/vung_mien.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../model/dac_san.dart';
@@ -12,6 +15,8 @@ class TrangDacSan extends StatefulWidget {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
   final TextEditingController moTaController = TextEditingController();
+  final TextEditingController soLuongController = TextEditingController();
+  final TextEditingController donViTinhController = TextEditingController();
   final TextEditingController cachCheBienController = TextEditingController();
   @override
   State<TrangDacSan> createState() => _TrangDacSanState();
@@ -19,9 +24,13 @@ class TrangDacSan extends StatefulWidget {
 
 class _TrangDacSanState extends State<TrangDacSan> {
   List<DacSan> dsDacSan = [];
-  List<TinhThanh> dsTinhThanh = [];
+  List<VungMien> dsVungMien = [];
+  List<MuaDacSan> dsMuaDacSan = [];
+  List<NguyenLieu> dsNguyenLieu = [];
   List<bool> selectedRowsIndex = [];
-  late TinhThanh tinhThanh;
+  VungMien? vungMien;
+  MuaDacSan? muaDacSan;
+  NguyenLieu? nguyenLieu;
   late DacSanDataTableSource dataTableSource;
   late Future myFuture;
 
@@ -49,7 +58,9 @@ class _TrangDacSanState extends State<TrangDacSan> {
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
       dsDacSan = await DacSan.doc();
-      dsTinhThanh = await TinhThanh.doc();
+      dsVungMien = await VungMien.doc();
+      dsMuaDacSan = await MuaDacSan.doc();
+      dsNguyenLieu = await NguyenLieu.doc();
       selectedRowsIndex = dsDacSan.map((e) => false).toList();
       createTable();
     });
@@ -176,10 +187,10 @@ class _TrangDacSanState extends State<TrangDacSan> {
                             )),
                       ),
                       const SizedBox(height: 15),
-                      DropdownSearch<TinhThanh>(
+                      DropdownSearch<VungMien>(
                         validator: (value) {
                           if (value == null) {
-                            return "Vui lòng chọn tỉnh thành";
+                            return "Vui lòng chọn vùng miền";
                           }
                           return null;
                         },
@@ -188,7 +199,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
                             padding: EdgeInsets.symmetric(vertical: 10),
                             child: Center(
                               child: Text(
-                                "Danh sách tỉnh thành",
+                                "Danh sách vùng miền",
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
@@ -197,14 +208,60 @@ class _TrangDacSanState extends State<TrangDacSan> {
                         ),
                         dropdownDecoratorProps: DropDownDecoratorProps(
                           dropdownSearchDecoration: InputDecoration(
-                            label: const Text("Tỉnh thành"),
+                            label: const Text("Vùng miền"),
                             contentPadding: const EdgeInsetsDirectional.only(
                               start: 25,
                               top: 15,
                               bottom: 15,
                             ),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(35),
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                        ),
+                        compareFn: (item1, item2) {
+                          return item1 == item2;
+                        },
+                        onChanged: (value) async {
+                          if (value != null) {
+                            vungMien = value;
+                          }
+                        },
+                        items: dsVungMien,
+                        itemAsString: (value) {
+                          return value.ten;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      DropdownSearch<MuaDacSan>(
+                        validator: (value) {
+                          if (value == null) {
+                            return "Vui lòng chọn mùa";
+                          }
+                          return null;
+                        },
+                        popupProps: const PopupProps.menu(
+                          title: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: Center(
+                              child: Text(
+                                "Danh sách mùa",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          showSelectedItems: true,
+                        ),
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            label: const Text("Mùa"),
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: 25,
+                              top: 15,
+                              bottom: 15,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
                             ),
                           ),
                         ),
@@ -213,13 +270,108 @@ class _TrangDacSanState extends State<TrangDacSan> {
                         },
                         onChanged: (value) {
                           if (value != null) {
-                            tinhThanh = value;
+                            muaDacSan = value;
                           }
                         },
-                        items: dsTinhThanh,
+                        items: dsMuaDacSan,
                         itemAsString: (value) {
                           return value.ten;
                         },
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        children: [
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: DropdownSearch<NguyenLieu>(
+                              validator: (value) {
+                                if (value == null) {
+                                  return "Vui lòng chọn nguyên liệu";
+                                }
+                                return null;
+                              },
+                              popupProps: const PopupProps.menu(
+                                title: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  child: Center(
+                                    child: Text(
+                                      "Danh sách nguyên liệu",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                                showSelectedItems: true,
+                              ),
+                              dropdownDecoratorProps: DropDownDecoratorProps(
+                                dropdownSearchDecoration: InputDecoration(
+                                  label: const Text("Nguyên liệu"),
+                                  contentPadding:
+                                      const EdgeInsetsDirectional.only(
+                                    start: 25,
+                                    top: 15,
+                                    bottom: 15,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                              ),
+                              compareFn: (item1, item2) {
+                                return item1 == item2;
+                              },
+                              onChanged: (value) {
+                                if (value != null) {
+                                  nguyenLieu = value;
+                                }
+                              },
+                              items: dsNguyenLieu,
+                              itemAsString: (value) {
+                                return value.ten;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: TextFormField(
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              controller: widget.soLuongController,
+                              decoration: InputDecoration(
+                                  label: const Text("Số lượng"),
+                                  hintText: "Nhập số lượng",
+                                  contentPadding:
+                                      const EdgeInsetsDirectional.only(
+                                    start: 25,
+                                    top: 15,
+                                    bottom: 15,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(35),
+                                  )),
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: TextFormField(
+                              controller: widget.donViTinhController,
+                              decoration: InputDecoration(
+                                  label: const Text("Đơn vị tính"),
+                                  hintText: "Nhập đơn vị tính",
+                                  contentPadding:
+                                      const EdgeInsetsDirectional.only(
+                                    start: 25,
+                                    top: 15,
+                                    bottom: 15,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(35),
+                                  )),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 15),
                       Row(
