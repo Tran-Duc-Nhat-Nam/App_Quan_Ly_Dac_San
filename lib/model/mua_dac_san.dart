@@ -17,6 +17,30 @@ class MuaDacSan {
       ten: json["ten"],
     );
   }
+  static List<MuaDacSan> fromJsonList(List<dynamic> json) {
+    List<MuaDacSan> dsMuaDacSan = [];
+
+    for (var value in json) {
+      dsMuaDacSan.add(MuaDacSan.fromJson(value));
+    }
+
+    return dsMuaDacSan;
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'ten': ten,
+      };
+
+  static List<dynamic> toJsonList(List<MuaDacSan> dsMuaDacSan) {
+    List<dynamic> dsJson = [];
+
+    for (var muaDacSan in dsMuaDacSan) {
+      dsJson.add(muaDacSan.toJson());
+    }
+
+    return dsJson;
+  }
 
   static Future<List<MuaDacSan>> doc() async {
     List<MuaDacSan> dsMuaDacSan = [];

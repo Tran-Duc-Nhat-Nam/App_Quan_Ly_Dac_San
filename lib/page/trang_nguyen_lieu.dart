@@ -2,7 +2,8 @@ import 'package:app_dac_san/model/nguyen_lieu.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../gui_helper.dart';
 
 class TrangNguyenLieu extends StatefulWidget {
   TrangNguyenLieu({super.key});
@@ -17,16 +18,11 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
   List<bool> selectedRowsIndex = [];
   late NguyenLieuDataTableSource dataTableSource;
   late Future myFuture;
-  void createTable() {
+  void taoBang() {
     dataTableSource = NguyenLieuDataTableSource(
       dsNguyenLieu: dsNguyenLieu,
       selectedRowIndexs: selectedRowsIndex,
     );
-  }
-
-  void showNotify(BuildContext context, String content) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(content)));
   }
 
   @override
@@ -34,7 +30,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
       dsNguyenLieu = await NguyenLieu.doc();
       selectedRowsIndex = dsNguyenLieu.map((e) => false).toList();
-      createTable();
+      taoBang();
     });
     super.initState();
   }
@@ -45,15 +41,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
       flex: 1,
       child: AsyncBuilder(
         future: myFuture,
-        waiting: (context) => Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingAnimationWidget.discreteCircle(
-                  color: Colors.cyan, size: 100),
-            ],
-          ),
-        ),
+        waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
             Flexible(
@@ -84,19 +72,11 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                     children: [
                       TextFormField(
                         controller: widget.tenController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên nguyên liệu";
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            label: const Text("Tên nguyên liệu"),
-                            hintText: "Nhập tên nguyên liệu",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Vui lòng nhập tên nguyên liệu"
+                            : null,
+                        decoration: roundInputDecoration(
+                            "Tên nguyên liệu", "Nhập tên nguyên liệu"),
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -104,6 +84,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => them(context),
                               child: const Text("Thêm"),
                             ),
@@ -111,6 +92,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => capNhat(context),
                               child: const Text("Cập nhật"),
                             ),
@@ -118,6 +100,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => xoa(context),
                               child: const Text("Xóa"),
                             ),
@@ -144,7 +127,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
           setState(() {
             dsNguyenLieu.add(value);
             selectedRowsIndex.add(false);
-            createTable();
+            taoBang();
           });
         } else {
           showNotify(context, "Thêm nguyên liệu thất bại");
@@ -163,7 +146,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
           if (value) {
             setState(() {
               dsNguyenLieu[i] = nguyenLieu;
-              createTable();
+              taoBang();
             });
           } else {
             showNotify(context, "Cập nhật nguyên liệu thất bại");
@@ -182,7 +165,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
               setState(() {
                 dsNguyenLieu.remove(dsNguyenLieu[i]);
                 selectedRowsIndex[i] = false;
-                createTable();
+                taoBang();
               });
             } else {
               showNotify(context, "Xóa nguyên liệu thất bại");

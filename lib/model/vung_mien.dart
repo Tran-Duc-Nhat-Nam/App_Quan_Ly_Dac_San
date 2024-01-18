@@ -18,6 +18,31 @@ class VungMien {
     );
   }
 
+  static List<VungMien> fromJsonList(List<dynamic> json) {
+    List<VungMien> dsVungMien = [];
+
+    for (var value in json) {
+      dsVungMien.add(VungMien.fromJson(value));
+    }
+
+    return dsVungMien;
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'ten': ten,
+      };
+
+  static List<dynamic> toJsonList(List<VungMien> dsVungMien) {
+    List<dynamic> dsJson = [];
+
+    for (var vungMien in dsVungMien) {
+      dsJson.add(vungMien.toJson());
+    }
+
+    return dsJson;
+  }
+
   static Future<List<VungMien>> doc() async {
     List<VungMien> dsVungMien = [];
 

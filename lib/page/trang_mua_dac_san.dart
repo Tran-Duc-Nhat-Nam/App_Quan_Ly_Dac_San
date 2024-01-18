@@ -2,7 +2,8 @@ import 'package:app_dac_san/model/mua_dac_san.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../gui_helper.dart';
 
 class TrangMuaDacSan extends StatefulWidget {
   TrangMuaDacSan({super.key});
@@ -24,11 +25,6 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
     );
   }
 
-  void showNotify(BuildContext context, String content) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(content)));
-  }
-
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
@@ -45,15 +41,7 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
       flex: 1,
       child: AsyncBuilder(
         future: myFuture,
-        waiting: (context) => Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingAnimationWidget.discreteCircle(
-                  color: Colors.cyan, size: 100),
-            ],
-          ),
-        ),
+        waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
             Flexible(
@@ -84,19 +72,11 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                     children: [
                       TextFormField(
                         controller: widget.tenController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên mùa";
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            label: const Text("Tên mùa"),
-                            hintText: "Nhập tên mùa",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Vui lòng nhập tên mùa"
+                            : null,
+                        decoration:
+                            roundInputDecoration("Tên mùa", "Nhập tên mùa"),
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -104,6 +84,7 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => them(context),
                               child: const Text("Thêm"),
                             ),
@@ -112,6 +93,7 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => capNhat(context),
                               child: const Text("Cập nhật"),
                             ),
@@ -120,6 +102,7 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => xoa(context),
                               child: const Text("Xóa"),
                             ),

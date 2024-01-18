@@ -18,6 +18,11 @@ class NguyenLieu {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'ten': ten,
+      };
+
   static Future<List<NguyenLieu>> doc() async {
     List<NguyenLieu> dsNguyenLieu = [];
 

@@ -2,7 +2,8 @@ import 'package:app_dac_san/model/vung_mien.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../gui_helper.dart';
 
 class TrangVungMien extends StatefulWidget {
   TrangVungMien({super.key});
@@ -24,11 +25,6 @@ class _TrangVungMienState extends State<TrangVungMien> {
     );
   }
 
-  void showNotify(BuildContext context, String content) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(content)));
-  }
-
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
@@ -45,15 +41,7 @@ class _TrangVungMienState extends State<TrangVungMien> {
       flex: 1,
       child: AsyncBuilder(
         future: myFuture,
-        waiting: (context) => Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingAnimationWidget.discreteCircle(
-                  color: Colors.cyan, size: 100),
-            ],
-          ),
-        ),
+        waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
             Flexible(
@@ -84,19 +72,11 @@ class _TrangVungMienState extends State<TrangVungMien> {
                     children: [
                       TextFormField(
                         controller: widget.tenController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên vùng miền";
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            label: const Text("Tên vùng miền"),
-                            hintText: "Nhập tên vùng miền",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Vui lòng nhập tên vùng miền"
+                            : "null",
+                        decoration: roundInputDecoration(
+                            "Tên vùng miền", "Nhập tên vùng miền"),
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -104,6 +84,7 @@ class _TrangVungMienState extends State<TrangVungMien> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => them(context),
                               child: const Text("Thêm"),
                             ),
@@ -111,6 +92,7 @@ class _TrangVungMienState extends State<TrangVungMien> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => capNhat(context),
                               child: const Text("Cập nhật"),
                             ),
@@ -118,6 +100,7 @@ class _TrangVungMienState extends State<TrangVungMien> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => xoa(context),
                               child: const Text("Xóa"),
                             ),

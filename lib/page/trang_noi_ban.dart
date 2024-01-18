@@ -5,8 +5,8 @@ import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../gui_helper.dart';
 import '../model/phuong_xa.dart';
 import '../model/quan_huyen.dart';
 
@@ -70,15 +70,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
       flex: 1,
       child: AsyncBuilder(
         future: myFuture,
-        waiting: (context) => Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingAnimationWidget.discreteCircle(
-                  color: Colors.cyan, size: 100),
-            ],
-          ),
-        ),
+        waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
             Flexible(
@@ -174,166 +166,70 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: DropdownSearch<TinhThanh>(
-                              validator: (value) {
-                                if (value == null) {
-                                  return "Vui lòng chọn tỉnh thành";
-                                }
-                                return null;
-                              },
-                              popupProps: const PopupProps.menu(
-                                title: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Center(
-                                    child: Text(
-                                      "Danh sách tỉnh thành",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                                showSelectedItems: true,
-                              ),
+                              validator: (value) => value == null
+                                  ? "Vui lòng chọn tỉnh thành"
+                                  : null,
+                              popupProps:
+                                  roundPopupProps("Danh sách tỉnh thành")
+                                      as PopupProps<TinhThanh>,
                               dropdownDecoratorProps: DropDownDecoratorProps(
-                                dropdownSearchDecoration: InputDecoration(
-                                  label: const Text("Tỉnh thành"),
-                                  contentPadding:
-                                      const EdgeInsetsDirectional.only(
-                                    start: 25,
-                                    top: 15,
-                                    bottom: 15,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                ),
+                                dropdownSearchDecoration:
+                                    roundInputDecoration("Tỉnh thành", ""),
                               ),
-                              compareFn: (item1, item2) {
-                                return item1 == item2;
-                              },
-                              onChanged: (value) async {
-                                if (value != null) {
-                                  tinhThanh = value;
-                                }
-                              },
+                              compareFn: (item1, item2) => item1 == item2,
+                              onChanged: (value) =>
+                                  value != null ? tinhThanh = value : null,
                               items: dsTinhThanh,
-                              itemAsString: (value) {
-                                return value.ten;
-                              },
+                              itemAsString: (value) => value.ten,
                             ),
                           ),
                           const SizedBox(width: 10),
                           Flexible(
                             fit: FlexFit.tight,
                             child: DropdownSearch<QuanHuyen>(
-                              validator: (value) {
-                                if (value == null) {
-                                  return "Vui lòng chọn quận huyện";
-                                }
-                                return null;
-                              },
-                              popupProps: const PopupProps.menu(
-                                title: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Center(
-                                    child: Text(
-                                      "Danh sách quận huyện",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                                showSelectedItems: true,
-                              ),
+                              validator: (value) => value == null
+                                  ? "Vui lòng chọn quận huyện"
+                                  : null,
+                              popupProps:
+                                  roundPopupProps("Danh sách quận huyện")
+                                      as PopupProps<QuanHuyen>,
                               dropdownDecoratorProps: DropDownDecoratorProps(
-                                dropdownSearchDecoration: InputDecoration(
-                                  label: const Text("Quận huyện"),
-                                  contentPadding:
-                                      const EdgeInsetsDirectional.only(
-                                    start: 25,
-                                    top: 15,
-                                    bottom: 15,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                ),
+                                dropdownSearchDecoration:
+                                    roundInputDecoration("Quận huyện", ""),
                               ),
-                              compareFn: (item1, item2) {
-                                return item1 == item2;
-                              },
-                              onBeforePopupOpening: (selectedItem) async {
-                                return Future(() => tinhThanh != null);
-                              },
-                              onChanged: (value) {
-                                if (value != null) {
-                                  quanHuyen = value;
-                                }
-                              },
-                              asyncItems: (text) {
-                                if (tinhThanh != null) {
-                                  return QuanHuyen.doc(tinhThanh!.id);
-                                }
-                                return Future(() => []);
-                              },
-                              itemAsString: (value) {
-                                return value.ten;
-                              },
+                              compareFn: (item1, item2) => item1 == item2,
+                              onBeforePopupOpening: (selectedItem) async =>
+                                  Future(() => tinhThanh != null),
+                              onChanged: (value) =>
+                                  value != null ? quanHuyen = value : null,
+                              asyncItems: (text) => tinhThanh != null
+                                  ? QuanHuyen.doc(tinhThanh!.id)
+                                  : Future(() => []),
+                              itemAsString: (value) => value.ten,
                             ),
                           ),
                           const SizedBox(width: 10),
                           Flexible(
                             fit: FlexFit.tight,
                             child: DropdownSearch<PhuongXa>(
-                              validator: (value) {
-                                if (value == null) {
-                                  return "Vui lòng chọn phường xã";
-                                }
-                                return null;
-                              },
-                              popupProps: const PopupProps.menu(
-                                title: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  child: Center(
-                                    child: Text(
-                                      "Danh sách phường xã",
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                                showSelectedItems: true,
-                              ),
+                              validator: (value) => value == null
+                                  ? "Vui lòng chọn phường xã"
+                                  : null,
+                              popupProps: roundPopupProps("Danh sách phường xã")
+                                  as PopupProps<PhuongXa>,
                               dropdownDecoratorProps: DropDownDecoratorProps(
-                                dropdownSearchDecoration: InputDecoration(
-                                  label: const Text("Phường xã"),
-                                  contentPadding:
-                                      const EdgeInsetsDirectional.only(
-                                    start: 25,
-                                    top: 15,
-                                    bottom: 15,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                ),
+                                dropdownSearchDecoration:
+                                    roundInputDecoration("Phường xã", ""),
                               ),
-                              compareFn: (item1, item2) {
-                                return item1 == item2;
-                              },
-                              onBeforePopupOpening: (selectedItem) async {
-                                return Future(() => quanHuyen != null);
-                              },
-                              onChanged: (value) {
-                                if (value != null) {
-                                  phuongXa = value;
-                                }
-                              },
-                              asyncItems: (text) {
-                                if (quanHuyen != null) {
-                                  return PhuongXa.doc(quanHuyen!.id);
-                                }
-                                return Future(() => []);
-                              },
-                              itemAsString: (value) {
-                                return value.ten;
-                              },
+                              compareFn: (item1, item2) => item1 == item2,
+                              onBeforePopupOpening: (selectedItem) async =>
+                                  Future(() => quanHuyen != null),
+                              onChanged: (value) =>
+                                  value != null ? phuongXa = value : null,
+                              asyncItems: (text) => quanHuyen != null
+                                  ? PhuongXa.doc(quanHuyen!.id)
+                                  : Future(() => []),
+                              itemAsString: (value) => value.ten,
                             ),
                           ),
                         ],
@@ -348,17 +244,8 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                             return null;
                           }
                         },
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            label: const Text("Số nhà"),
-                            hintText: "Nhập số nhà",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
+                        decoration:
+                            roundInputDecoration("Số nhà", "Nhập số nhà"),
                       ),
                       const SizedBox(height: 15),
                       TextFormField(
@@ -370,17 +257,8 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                             return null;
                           }
                         },
-                        decoration: InputDecoration(
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            label: const Text("Tên đường"),
-                            hintText: "Nhập tên đường",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
+                        decoration:
+                            roundInputDecoration("Tên đường", "Nhập tên đường"),
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -388,14 +266,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
-                              style: const ButtonStyle(
-                                  padding: MaterialStatePropertyAll(
-                                EdgeInsetsDirectional.only(
-                                  start: 25,
-                                  top: 25,
-                                  bottom: 25,
-                                ),
-                              )),
+                              style: roundButtonStyle(),
                               onPressed: () => them(context),
                               child: const Text("Thêm"),
                             ),
@@ -404,14 +275,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
-                              style: const ButtonStyle(
-                                  padding: MaterialStatePropertyAll(
-                                EdgeInsetsDirectional.only(
-                                  start: 25,
-                                  top: 25,
-                                  bottom: 25,
-                                ),
-                              )),
+                              style: roundButtonStyle(),
                               onPressed: () => capNhat(context),
                               child: const Text("Cập nhật"),
                             ),
@@ -420,14 +284,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
-                              style: const ButtonStyle(
-                                  padding: MaterialStatePropertyAll(
-                                EdgeInsetsDirectional.only(
-                                  start: 25,
-                                  top: 25,
-                                  bottom: 25,
-                                ),
-                              )),
+                              style: roundButtonStyle(),
                               onPressed: () => xoa(context),
                               child: const Text("Xóa"),
                             ),

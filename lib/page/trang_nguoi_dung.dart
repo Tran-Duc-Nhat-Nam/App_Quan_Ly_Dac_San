@@ -7,8 +7,8 @@ import 'package:date_field/date_field.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../gui_helper.dart';
 import '../model/dia_chi.dart';
 import '../model/nguoi_dung.dart';
 
@@ -35,12 +35,6 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
   bool isNam = true;
   late NguoiDungDataTableSource dataTableSource;
   late Future myFuture;
-
-  void showNotify(BuildContext context, String content) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(content)));
-  }
-
   void notifyParent(int index) {
     setState(() {
       widget.tenController.text = dsNguoiDung[index].ten;
@@ -73,15 +67,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
       flex: 1,
       child: AsyncBuilder(
         future: myFuture,
-        waiting: (context) => Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingAnimationWidget.discreteCircle(
-                  color: Colors.cyan, size: 100),
-            ],
-          ),
-        ),
+        waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
             Flexible(
@@ -136,53 +122,22 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                     children: [
                       TextFormField(
                         controller: widget.tenController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Vui lòng nhập tên người dùng";
-                          } else {
-                            return null;
-                          }
-                        },
-                        decoration: InputDecoration(
-                            label: const Text("Tên người dùng"),
-                            hintText: "Nhập tên người dùng",
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(35),
-                            )),
+                        validator: (value) => value == null || value.isEmpty
+                            ? "Vui lòng nhập tên người dùng"
+                            : null,
+                        decoration: roundInputDecoration(
+                            "Tên người dùng", "Nhập tên người dùng"),
                       ),
                       const SizedBox(height: 15),
                       TextFormField(
                         controller: widget.soDienThoaiController,
-                        decoration: InputDecoration(
-                            label: const Text("Mô tả người dùng"),
-                            hintText: "Nhập thông tin mô tả",
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(35),
-                            )),
+                        decoration: roundInputDecoration(
+                            "Mô tả người dùng", "Nhập thông tin mô tả"),
                       ),
                       const SizedBox(height: 15),
                       DateTimeFormField(
-                        decoration: InputDecoration(
-                          label: const Text("Ngày sinh người dùng"),
-                          contentPadding: const EdgeInsetsDirectional.only(
-                            start: 25,
-                            top: 15,
-                            bottom: 15,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                        ),
+                        decoration:
+                            roundInputDecoration("Ngày sinh người dùng", ""),
                         dateFormat: DateFormat("dd/MM/yyyy"),
                         initialPickerDateTime: DateTime.now(),
                         onChanged: (value) {
@@ -195,157 +150,62 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                       ),
                       const SizedBox(height: 15),
                       DropdownSearch<TinhThanh>(
-                        validator: (value) {
-                          if (value == null) {
-                            return "Vui lòng chọn tỉnh thành";
-                          }
-                          return null;
-                        },
-                        popupProps: const PopupProps.menu(
-                          title: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Center(
-                              child: Text(
-                                "Danh sách tỉnh thành",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ),
-                          showSelectedItems: true,
-                        ),
+                        validator: (value) =>
+                            value == null ? "Vui lòng chọn tỉnh thành" : null,
+                        popupProps: roundPopupProps("Danh sách tỉnh thành")
+                            as PopupProps<TinhThanh>,
                         dropdownDecoratorProps: DropDownDecoratorProps(
-                          dropdownSearchDecoration: InputDecoration(
-                            label: const Text("Tỉnh thành"),
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                          ),
+                          dropdownSearchDecoration:
+                              roundInputDecoration("Tỉnh thành", ""),
                         ),
-                        compareFn: (item1, item2) {
-                          return item1 == item2;
-                        },
-                        onChanged: (value) {
-                          if (value != null) {
-                            tinhThanh = value;
-                          }
-                        },
+                        compareFn: (item1, item2) => item1 == item2,
+                        onChanged: (value) =>
+                            value != null ? tinhThanh = value : null,
                         items: dsTinhThanh,
-                        itemAsString: (value) {
-                          return value.ten;
-                        },
+                        itemAsString: (value) => value.ten,
                       ),
                       const SizedBox(height: 15),
-                      DropdownSearch<QuanHuyen>(
-                        validator: (value) {
-                          if (value == null) {
-                            return "Vui lòng chọn quận huyện";
-                          }
-                          return null;
-                        },
-                        popupProps: const PopupProps.menu(
-                          title: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Center(
-                              child: Text(
-                                "Danh sách quận huyện",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
+                      Flexible(
+                        fit: FlexFit.tight,
+                        child: DropdownSearch<QuanHuyen>(
+                          validator: (value) =>
+                              value == null ? "Vui lòng chọn quận huyện" : null,
+                          popupProps: roundPopupProps("Danh sách quận huyện")
+                              as PopupProps<QuanHuyen>,
+                          dropdownDecoratorProps: DropDownDecoratorProps(
+                            dropdownSearchDecoration:
+                                roundInputDecoration("Quận huyện", ""),
                           ),
-                          showSelectedItems: true,
+                          compareFn: (item1, item2) => item1 == item2,
+                          onBeforePopupOpening: (selectedItem) async =>
+                              Future(() => tinhThanh != null),
+                          onChanged: (value) =>
+                              value != null ? quanHuyen = value : null,
+                          asyncItems: (text) => tinhThanh != null
+                              ? QuanHuyen.doc(tinhThanh!.id)
+                              : Future(() => []),
+                          itemAsString: (value) => value.ten,
                         ),
-                        dropdownDecoratorProps: DropDownDecoratorProps(
-                          dropdownSearchDecoration: InputDecoration(
-                            label: const Text("Quận huyện"),
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                          ),
-                        ),
-                        compareFn: (item1, item2) {
-                          return item1 == item2;
-                        },
-                        onBeforePopupOpening: (selectedItem) async {
-                          return Future(() => tinhThanh != null);
-                        },
-                        onChanged: (value) {
-                          if (value != null) {
-                            quanHuyen = value;
-                          }
-                        },
-                        asyncItems: (text) {
-                          if (tinhThanh != null) {
-                            return QuanHuyen.doc(tinhThanh!.id);
-                          }
-                          return Future(() => []);
-                        },
-                        itemAsString: (value) {
-                          return value.ten;
-                        },
                       ),
                       const SizedBox(height: 15),
                       DropdownSearch<PhuongXa>(
-                        validator: (value) {
-                          if (value == null) {
-                            return "Vui lòng chọn phường xã";
-                          }
-                          return null;
-                        },
-                        popupProps: const PopupProps.menu(
-                          title: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Center(
-                              child: Text(
-                                "Danh sách phường xã",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ),
-                          showSelectedItems: true,
-                        ),
+                        validator: (value) =>
+                            value == null ? "Vui lòng chọn phường xã" : null,
+                        popupProps: roundPopupProps("Danh sách phường xã")
+                            as PopupProps<PhuongXa>,
                         dropdownDecoratorProps: DropDownDecoratorProps(
-                          dropdownSearchDecoration: InputDecoration(
-                            label: const Text("Phường xã"),
-                            contentPadding: const EdgeInsetsDirectional.only(
-                              start: 25,
-                              top: 15,
-                              bottom: 15,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                          ),
+                          dropdownSearchDecoration:
+                              roundInputDecoration("Phường xã", ""),
                         ),
-                        compareFn: (item1, item2) {
-                          return item1 == item2;
-                        },
-                        onBeforePopupOpening: (selectedItem) async {
-                          return Future(() => quanHuyen != null);
-                        },
-                        onChanged: (value) {
-                          if (value != null) {
-                            phuongXa = value;
-                          }
-                        },
-                        asyncItems: (text) {
-                          if (quanHuyen != null) {
-                            return PhuongXa.doc(quanHuyen!.id);
-                          }
-                          return Future(() => []);
-                        },
-                        itemAsString: (value) {
-                          return value.ten;
-                        },
+                        compareFn: (item1, item2) => item1 == item2,
+                        onBeforePopupOpening: (selectedItem) async =>
+                            Future(() => quanHuyen != null),
+                        onChanged: (value) =>
+                            value != null ? phuongXa = value : null,
+                        asyncItems: (text) => quanHuyen != null
+                            ? PhuongXa.doc(quanHuyen!.id)
+                            : Future(() => []),
+                        itemAsString: (value) => value.ten,
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -353,6 +213,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => them(context),
                               child: const Text("Thêm"),
                             ),
@@ -361,6 +222,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => capNhat(context),
                               child: const Text("Cập nhật"),
                             ),
@@ -369,6 +231,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
+                              style: roundButtonStyle(),
                               onPressed: () => xoa(context),
                               child: const Text("Xóa"),
                             ),
