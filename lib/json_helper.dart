@@ -9,7 +9,6 @@ class ApiHelper {
 Future<dynamic> docAPI(String url) async {
   var reponse = await get(
     Uri.parse(url),
-    headers: {"Access-Control-Allow-Origin": "*"},
   );
   return json.decode(utf8.decode(reponse.bodyBytes));
 }
