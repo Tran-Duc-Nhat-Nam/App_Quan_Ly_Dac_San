@@ -55,6 +55,11 @@ class MuaDacSan {
     return dsMuaDacSan;
   }
 
+  static Future<MuaDacSan> docTheoID(int id) async {
+    var result = await docAPI("$url/$id");
+    return MuaDacSan.fromJson(result);
+  }
+
   static Future<MuaDacSan?> them(String ten) async {
     final response = await taoAPI(
       url,

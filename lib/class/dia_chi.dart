@@ -1,4 +1,4 @@
-import 'package:app_dac_san/model/phuong_xa.dart';
+import 'package:app_dac_san/class/phuong_xa.dart';
 
 import '../json_helper.dart';
 

@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/model/dia_chi.dart';
+import 'package:app_dac_san/class/dia_chi.dart';
 
 import '../json_helper.dart';
+import 'dac_san.dart';
 
 class NoiBan {
   int id;
@@ -42,14 +43,32 @@ class NoiBan {
     return dsNoiBan;
   }
 
-  static Future<NoiBan?> them(String ten, String? moTa, DiaChi diaChi) async {
+  static Future<NoiBan> docTheoID(int id) async {
+    var result = await docAPI("$url/$id");
+    return NoiBan.fromJson(result);
+  }
+
+  Future<List<DacSan>> docDacSan() async {
+    List<DacSan> dsDacSan = [];
+
+    var result = await docAPI("$url/$id/dacsan");
+
+    for (var document in result) {
+      DacSan nguyenLieu = DacSan.fromJson(document);
+      dsDacSan.add(nguyenLieu);
+    }
+
+    return dsDacSan;
+  }
+
+  static Future<NoiBan?> them(NoiBan noiBan) async {
     final response = await taoAPI(
       url,
       jsonEncode(<String, dynamic>{
-        'id': 0,
-        'ten': ten,
-        'mo_ta': moTa ?? "Chưa có thông tin",
-        'dia_chi': diaChi.toJson(),
+        'id': noiBan.id,
+        'ten': noiBan.ten,
+        'mo_ta': noiBan.moTa ?? "Chưa có thông tin",
+        'dia_chi': noiBan.diaChi.toJson(),
       }),
     );
 

@@ -56,6 +56,11 @@ class VungMien {
     return dsVungMien;
   }
 
+  static Future<VungMien> docTheoID(int id) async {
+    var result = await docAPI("$url/$id");
+    return VungMien.fromJson(result);
+  }
+
   static Future<VungMien?> them(String ten) async {
     final response = await taoAPI(
       url,

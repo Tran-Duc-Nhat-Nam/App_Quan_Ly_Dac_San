@@ -1,18 +1,18 @@
 import 'dart:convert';
 
-import '../json_helper.dart';
+import 'package:app_dac_san/json_helper.dart';
 
-class TinhThanh {
+class NguyenLieu {
   int id;
   String ten;
-  static const String url = "${ApiHelper.baseUrl}tinhthanh";
-  TinhThanh({
+  static const String url = "${ApiHelper.baseUrl}nguyenlieu";
+  NguyenLieu({
     required this.id,
     required this.ten,
   });
 
-  factory TinhThanh.fromJson(Map<String, dynamic> json) {
-    return TinhThanh(
+  factory NguyenLieu.fromJson(Map<String, dynamic> json) {
+    return NguyenLieu(
       id: json["id"],
       ten: json["ten"],
     );
@@ -23,20 +23,25 @@ class TinhThanh {
         'ten': ten,
       };
 
-  static Future<List<TinhThanh>> doc() async {
-    List<TinhThanh> dsTinhThanh = [];
+  static Future<List<NguyenLieu>> doc() async {
+    List<NguyenLieu> dsNguyenLieu = [];
 
     var result = await docAPI(url);
 
     for (var document in result) {
-      TinhThanh nguyenLieu = TinhThanh.fromJson(document);
-      dsTinhThanh.add(nguyenLieu);
+      NguyenLieu nguyenLieu = NguyenLieu.fromJson(document);
+      dsNguyenLieu.add(nguyenLieu);
     }
 
-    return dsTinhThanh;
+    return dsNguyenLieu;
   }
 
-  static Future<TinhThanh?> them(String ten) async {
+  static Future<NguyenLieu> docTheoID(int id) async {
+    var result = await docAPI("$url/$id");
+    return NguyenLieu.fromJson(result);
+  }
+
+  static Future<NguyenLieu?> them(String ten) async {
     final response = await taoAPI(
       url,
       jsonEncode(<String, dynamic>{
@@ -46,19 +51,19 @@ class TinhThanh {
     );
 
     if (response.statusCode == 201) {
-      return TinhThanh.fromJson(
+      return NguyenLieu.fromJson(
           jsonDecode(response.body) as Map<String, dynamic>);
     } else {
       return null;
     }
   }
 
-  static Future<bool> capNhat(TinhThanh tinhThanh) async {
+  static Future<bool> capNhat(NguyenLieu nguyenLieu) async {
     final response = await capNhatAPI(
       url,
       jsonEncode(<String, dynamic>{
-        'id': tinhThanh.id,
-        'ten': tinhThanh.ten,
+        'id': nguyenLieu.id,
+        'ten': nguyenLieu.ten,
       }),
     );
 

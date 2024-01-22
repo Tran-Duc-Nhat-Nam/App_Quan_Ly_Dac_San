@@ -1,16 +1,16 @@
-import 'package:app_dac_san/model/mua_dac_san.dart';
-import 'package:app_dac_san/model/nguyen_lieu.dart';
-import 'package:app_dac_san/model/thanh_phan.dart';
-import 'package:app_dac_san/model/vung_mien.dart';
+import 'package:app_dac_san/class/mua_dac_san.dart';
+import 'package:app_dac_san/class/nguyen_lieu.dart';
+import 'package:app_dac_san/class/thanh_phan.dart';
+import 'package:app_dac_san/class/vung_mien.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../class/dac_san.dart';
+import '../class/hinh_anh.dart';
 import '../gui_helper.dart';
-import '../model/dac_san.dart';
-import '../model/hinh_anh.dart';
 
 class TrangDacSan extends StatefulWidget {
   TrangDacSan({super.key});
@@ -29,38 +29,56 @@ class TrangDacSan extends StatefulWidget {
 }
 
 class _TrangDacSanState extends State<TrangDacSan> {
+  // Các danh sách lấy từ API
   List<DacSan> dsDacSan = [];
   List<VungMien> dsVungMien = [];
-  List<VungMien> dsVungMienTam = [];
   List<MuaDacSan> dsMuaDacSan = [];
-  List<MuaDacSan> dsMuaDacSanTam = [];
   List<NguyenLieu> dsNguyenLieu = [];
   List<ThanhPhan> dsThanhPhan = [];
-  List<ThanhPhan> dsThanhPhanTam = [];
   List<HinhAnh> dsHinhAnh = [];
+
+  // Các danh sách tạm để lưu thông tin khi thêm và cập nhật
+  List<VungMien> dsVungMienTam = [];
+  List<MuaDacSan> dsMuaDacSanTam = [];
+  List<ThanhPhan> dsThanhPhanTam = [];
   List<HinhAnh> dsHinhAnhTam = [];
+
+  // Các danh sách lưu tình trạng chọn các dòng trong bảng
   List<bool> dsChonDacSan = [];
   List<bool> dsChonThanhPhan = [];
+
+  // Đặc sản hiển thị tạm thời khi thêm và cập nhật
   DacSan? dacSanTam;
+
+  // Các biến tạm để lưu thông tin khi thêm và cập nhật
   VungMien? vungMien;
   MuaDacSan? muaDacSan;
   NguyenLieu? nguyenLieu;
   HinhAnh? hinhDaiDien;
+
+  // Các biến để lưu tình trạng thêm hoặc cập nhật của trang
   bool isReadonly = true;
   bool isInsert = false;
   bool isUpdate = false;
+
+  // Các biến chứa DataTableSource cho các bảng
   late DacSanDataTableSource bangDacSan;
   late ThanhPhanDataTableSource bangThanhPhan;
+
   late Future myFuture;
 
-  void notifyParent(int index) {
+  // Hàm cập nhật bảng đặc sản để truyền vào DacSanDataTableSource
+  // Cập nhật danh sách thành phần (trống nếu số đặc sản được chọn khác 1)
+  void notifyParentDS(int index) {
     setState(() {
       if (dsChonDacSan[index]) {
+        // Nếu dòng này được chọn thì cập nhật thông tin thành phần theo dòng này
         dsThanhPhan = dsChonDacSan.where((element) => element).length > 1
             ? []
             : dsDacSan[index].thanhPhan;
         dsChonThanhPhan = dsThanhPhan.map((e) => false).toList();
       } else {
+        // Nếu dòng này không được chọn thì cập nhật thông tin thành phần theo dòng được chọn khác
         dsThanhPhan = dsChonDacSan.where((element) => element).length == 1
             ? dsDacSan[dsChonDacSan.indexOf(true)].thanhPhan
             : [];
@@ -70,6 +88,8 @@ class _TrangDacSanState extends State<TrangDacSan> {
     });
   }
 
+  // Hàm cập nhật bảng thành phần để truyền vào DacSanDataTableSource
+  // Cập nhật phần chọn nguyên liệu theo thành phần đã chọn
   void notifyParentTP(int index) {
     setState(() {
       nguyenLieu = dsThanhPhan[index].nguyenLieu;
@@ -78,18 +98,20 @@ class _TrangDacSanState extends State<TrangDacSan> {
     });
   }
 
+  // Hàm tạo mới bảng đặc sản
   void taoBangDacSan() {
     bangDacSan = DacSanDataTableSource(
       dsDacSan: dsDacSan,
-      selectedRowIndexs: dsChonDacSan,
-      notifyParent: notifyParent,
+      dsChon: dsChonDacSan,
+      notifyParent: notifyParentDS,
     );
   }
 
+  // Hàm tạo mới bảng thành phần
   void taoBangThanhPhan() {
     bangThanhPhan = ThanhPhanDataTableSource(
       dsThanhPhan: dsThanhPhan,
-      selectedRowIndexs: dsChonThanhPhan,
+      dsChon: dsChonThanhPhan,
       notifyParent: notifyParentTP,
     );
   }
@@ -97,10 +119,12 @@ class _TrangDacSanState extends State<TrangDacSan> {
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
+      // Doc các danh sách từ API
       dsDacSan = await DacSan.doc();
       dsVungMien = await VungMien.doc();
       dsMuaDacSan = await MuaDacSan.doc();
       dsNguyenLieu = await NguyenLieu.doc();
+      // Tạo bảng lưu tình trạng chọn đặc sản theo danh sách đặc sản đã đọc
       dsChonDacSan = dsDacSan.map((e) => false).toList();
       taoBangDacSan();
       taoBangThanhPhan();
@@ -113,8 +137,11 @@ class _TrangDacSanState extends State<TrangDacSan> {
     return Flexible(
       flex: 1,
       child: AsyncBuilder(
+        // Quá trình đọc dữ liệu từ API
         future: myFuture,
+        // Widget hiển thị trong quá trình đọc dữ liệu từ API
         waiting: (context) => loadingCircle(),
+        // Widget hiển thị sau khi đọc dữ liệu từ API thành công
         builder: (context, value) => Column(
           children: [
             Flexible(
@@ -683,7 +710,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                 ],
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ],
@@ -693,16 +720,20 @@ class _TrangDacSanState extends State<TrangDacSan> {
             ),
           ],
         ),
+        // Widget hiển thị sau khi đọc dữ liệu từ API thất bại
         error: (context, error, stackTrace) =>
             Center(child: Text('Error: $error')),
       ),
     );
   }
 
+  // Hàm để thêm 1 dòng dữ liệu
   void them(BuildContext context) {
+    // Kiếm tra tình trạng cập nhật và các dữ liệu đầu vào hợp lệ
     if (isInsert &&
         widget.formKey.currentState!.validate() &&
         hinhDaiDien != null) {
+      // Gọi hàm API thêm đặc sàn
       DacSan.them(DacSan(
         id: 0,
         ten: widget.tenController.text,
@@ -715,19 +746,22 @@ class _TrangDacSanState extends State<TrangDacSan> {
         hinhDaiDien: hinhDaiDien!,
       )).then((value) {
         if (value != null) {
+          // Gọi hàm API thêm các thành phần
           for (ThanhPhan tp in dsThanhPhanTam) {
             ThanhPhan.them(tp);
           }
+          // Cập nhật danh sách và bảng đặc sán nếu thành công
           setState(() {
             dsDacSan.add(value);
             dsChonDacSan.add(false);
-            taoBangDacSan();
           });
+          huy();
         } else {
           showNotify(context, "Thêm đặc sản thất bại");
         }
       });
     } else if (!isInsert) {
+      // Gán giá trị cho các biến tạm
       hinhDaiDien = HinhAnh(
         id: -1,
         ten: "",
@@ -735,8 +769,8 @@ class _TrangDacSanState extends State<TrangDacSan> {
       );
       dacSanTam = DacSan(
         id: -1,
-        ten: widget.tenHinhAnhController.text,
-        moTa: widget.moTaHinhAnhController.text,
+        ten: widget.tenController.text,
+        moTa: widget.moTaController.text,
         cachCheBien: widget.cachCheBienController.text,
         vungMien: dsVungMienTam,
         muaDacSan: dsMuaDacSanTam,
@@ -746,17 +780,22 @@ class _TrangDacSanState extends State<TrangDacSan> {
       );
       dsDacSan.add(dacSanTam!);
       dsChonDacSan.add(true);
+      // Cập nhật tình trạng thêm của trang
+      setState(() {
+        isReadonly = !isReadonly;
+        isInsert = !isInsert;
+      });
       taoBangDacSan();
     }
-    setState(() {
-      isReadonly = !isReadonly;
-      isInsert = !isInsert;
-    });
   }
 
+  // Hàm để cập nhật 1 dòng dữ liệu
   void capNhat(BuildContext context) {
+    // Kiểm tra nếu số dòng đã chọn bằng 1
     if (dsChonDacSan.where((element) => element).length == 1) {
+      // Kiếm tra tình trạng cập nhật
       if (isUpdate) {
+        // Kiểm tra các dữ liệu đầu vào hợp lệ
         if (widget.formKey.currentState!.validate() && hinhDaiDien != null) {
           int i = dsChonDacSan.indexOf(true);
           DacSan dacSan = DacSan(
@@ -770,7 +809,10 @@ class _TrangDacSanState extends State<TrangDacSan> {
             hinhAnh: dsHinhAnhTam,
             hinhDaiDien: hinhDaiDien!,
           );
+
+          // Gọi hàm API Cập nhật đặc sàn
           DacSan.capNhat(dacSan).then((value) {
+            // Cập nhật danh sách và bảng đặc sán nếu thành công
             if (value) {
               setState(() {
                 dsDacSan[i] = dacSan;
@@ -787,6 +829,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
         }
       } else {
         setState(() {
+          // Gán dữ liệu các thuộc tính của đặc sản vào các trường dữ liệu đẩu vào
           DacSan temp = dsDacSan[dsChonDacSan.indexOf(true)];
           widget.tenController.text = temp.ten;
           widget.moTaController.text = temp.moTa ?? "Chưa có thông tin";
@@ -801,9 +844,13 @@ class _TrangDacSanState extends State<TrangDacSan> {
           dsThanhPhanTam = temp.thanhPhan;
           dsHinhAnhTam = temp.hinhAnh;
           hinhDaiDien = temp.hinhDaiDien;
+
+          // Gán giá trị cho biến đặc sản tạm
+          dacSanTam = temp;
+
+          // Cập nhật tình trạng cập nhật của trang
           isReadonly = !isReadonly;
           isUpdate = !isUpdate;
-          dacSanTam = temp;
         });
       }
     } else {
@@ -811,26 +858,28 @@ class _TrangDacSanState extends State<TrangDacSan> {
     }
   }
 
+  // Hàm để xóa các dòng dữ liệu
   void xoa(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      for (int i = 0; i < dsChonDacSan.length; i++) {
-        if (dsChonDacSan[i]) {
-          DacSan.xoa(dsDacSan[i].id).then((value) {
-            if (value) {
-              setState(() {
-                dsDacSan.remove(dsDacSan[i]);
-                dsChonDacSan[i] = false;
-                taoBangDacSan();
-              });
-            } else {
-              showNotify(context, "Xóa đặc sản thất bại");
-            }
-          });
-        }
+    for (int i = 0; i < dsChonDacSan.length; i++) {
+      if (dsChonDacSan[i]) {
+        // Gọi hàm API xóa đặc sàn
+        DacSan.xoa(dsDacSan[i].id).then((value) {
+          if (value) {
+            // Cập nhật danh sách và bảng đặc sán nếu thành công
+            setState(() {
+              dsDacSan.remove(dsDacSan[i]);
+              dsChonDacSan[i] = false;
+              taoBangDacSan();
+            });
+          } else {
+            showNotify(context, "Xóa đặc sản thất bại");
+          }
+        });
       }
     }
   }
 
+  // Hàm để húy bỏ quá trình thêm hoặc cập nhật
   Future<void> huy() async {
     if (isInsert) {
       int v = dsDacSan.indexOf(dacSanTam!);
@@ -964,22 +1013,22 @@ class BangDacSan extends StatelessWidget {
 
 class DacSanDataTableSource extends DataTableSource {
   List<DacSan> dsDacSan = [];
-  List<bool> selectedRowIndexs = [];
+  List<bool> dsChon = [];
   void Function(int) notifyParent;
   DacSanDataTableSource({
     required this.dsDacSan,
-    required this.selectedRowIndexs,
+    required this.dsChon,
     required this.notifyParent,
   });
   @override
   DataRow? getRow(int index) {
     return DataRow2(
       onSelectChanged: (value) {
-        selectedRowIndexs[index] = value!;
+        dsChon[index] = value!;
         notifyListeners();
         notifyParent(index);
       },
-      selected: selectedRowIndexs[index],
+      selected: dsChon[index],
       cells: [
         DataCell(Text(dsDacSan[index].id.toString())),
         DataCell(Text(dsDacSan[index].ten)),
@@ -1008,22 +1057,22 @@ class DacSanDataTableSource extends DataTableSource {
 
 class ThanhPhanDataTableSource extends DataTableSource {
   List<ThanhPhan> dsThanhPhan = [];
-  List<bool> selectedRowIndexs = [];
+  List<bool> dsChon = [];
   void Function(int) notifyParent;
   ThanhPhanDataTableSource({
     required this.dsThanhPhan,
-    required this.selectedRowIndexs,
+    required this.dsChon,
     required this.notifyParent,
   });
   @override
   DataRow? getRow(int index) {
     return DataRow2(
       onSelectChanged: (value) {
-        selectedRowIndexs[index] = value!;
+        dsChon[index] = value!;
         notifyListeners();
         notifyParent(index);
       },
-      selected: selectedRowIndexs[index],
+      selected: dsChon[index],
       cells: [
         DataCell(Text(dsThanhPhan[index].nguyenLieu.ten)),
         DataCell(Text(dsThanhPhan[index].soLuong.toString())),

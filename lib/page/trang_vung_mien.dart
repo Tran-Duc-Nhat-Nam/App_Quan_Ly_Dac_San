@@ -1,4 +1,4 @@
-import 'package:app_dac_san/model/vung_mien.dart';
+import 'package:app_dac_san/class/vung_mien.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
@@ -14,23 +14,47 @@ class TrangVungMien extends StatefulWidget {
 }
 
 class _TrangVungMienState extends State<TrangVungMien> {
+  // Các danh sách lấy từ API
   List<VungMien> dsVungMien = [];
-  List<bool> selectedRowsIndex = [];
-  late VungMienDataTableSource dataTableSource;
+  List<bool> dsChon = [];
+
+  // Đặc sản hiển thị tạm thời khi thêm và cập nhật
+  VungMien? vungMienTam;
+
+  // Các biến để lưu tình trạng thêm hoặc cập nhật của trang
+  bool isReadonly = true;
+  bool isInsert = false;
+  bool isUpdate = false;
+
   late Future myFuture;
-  void createTable() {
+
+  // Các biến chứa DataTableSource cho các bảng
+  late VungMienDataTableSource dataTableSource;
+
+  // Hàm cập nhật bảng vùng miền để truyền vào DacSanDataTableSource
+  // Cập nhật danh sách thành phần (trống nếu số vùng miền được chọn khác 1)
+  void notifyParent(int index) {
+    setState(() {
+      widget.tenController.text = dsVungMien[index].ten;
+    });
+  }
+
+  void taoBang() {
     dataTableSource = VungMienDataTableSource(
       dsVungMien: dsVungMien,
-      selectedRowIndexs: selectedRowsIndex,
+      dsChon: dsChon,
+      notifyParent: notifyParent,
     );
   }
 
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
+      // Doc danh sách từ API
       dsVungMien = await VungMien.doc();
-      selectedRowsIndex = dsVungMien.map((e) => false).toList();
-      createTable();
+      // Tạo bảng lưu tình trạng chọn vùng miền theo danh sách vùng miền
+      dsChon = dsVungMien.map((e) => false).toList();
+      taoBang();
     });
     super.initState();
   }
@@ -40,25 +64,31 @@ class _TrangVungMienState extends State<TrangVungMien> {
     return Flexible(
       flex: 1,
       child: AsyncBuilder(
+        // Quá trình đọc dữ liệu từ API
         future: myFuture,
+        // Widget hiển thị trong quá trình đọc dữ liệu từ API
         waiting: (context) => loadingCircle(),
+        // Widget hiển thị sau khi đọc dữ liệu từ API thành công
         builder: (context, value) => Column(
           children: [
             Flexible(
               flex: 1,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 600),
-                child: PaginatedDataTable2(
-                  rowsPerPage: 10,
-                  columns: const [
-                    DataColumn2(
-                      label: Text('ID'),
-                    ),
-                    DataColumn(
-                      label: Text('Tên'),
-                    ),
-                  ],
-                  source: dataTableSource,
+                child: AbsorbPointer(
+                  absorbing: isUpdate || isInsert,
+                  child: PaginatedDataTable2(
+                    rowsPerPage: 10,
+                    columns: const [
+                      DataColumn2(
+                        label: Text('ID'),
+                      ),
+                      DataColumn(
+                        label: Text('Tên'),
+                      ),
+                    ],
+                    source: dataTableSource,
+                  ),
                 ),
               ),
             ),
@@ -70,13 +100,16 @@ class _TrangVungMienState extends State<TrangVungMien> {
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: widget.tenController,
-                        validator: (value) => value == null || value.isEmpty
-                            ? "Vui lòng nhập tên vùng miền"
-                            : "null",
-                        decoration: roundInputDecoration(
-                            "Tên vùng miền", "Nhập tên vùng miền"),
+                      Visibility(
+                        visible: !isReadonly,
+                        child: TextFormField(
+                          controller: widget.tenController,
+                          validator: (value) => value == null || value.isEmpty
+                              ? "Vui lòng nhập tên vùng miền"
+                              : null,
+                          decoration: roundInputDecoration(
+                              "Tên vùng miền", "Nhập tên vùng miền"),
+                        ),
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -85,24 +118,49 @@ class _TrangVungMienState extends State<TrangVungMien> {
                             fit: FlexFit.tight,
                             child: FilledButton(
                               style: roundButtonStyle(),
-                              onPressed: () => them(context),
+                              onPressed: isReadonly || isInsert
+                                  ? () => them(context)
+                                  : null,
                               child: const Text("Thêm"),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
                               style: roundButtonStyle(),
-                              onPressed: () => capNhat(context),
+                              onPressed: isReadonly || isUpdate
+                                  ? () => capNhat(context)
+                                  : null,
                               child: const Text("Cập nhật"),
                             ),
                           ),
+                          const SizedBox(width: 10),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
                               style: roundButtonStyle(),
-                              onPressed: () => xoa(context),
+                              onPressed: isReadonly ? () => xoa(context) : null,
                               child: const Text("Xóa"),
+                            ),
+                          ),
+                          Visibility(
+                            visible: !isReadonly,
+                            child: Flexible(
+                              fit: FlexFit.tight,
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: () => huy(),
+                                      child: const Text("Hủy"),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -114,91 +172,148 @@ class _TrangVungMienState extends State<TrangVungMien> {
             ),
           ],
         ),
+        // Widget hiển thị sau khi đọc dữ liệu từ API thất bại
         error: (context, error, stackTrace) =>
             Center(child: Text('Error: $error')),
       ),
     );
   }
 
+  // Hàm để thêm 1 dòng dữ liệu
   void them(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
+    if (isInsert && widget.formKey.currentState!.validate()) {
+      // Gọi hàm API thêm vùng miền
       VungMien.them(widget.tenController.text).then(
         (value) {
           if (value != null) {
+            // Cập nhật danh sách và bảng vùng miền nếu thành công
             setState(() {
               dsVungMien.add(value);
-              selectedRowsIndex.add(false);
-              createTable();
+              dsChon.add(false);
             });
+            huy();
           } else {
             showNotify(context, "Thêm vùng miền thất bại");
           }
         },
       );
+    } else if (!isInsert) {
+      // Gán giá trị cho biến vùng miền tạm
+      vungMienTam = VungMien(
+        id: -1,
+        ten: widget.tenController.text,
+      );
+      dsVungMien.add(vungMienTam!);
+      dsChon.add(true);
+      taoBang();
+      // Cập nhật tình trạng thêm của trang
+      setState(() {
+        isReadonly = !isReadonly;
+        isInsert = !isInsert;
+      });
     }
   }
 
+  // Hàm để cập nhật 1 dòng dữ liệu
   void capNhat(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      if (selectedRowsIndex.where((element) => element).length == 1) {
-        int i = selectedRowsIndex.indexOf(true);
-        VungMien vungMien =
-            VungMien(id: dsVungMien[i].id, ten: widget.tenController.text);
-        VungMien.capNhat(vungMien).then(
-          (value) {
+    // Kiểm tra nếu số dòng đã chọn bằng 1
+    if (dsChon.where((element) => element).length == 1) {
+      // Kiếm tra tình trạng cập nhật
+      if (isUpdate) {
+        // Kiểm tra các dữ liệu đầu vào hợp lệ
+        if (widget.formKey.currentState!.validate()) {
+          int i = dsChon.indexOf(true);
+          VungMien vungMien =
+              VungMien(id: dsVungMien[i].id, ten: widget.tenController.text);
+          // Gọi hàm API Cập nhật đặc sàn
+          VungMien.capNhat(vungMien).then((value) {
             if (value) {
+              // Cập nhật danh sách và bảng đặc sán nếu thành công
               setState(() {
                 dsVungMien[i] = vungMien;
-                createTable();
+                taoBang();
               });
             } else {
               showNotify(context, "Cập nhật vùng miền thất bại");
             }
-          },
-        );
+          });
+          setState(() {
+            isReadonly = !isReadonly;
+            isUpdate = !isUpdate;
+          });
+        }
+      } else {
+        setState(() {
+          // Gán dữ liệu các thuộc tính của vùng miền vào các trường dữ liệu đẩu vào
+          vungMienTam = dsVungMien[dsChon.indexOf(true)];
+          widget.tenController.text = vungMienTam!.ten;
+
+          // Cập nhật tình trạng cập nhật của trang
+          isReadonly = !isReadonly;
+          isUpdate = !isUpdate;
+        });
       }
+    } else {
+      showNotify(context, "Vui lòng chỉ chọn một dòng để cập nhật");
     }
   }
 
   void xoa(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      for (int i = 0; i < selectedRowsIndex.length; i++) {
-        if (selectedRowsIndex[i]) {
-          VungMien.xoa(dsVungMien[i].id).then(
-            (value) {
-              if (value) {
-                setState(() {
-                  dsVungMien.remove(dsVungMien[i]);
-                  selectedRowsIndex[i] = false;
-                  createTable();
-                });
-              } else {
-                showNotify(context, "Xóa vùng miền thất bại");
-              }
-            },
-          );
-        }
+    for (int i = 0; i < dsChon.length; i++) {
+      if (dsChon[i]) {
+        VungMien.xoa(dsVungMien[i].id).then((value) {
+          if (value) {
+            setState(() {
+              dsVungMien.remove(dsVungMien[i]);
+              dsChon[i] = false;
+              taoBang();
+            });
+          } else {
+            showNotify(context, "Xóa vùng miền thất bại");
+          }
+        });
       }
     }
+  }
+
+  Future<void> huy() async {
+    if (isInsert) {
+      int v = dsVungMien.indexOf(vungMienTam!);
+      dsVungMien.remove(dsVungMien[v]);
+      dsChon.remove(dsChon[v]);
+    } else if (isUpdate) {
+      int v = dsVungMien.indexOf(vungMienTam!);
+      dsVungMien[v] = await VungMien.docTheoID(vungMienTam!.id);
+      dsChon[v] = false;
+    }
+    setState(() {
+      isReadonly = true;
+      isInsert = false;
+      isUpdate = false;
+      taoBang();
+    });
   }
 }
 
 class VungMienDataTableSource extends DataTableSource {
   List<VungMien> dsVungMien = [];
-  List<bool> selectedRowIndexs = [];
+  List<bool> dsChon = [];
+  void Function(int) notifyParent;
   VungMienDataTableSource({
     required this.dsVungMien,
-    required this.selectedRowIndexs,
+    required this.dsChon,
+    required this.notifyParent,
   });
   @override
   DataRow? getRow(int index) {
     // TODO: implement getRow
     return DataRow2(
       onSelectChanged: (value) {
-        selectedRowIndexs[index] = value!;
+        dsChon[index] = value!;
         notifyListeners();
+        notifyParent(index);
       },
-      selected: selectedRowIndexs[index],
+      selected: dsChon[index],
       cells: [
         DataCell(Text(dsVungMien[index].id.toString())),
         DataCell(Text(dsVungMien[index].ten)),

@@ -1,8 +1,8 @@
-import 'package:app_dac_san/model/mua_dac_san.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
+import '../class/mua_dac_san.dart';
 import '../gui_helper.dart';
 
 class TrangMuaDacSan extends StatefulWidget {
@@ -14,23 +14,47 @@ class TrangMuaDacSan extends StatefulWidget {
 }
 
 class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
+  // Các danh sách lấy từ API
   List<MuaDacSan> dsMuaDacSan = [];
-  List<bool> selectedRowsIndex = [];
-  late MuaDacSanDataTableSource dataTableSource;
+  List<bool> dsChon = [];
+
+  // Đặc sản hiển thị tạm thời khi thêm và cập nhật
+  MuaDacSan? muaDacSanTam;
+
+  // Các biến để lưu tình trạng thêm hoặc cập nhật của trang
+  bool isReadonly = true;
+  bool isInsert = false;
+  bool isUpdate = false;
+
   late Future myFuture;
-  void createTable() {
+
+  // Các biến chứa DataTableSource cho các bảng
+  late MuaDacSanDataTableSource dataTableSource;
+
+  // Hàm cập nhật bảng mùa  để truyền vào DacSanDataTableSource
+  // Cập nhật danh sách thành phần (trống nếu số mùa  được chọn khác 1)
+  void notifyParent(int index) {
+    setState(() {
+      widget.tenController.text = dsMuaDacSan[index].ten;
+    });
+  }
+
+  void taoBang() {
     dataTableSource = MuaDacSanDataTableSource(
       dsMuaDacSan: dsMuaDacSan,
-      selectedRowIndexs: selectedRowsIndex,
+      dsChon: dsChon,
+      notifyParent: notifyParent,
     );
   }
 
   @override
   void initState() {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
+      // Doc danh sách từ API
       dsMuaDacSan = await MuaDacSan.doc();
-      selectedRowsIndex = dsMuaDacSan.map((e) => false).toList();
-      createTable();
+      // Tạo bảng lưu tình trạng chọn mùa  theo danh sách mùa
+      dsChon = dsMuaDacSan.map((e) => false).toList();
+      taoBang();
     });
     super.initState();
   }
@@ -40,25 +64,31 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
     return Flexible(
       flex: 1,
       child: AsyncBuilder(
+        // Quá trình đọc dữ liệu từ API
         future: myFuture,
+        // Widget hiển thị trong quá trình đọc dữ liệu từ API
         waiting: (context) => loadingCircle(),
+        // Widget hiển thị sau khi đọc dữ liệu từ API thành công
         builder: (context, value) => Column(
           children: [
             Flexible(
               flex: 1,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 600),
-                child: PaginatedDataTable2(
-                  rowsPerPage: 10,
-                  columns: const [
-                    DataColumn2(
-                      label: Text('ID'),
-                    ),
-                    DataColumn(
-                      label: Text('Tên'),
-                    ),
-                  ],
-                  source: dataTableSource,
+                child: AbsorbPointer(
+                  absorbing: isUpdate || isInsert,
+                  child: PaginatedDataTable2(
+                    rowsPerPage: 10,
+                    columns: const [
+                      DataColumn2(
+                        label: Text('ID'),
+                      ),
+                      DataColumn(
+                        label: Text('Tên'),
+                      ),
+                    ],
+                    source: dataTableSource,
+                  ),
                 ),
               ),
             ),
@@ -70,13 +100,16 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: widget.tenController,
-                        validator: (value) => value == null || value.isEmpty
-                            ? "Vui lòng nhập tên mùa"
-                            : null,
-                        decoration:
-                            roundInputDecoration("Tên mùa", "Nhập tên mùa"),
+                      Visibility(
+                        visible: !isReadonly,
+                        child: TextFormField(
+                          controller: widget.tenController,
+                          validator: (value) => value == null || value.isEmpty
+                              ? "Vui lòng nhập tên mùa "
+                              : null,
+                          decoration:
+                              roundInputDecoration("Tên mùa ", "Nhập tên mùa "),
+                        ),
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -85,26 +118,49 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                             fit: FlexFit.tight,
                             child: FilledButton(
                               style: roundButtonStyle(),
-                              onPressed: () => them(context),
+                              onPressed: isReadonly || isInsert
+                                  ? () => them(context)
+                                  : null,
                               child: const Text("Thêm"),
                             ),
                           ),
-                          const SizedBox(width: 15),
+                          const SizedBox(width: 10),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
                               style: roundButtonStyle(),
-                              onPressed: () => capNhat(context),
+                              onPressed: isReadonly || isUpdate
+                                  ? () => capNhat(context)
+                                  : null,
                               child: const Text("Cập nhật"),
                             ),
                           ),
-                          const SizedBox(width: 15),
+                          const SizedBox(width: 10),
                           Flexible(
                             fit: FlexFit.tight,
                             child: FilledButton(
                               style: roundButtonStyle(),
-                              onPressed: () => xoa(context),
+                              onPressed: isReadonly ? () => xoa(context) : null,
                               child: const Text("Xóa"),
+                            ),
+                          ),
+                          Visibility(
+                            visible: !isReadonly,
+                            child: Flexible(
+                              fit: FlexFit.tight,
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: () => huy(),
+                                      child: const Text("Hủy"),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -116,85 +172,148 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
             ),
           ],
         ),
+        // Widget hiển thị sau khi đọc dữ liệu từ API thất bại
         error: (context, error, stackTrace) =>
             Center(child: Text('Error: $error')),
       ),
     );
   }
 
+  // Hàm để thêm 1 dòng dữ liệu
   void them(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      MuaDacSan.them(widget.tenController.text).then((value) {
-        if (value != null) {
-          setState(() {
-            dsMuaDacSan.add(value);
-            selectedRowsIndex.add(false);
-            createTable();
-          });
-        } else {
-          showNotify(context, "Thêm mùa thất bại");
-        }
+    if (isInsert && widget.formKey.currentState!.validate()) {
+      // Gọi hàm API thêm mùa
+      MuaDacSan.them(widget.tenController.text).then(
+        (value) {
+          if (value != null) {
+            // Cập nhật danh sách và bảng mùa  nếu thành công
+            setState(() {
+              dsMuaDacSan.add(value);
+              dsChon.add(false);
+            });
+            huy();
+          } else {
+            showNotify(context, "Thêm mùa  thất bại");
+          }
+        },
+      );
+    } else if (!isInsert) {
+      // Gán giá trị cho biến mùa  tạm
+      muaDacSanTam = MuaDacSan(
+        id: -1,
+        ten: widget.tenController.text,
+      );
+      dsMuaDacSan.add(muaDacSanTam!);
+      dsChon.add(true);
+      taoBang();
+      // Cập nhật tình trạng thêm của trang
+      setState(() {
+        isReadonly = !isReadonly;
+        isInsert = !isInsert;
       });
     }
   }
 
+  // Hàm để cập nhật 1 dòng dữ liệu
   void capNhat(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      if (selectedRowsIndex.where((element) => element).length == 1) {
-        int i = selectedRowsIndex.indexOf(true);
-        MuaDacSan vungMien =
-            MuaDacSan(id: dsMuaDacSan[i].id, ten: widget.tenController.text);
-        MuaDacSan.capNhat(vungMien).then((value) {
+    // Kiểm tra nếu số dòng đã chọn bằng 1
+    if (dsChon.where((element) => element).length == 1) {
+      // Kiếm tra tình trạng cập nhật
+      if (isUpdate) {
+        // Kiểm tra các dữ liệu đầu vào hợp lệ
+        if (widget.formKey.currentState!.validate()) {
+          int i = dsChon.indexOf(true);
+          MuaDacSan muaDacSan =
+              MuaDacSan(id: dsMuaDacSan[i].id, ten: widget.tenController.text);
+          // Gọi hàm API Cập nhật đặc sàn
+          MuaDacSan.capNhat(muaDacSan).then((value) {
+            if (value) {
+              // Cập nhật danh sách và bảng đặc sán nếu thành công
+              setState(() {
+                dsMuaDacSan[i] = muaDacSan;
+                taoBang();
+              });
+            } else {
+              showNotify(context, "Cập nhật mùa  thất bại");
+            }
+          });
+          setState(() {
+            isReadonly = !isReadonly;
+            isUpdate = !isUpdate;
+          });
+        }
+      } else {
+        setState(() {
+          // Gán dữ liệu các thuộc tính của mùa  vào các trường dữ liệu đẩu vào
+          muaDacSanTam = dsMuaDacSan[dsChon.indexOf(true)];
+          widget.tenController.text = muaDacSanTam!.ten;
+
+          // Cập nhật tình trạng cập nhật của trang
+          isReadonly = !isReadonly;
+          isUpdate = !isUpdate;
+        });
+      }
+    } else {
+      showNotify(context, "Vui lòng chỉ chọn một dòng để cập nhật");
+    }
+  }
+
+  void xoa(BuildContext context) {
+    for (int i = 0; i < dsChon.length; i++) {
+      if (dsChon[i]) {
+        MuaDacSan.xoa(dsMuaDacSan[i].id).then((value) {
           if (value) {
             setState(() {
-              dsMuaDacSan[i] = vungMien;
-              createTable();
+              dsMuaDacSan.remove(dsMuaDacSan[i]);
+              dsChon[i] = false;
+              taoBang();
             });
           } else {
-            showNotify(context, "Cập nhật mùa thất bại");
+            showNotify(context, "Xóa mùa  thất bại");
           }
         });
       }
     }
   }
 
-  void xoa(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      for (int i = 0; i < selectedRowsIndex.length; i++) {
-        if (selectedRowsIndex[i]) {
-          MuaDacSan.xoa(dsMuaDacSan[i].id).then((value) {
-            if (value) {
-              setState(() {
-                dsMuaDacSan.remove(dsMuaDacSan[i]);
-                selectedRowsIndex[i] = false;
-                createTable();
-              });
-            } else {
-              showNotify(context, "Xóa mùa thất bại");
-            }
-          });
-        }
-      }
+  Future<void> huy() async {
+    if (isInsert) {
+      int v = dsMuaDacSan.indexOf(muaDacSanTam!);
+      dsMuaDacSan.remove(dsMuaDacSan[v]);
+      dsChon.remove(dsChon[v]);
+    } else if (isUpdate) {
+      int v = dsMuaDacSan.indexOf(muaDacSanTam!);
+      dsMuaDacSan[v] = await MuaDacSan.docTheoID(muaDacSanTam!.id);
+      dsChon[v] = false;
     }
+    setState(() {
+      isReadonly = true;
+      isInsert = false;
+      isUpdate = false;
+      taoBang();
+    });
   }
 }
 
 class MuaDacSanDataTableSource extends DataTableSource {
   List<MuaDacSan> dsMuaDacSan = [];
-  List<bool> selectedRowIndexs = [];
+  List<bool> dsChon = [];
+  void Function(int) notifyParent;
   MuaDacSanDataTableSource({
     required this.dsMuaDacSan,
-    required this.selectedRowIndexs,
+    required this.dsChon,
+    required this.notifyParent,
   });
   @override
   DataRow? getRow(int index) {
     // TODO: implement getRow
     return DataRow2(
       onSelectChanged: (value) {
-        selectedRowIndexs[index] = value!;
+        dsChon[index] = value!;
         notifyListeners();
+        notifyParent(index);
       },
-      selected: selectedRowIndexs[index],
+      selected: dsChon[index],
       cells: [
         DataCell(Text(dsMuaDacSan[index].id.toString())),
         DataCell(Text(dsMuaDacSan[index].ten)),

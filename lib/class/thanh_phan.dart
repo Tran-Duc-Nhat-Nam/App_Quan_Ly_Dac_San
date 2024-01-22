@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/model/nguyen_lieu.dart';
+import 'package:app_dac_san/class/nguyen_lieu.dart';
 
 import '../json_helper.dart';
 

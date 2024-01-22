@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/model/tinh_thanh.dart';
+import 'package:app_dac_san/class/tinh_thanh.dart';
 
 import '../json_helper.dart';
 

@@ -19,10 +19,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'App giới thiệu đặc sản Việt Nam',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Trang chủ'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -49,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           Container(
             decoration: const BoxDecoration(color: Colors.lightBlueAccent),
-            width: 100,
+            width: 80,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

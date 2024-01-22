@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/model/quan_huyen.dart';
+import 'package:app_dac_san/class/quan_huyen.dart';
 
 import '../json_helper.dart';
 

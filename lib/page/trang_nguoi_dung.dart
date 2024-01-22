@@ -1,16 +1,17 @@
-import 'package:app_dac_san/model/phuong_xa.dart';
-import 'package:app_dac_san/model/quan_huyen.dart';
-import 'package:app_dac_san/model/tinh_thanh.dart';
+import 'package:app_dac_san/class/phuong_xa.dart';
+import 'package:app_dac_san/class/quan_huyen.dart';
+import 'package:app_dac_san/class/tinh_thanh.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:date_field/date_field.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
+import '../class/dia_chi.dart';
+import '../class/nguoi_dung.dart';
 import '../gui_helper.dart';
-import '../model/dia_chi.dart';
-import '../model/nguoi_dung.dart';
 
 class TrangNguoiDung extends StatefulWidget {
   TrangNguoiDung({super.key});
@@ -18,34 +19,45 @@ class TrangNguoiDung extends StatefulWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController tenController = TextEditingController();
   final TextEditingController soDienThoaiController = TextEditingController();
+  final TextEditingController soNhaController = TextEditingController();
+  final TextEditingController tenDuongController = TextEditingController();
   @override
   State<TrangNguoiDung> createState() => _TrangNguoiDungState();
 }
 
 class _TrangNguoiDungState extends State<TrangNguoiDung> {
+  // Các danh sách lấy từ API
   List<NguoiDung> dsNguoiDung = [];
   List<TinhThanh> dsTinhThanh = [];
   List<QuanHuyen> dsQuanHuyen = [];
   List<PhuongXa> dsPhuongXa = [];
-  List<bool> selectedRowsIndex = [];
+
+  List<bool> dsChon = [];
+
+  // Các biến tạm thời
+  NguoiDung? nguoiDungTam;
   TinhThanh? tinhThanh;
   QuanHuyen? quanHuyen;
   PhuongXa? phuongXa;
   DateTime ngaySinh = DateTime.now();
   bool isNam = true;
+
+  // Các biến để lưu tình trạng thêm hoặc cập nhật của trang
+  bool isReadonly = true;
+  bool isInsert = false;
+  bool isUpdate = false;
+
   late NguoiDungDataTableSource dataTableSource;
   late Future myFuture;
+
   void notifyParent(int index) {
-    setState(() {
-      widget.tenController.text = dsNguoiDung[index].ten;
-      widget.soDienThoaiController.text = dsNguoiDung[index].soDienThoai;
-    });
+    setState(() {});
   }
 
-  void createTable() {
+  void taoBang() {
     dataTableSource = NguoiDungDataTableSource(
       dsNguoiDung: dsNguoiDung,
-      selectedRowIndexs: selectedRowsIndex,
+      dsChon: dsChon,
       notifyParent: notifyParent,
     );
   }
@@ -55,8 +67,8 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
     myFuture = Future.delayed(const Duration(seconds: 1), () async {
       dsNguoiDung = await NguoiDung.doc();
       dsTinhThanh = await TinhThanh.doc();
-      selectedRowsIndex = dsNguoiDung.map((e) => false).toList();
-      createTable();
+      dsChon = dsNguoiDung.map((e) => false).toList();
+      taoBang();
     });
     super.initState();
   }
@@ -74,41 +86,44 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
               flex: 1,
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 600),
-                child: PaginatedDataTable2(
-                  rowsPerPage: 10,
-                  columns: const [
-                    DataColumn2(
-                      label: Text('ID'),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Email'),
-                      size: ColumnSize.L,
-                    ),
-                    DataColumn2(
-                      label: Text('Tên'),
-                      size: ColumnSize.L,
-                    ),
-                    DataColumn2(
-                      label: Text('Giới tính'),
-                      size: ColumnSize.S,
-                    ),
-                    DataColumn2(
-                      label: Text('Ngày sinh'),
-                      size: ColumnSize.M,
-                    ),
-                    DataColumn2(
-                      label: Text('Địa chỉ'),
-                      size: ColumnSize.L,
-                      numeric: true,
-                    ),
-                    DataColumn2(
-                      label: Text('Số điện thoại'),
-                      size: ColumnSize.M,
-                      numeric: true,
-                    ),
-                  ],
-                  source: dataTableSource,
+                child: AbsorbPointer(
+                  absorbing: isUpdate || isInsert,
+                  child: PaginatedDataTable2(
+                    rowsPerPage: 10,
+                    columns: const [
+                      DataColumn2(
+                        label: Text('ID'),
+                        size: ColumnSize.S,
+                      ),
+                      DataColumn2(
+                        label: Text('Email'),
+                        size: ColumnSize.L,
+                      ),
+                      DataColumn2(
+                        label: Text('Tên'),
+                        size: ColumnSize.L,
+                      ),
+                      DataColumn2(
+                        label: Text('Giới tính'),
+                        size: ColumnSize.S,
+                      ),
+                      DataColumn2(
+                        label: Text('Ngày sinh'),
+                        size: ColumnSize.M,
+                      ),
+                      DataColumn2(
+                        label: Text('Địa chỉ'),
+                        size: ColumnSize.L,
+                        numeric: true,
+                      ),
+                      DataColumn2(
+                        label: Text('Số điện thoại'),
+                        size: ColumnSize.M,
+                        numeric: true,
+                      ),
+                    ],
+                    source: dataTableSource,
+                  ),
                 ),
               ),
             ),
@@ -120,92 +135,215 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: widget.tenController,
-                        validator: (value) => value == null || value.isEmpty
-                            ? "Vui lòng nhập tên người dùng"
-                            : null,
-                        decoration: roundInputDecoration(
-                            "Tên người dùng", "Nhập tên người dùng"),
-                      ),
-                      const SizedBox(height: 15),
-                      TextFormField(
-                        controller: widget.soDienThoaiController,
-                        decoration: roundInputDecoration(
-                            "Mô tả người dùng", "Nhập thông tin mô tả"),
-                      ),
-                      const SizedBox(height: 15),
-                      DateTimeFormField(
-                        decoration:
-                            roundInputDecoration("Ngày sinh người dùng", ""),
-                        dateFormat: DateFormat("dd/MM/yyyy"),
-                        initialPickerDateTime: DateTime.now(),
-                        onChanged: (value) {
-                          setState(() {
-                            if (value != null) {
-                              ngaySinh = value;
-                            }
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 15),
-                      DropdownSearch<TinhThanh>(
-                        validator: (value) =>
-                            value == null ? "Vui lòng chọn tỉnh thành" : null,
-                        popupProps: roundPopupProps("Danh sách tỉnh thành")
-                            as PopupProps<TinhThanh>,
-                        dropdownDecoratorProps: DropDownDecoratorProps(
-                          dropdownSearchDecoration:
-                              roundInputDecoration("Tỉnh thành", ""),
+                      Visibility(
+                        visible: !isReadonly,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: widget.emailController,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? "Vui lòng nhập email"
+                                      : null,
+                              decoration: roundInputDecoration(
+                                  "Địa chỉ email", "Nhập địa chỉ email"),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: widget.tenController,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? "Vui lòng nhập tên người dùng"
+                                      : null,
+                              decoration: roundInputDecoration(
+                                  "Tên người dùng", "Nhập tên người dùng"),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              controller: widget.soDienThoaiController,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? "Vui lòng nhập số điện thoại"
+                                      : null,
+                              decoration: roundInputDecoration(
+                                  "Số điện thoại", "Nhập số điện thoại"),
+                            ),
+                            const SizedBox(height: 15),
+                            DateTimeFormField(
+                              mode: DateTimeFieldPickerMode.date,
+                              decoration: roundInputDecoration(
+                                  "Ngày sinh người dùng", ""),
+                              dateFormat: DateFormat("dd/MM/yyyy"),
+                              initialPickerDateTime: DateTime.now(),
+                              onChanged: (value) =>
+                                  value != null ? ngaySinh = value : null,
+                            ),
+                            const SizedBox(height: 15),
+                            Row(
+                              children: [
+                                Flexible(
+                                  fit: FlexFit.loose,
+                                  child: RadioListTile(
+                                    title: const Text("Nam"),
+                                    value: true,
+                                    groupValue: isNam,
+                                    onChanged: (value) => isNam = value!,
+                                  ),
+                                ),
+                                Flexible(
+                                  fit: FlexFit.loose,
+                                  child: RadioListTile(
+                                    title: const Text("Nữ"),
+                                    value: false,
+                                    groupValue: isNam,
+                                    onChanged: (value) => isNam = value!,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 15),
+                            Row(
+                              children: [
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: DropdownSearch<TinhThanh>(
+                                    validator: (value) => value == null
+                                        ? "Vui lòng chọn tỉnh thành"
+                                        : null,
+                                    popupProps: const PopupProps.menu(
+                                      title: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        child: Center(
+                                          child: Text(
+                                            "Danh sách tỉnh thành",
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                      showSelectedItems: true,
+                                    ),
+                                    dropdownDecoratorProps:
+                                        DropDownDecoratorProps(
+                                      dropdownSearchDecoration:
+                                          roundInputDecoration(
+                                              "Tỉnh thành", ""),
+                                    ),
+                                    compareFn: (item1, item2) => item1 == item2,
+                                    onChanged: (value) => value != null
+                                        ? tinhThanh = value
+                                        : null,
+                                    items: dsTinhThanh,
+                                    itemAsString: (value) => value.ten,
+                                    selectedItem: tinhThanh,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: DropdownSearch<QuanHuyen>(
+                                    validator: (value) => value == null
+                                        ? "Vui lòng chọn quận huyện"
+                                        : null,
+                                    popupProps: const PopupProps.menu(
+                                      title: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        child: Center(
+                                          child: Text(
+                                            "Danh sách quận huyện",
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                      showSelectedItems: true,
+                                    ),
+                                    dropdownDecoratorProps:
+                                        DropDownDecoratorProps(
+                                      dropdownSearchDecoration:
+                                          roundInputDecoration(
+                                              "Quận huyện", ""),
+                                    ),
+                                    compareFn: (item1, item2) => item1 == item2,
+                                    onBeforePopupOpening:
+                                        (selectedItem) async =>
+                                            Future(() => tinhThanh != null),
+                                    onChanged: (value) => value != null
+                                        ? quanHuyen = value
+                                        : null,
+                                    asyncItems: (text) => tinhThanh != null
+                                        ? QuanHuyen.doc(tinhThanh!.id)
+                                        : Future(() => []),
+                                    itemAsString: (value) => value.ten,
+                                    selectedItem: quanHuyen,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: DropdownSearch<PhuongXa>(
+                                    validator: (value) => value == null
+                                        ? "Vui lòng chọn phường xã"
+                                        : null,
+                                    popupProps: const PopupProps.menu(
+                                      title: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        child: Center(
+                                          child: Text(
+                                            "Danh sách phường xã",
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                      showSelectedItems: true,
+                                    ),
+                                    dropdownDecoratorProps:
+                                        DropDownDecoratorProps(
+                                      dropdownSearchDecoration:
+                                          roundInputDecoration("Phường xã", ""),
+                                    ),
+                                    compareFn: (item1, item2) => item1 == item2,
+                                    onBeforePopupOpening:
+                                        (selectedItem) async =>
+                                            Future(() => quanHuyen != null),
+                                    onChanged: (value) =>
+                                        value != null ? phuongXa = value : null,
+                                    asyncItems: (text) => quanHuyen != null
+                                        ? PhuongXa.doc(quanHuyen!.id)
+                                        : Future(() => []),
+                                    itemAsString: (value) => value.ten,
+                                    selectedItem: phuongXa,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: widget.soNhaController,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? "Vui lòng nhập số nhà"
+                                      : null,
+                              decoration:
+                                  roundInputDecoration("Số nhà", "Nhập số nhà"),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: widget.tenDuongController,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? "Vui lòng nhập tên đường"
+                                      : null,
+                              decoration: roundInputDecoration(
+                                  "Tên đường", "Nhập tên đường"),
+                            ),
+                            const SizedBox(height: 15),
+                          ],
                         ),
-                        compareFn: (item1, item2) => item1 == item2,
-                        onChanged: (value) =>
-                            value != null ? tinhThanh = value : null,
-                        items: dsTinhThanh,
-                        itemAsString: (value) => value.ten,
-                      ),
-                      const SizedBox(height: 15),
-                      Flexible(
-                        fit: FlexFit.tight,
-                        child: DropdownSearch<QuanHuyen>(
-                          validator: (value) =>
-                              value == null ? "Vui lòng chọn quận huyện" : null,
-                          popupProps: roundPopupProps("Danh sách quận huyện")
-                              as PopupProps<QuanHuyen>,
-                          dropdownDecoratorProps: DropDownDecoratorProps(
-                            dropdownSearchDecoration:
-                                roundInputDecoration("Quận huyện", ""),
-                          ),
-                          compareFn: (item1, item2) => item1 == item2,
-                          onBeforePopupOpening: (selectedItem) async =>
-                              Future(() => tinhThanh != null),
-                          onChanged: (value) =>
-                              value != null ? quanHuyen = value : null,
-                          asyncItems: (text) => tinhThanh != null
-                              ? QuanHuyen.doc(tinhThanh!.id)
-                              : Future(() => []),
-                          itemAsString: (value) => value.ten,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      DropdownSearch<PhuongXa>(
-                        validator: (value) =>
-                            value == null ? "Vui lòng chọn phường xã" : null,
-                        popupProps: roundPopupProps("Danh sách phường xã")
-                            as PopupProps<PhuongXa>,
-                        dropdownDecoratorProps: DropDownDecoratorProps(
-                          dropdownSearchDecoration:
-                              roundInputDecoration("Phường xã", ""),
-                        ),
-                        compareFn: (item1, item2) => item1 == item2,
-                        onBeforePopupOpening: (selectedItem) async =>
-                            Future(() => quanHuyen != null),
-                        onChanged: (value) =>
-                            value != null ? phuongXa = value : null,
-                        asyncItems: (text) => quanHuyen != null
-                            ? PhuongXa.doc(quanHuyen!.id)
-                            : Future(() => []),
-                        itemAsString: (value) => value.ten,
                       ),
                       const SizedBox(height: 15),
                       Row(
@@ -251,109 +389,194 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
     );
   }
 
+  // Hàm để thêm 1 dòng dữ liệu
   void them(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      NguoiDung.them(
-        widget.tenController.text,
-        widget.emailController.text,
-        isNam,
-        widget.soDienThoaiController.text,
-        DiaChi(
-          id: 0,
-          soNha: "soNha",
-          tenDuong: "tenDuong",
-          phuongXa: phuongXa!,
-        ),
-        ngaySinh,
-      ).then((value) {
+    // Kiếm tra tình trạng cập nhật và các dữ liệu đầu vào hợp lệ
+    if (isInsert &&
+        widget.formKey.currentState!.validate() &&
+        phuongXa != null) {
+      print(ngaySinh.toUtc().toIso8601String());
+      // Gọi hàm API thêm đặc sàn
+      NguoiDung.them(NguoiDung(
+        id: 0,
+        ten: widget.tenController.text,
+        email: widget.emailController.text,
+        isNam: isNam,
+        ngaySinh: ngaySinh,
+        soDienThoai: widget.soDienThoaiController.text,
+        diaChi: DiaChi(
+            id: 0,
+            soNha: widget.soNhaController.text,
+            tenDuong: widget.tenDuongController.text,
+            phuongXa: phuongXa!),
+      )).then((value) {
         if (value != null) {
+          // Cập nhật danh sách và bảng đặc sán nếu thành công
           setState(() {
             dsNguoiDung.add(value);
-            selectedRowsIndex.add(false);
-            widget.tenController.clear();
-            widget.soDienThoaiController.clear();
-            createTable();
+            dsChon.add(false);
           });
+          huy();
         } else {
-          showNotify(context, "Thêm người dùng thất bại");
+          showNotify(context, "Thêm nơi bán thất bại");
         }
       });
+    } else if (!isInsert) {
+      dsChon.setAll(0, dsChon.map((e) => false));
+      taoBang();
+      // Gán giá trị cho biến tạm
+      phuongXa = PhuongXa(
+          id: 00,
+          ten: "Phường xã",
+          quanHuyen:
+              QuanHuyen(id: 0, ten: "", tinhThanh: TinhThanh(id: 0, ten: "")));
+      nguoiDungTam = NguoiDung(
+        id: -1,
+        ten: "",
+        email: "",
+        isNam: true,
+        ngaySinh: DateTime.now(),
+        soDienThoai: '',
+        diaChi: DiaChi(id: 0, soNha: "", tenDuong: "", phuongXa: phuongXa!),
+      );
+      dsNguoiDung.add(nguoiDungTam!);
+      dsChon.add(true);
+      // Cập nhật tình trạng thêm của trang
+      setState(() {
+        isReadonly = !isReadonly;
+        isInsert = !isInsert;
+      });
+      taoBang();
     }
   }
 
+  // Hàm để cập nhật 1 dòng dữ liệu
   void capNhat(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      if (selectedRowsIndex.where((element) => element).length == 1) {
-        int i = selectedRowsIndex.indexOf(true);
-        NguoiDung nguoiDung = NguoiDung(
-          id: dsNguoiDung[i].id,
-          ten: widget.tenController.text,
-          email: widget.emailController.text,
-          isNam: isNam,
-          soDienThoai: widget.soDienThoaiController.text,
-          diaChi: DiaChi(
-            id: dsNguoiDung[i].diaChi.id,
-            soNha: dsNguoiDung[i].diaChi.soNha,
-            tenDuong: dsNguoiDung[i].diaChi.tenDuong,
-            phuongXa: dsNguoiDung[i].diaChi.phuongXa,
-          ),
-          ngaySinh: ngaySinh,
-        );
-        NguoiDung.capNhat(nguoiDung).then((value) {
-          if (value) {
-            setState(() {
-              dsNguoiDung[i] = nguoiDung;
-              createTable();
-            });
-          } else {
-            showNotify(context, "Cập nhật người dùng thất bại");
-          }
-        });
-      } else {
-        showNotify(context, "Vui lòng chỉ chọn một dòng để cập nhật");
-      }
-    }
-  }
+    // Kiểm tra nếu số dòng đã chọn bằng 1
+    if (dsChon.where((element) => element).length == 1) {
+      // Kiếm tra tình trạng cập nhật
+      if (isUpdate) {
+        // Kiểm tra các dữ liệu đầu vào hợp lệ
+        if (widget.formKey.currentState!.validate() && phuongXa != null) {
+          int i = dsChon.indexOf(true);
+          NguoiDung nguoiDung = NguoiDung(
+            id: dsNguoiDung[i].id,
+            ten: widget.tenController.text,
+            email: widget.emailController.text,
+            isNam: isNam,
+            ngaySinh: ngaySinh,
+            soDienThoai: widget.soDienThoaiController.text,
+            diaChi: DiaChi(
+                id: dsNguoiDung[i].diaChi.id,
+                soNha: widget.soNhaController.text,
+                tenDuong: widget.tenDuongController.text,
+                phuongXa: phuongXa!),
+          );
 
-  void xoa(BuildContext context) {
-    if (widget.formKey.currentState!.validate()) {
-      for (int i = 0; i < selectedRowsIndex.length; i++) {
-        if (selectedRowsIndex[i]) {
-          NguoiDung.xoa(dsNguoiDung[i].id).then((value) {
+          // Gọi hàm API Cập nhật đặc sàn
+          NguoiDung.capNhat(nguoiDung).then((value) {
+            // Cập nhật danh sách và bảng đặc sán nếu thành công
             if (value) {
               setState(() {
-                dsNguoiDung.remove(dsNguoiDung[i]);
-                selectedRowsIndex[i] = false;
-                createTable();
+                dsNguoiDung[i] = nguoiDung;
+                taoBang();
               });
             } else {
-              showNotify(context, "Xóa người dùng thất bại");
+              showNotify(context, "Cập nhật nơi bán thất bại");
             }
           });
+          setState(() {
+            isReadonly = !isReadonly;
+            isUpdate = !isUpdate;
+          });
         }
+      } else {
+        setState(() {
+          // Gán dữ liệu các thuộc tính của nơi bán vào các trường dữ liệu đẩu vào
+          NguoiDung temp = dsNguoiDung[dsChon.indexOf(true)];
+          widget.tenController.text = temp.ten;
+          widget.emailController.text = temp.email;
+          isNam = temp.isNam;
+          ngaySinh = temp.ngaySinh;
+          widget.soDienThoaiController.text = temp.soDienThoai;
+          widget.soNhaController.text = temp.diaChi.soNha;
+          widget.tenDuongController.text = temp.diaChi.tenDuong;
+          phuongXa = temp.diaChi.phuongXa;
+          quanHuyen = temp.diaChi.phuongXa.quanHuyen;
+          tinhThanh = temp.diaChi.phuongXa.quanHuyen.tinhThanh;
+
+          // Gán giá trị cho biến nơi bán tạm
+          nguoiDungTam = temp;
+
+          // Cập nhật tình trạng cập nhật của trang
+          isReadonly = !isReadonly;
+          isUpdate = !isUpdate;
+        });
+      }
+    } else {
+      showNotify(context, "Vui lòng chỉ chọn một dòng để cập nhật");
+    }
+  }
+
+  // Hàm để xóa các dòng dữ liệu
+  void xoa(BuildContext context) {
+    for (int i = 0; i < dsChon.length; i++) {
+      if (dsChon[i]) {
+        // Gọi hàm API xóa đặc sàn
+        NguoiDung.xoa(dsNguoiDung[i].id).then((value) {
+          if (value) {
+            // Cập nhật danh sách và bảng đặc sán nếu thành công
+            setState(() {
+              dsNguoiDung.remove(dsNguoiDung[i]);
+              dsChon[i] = false;
+              taoBang();
+            });
+          } else {
+            showNotify(context, "Xóa nơi bán thất bại");
+          }
+        });
       }
     }
+  }
+
+  // Hàm để húy bỏ quá trình thêm hoặc cập nhật
+  Future<void> huy() async {
+    if (isInsert) {
+      int v = dsNguoiDung.indexOf(nguoiDungTam!);
+      dsNguoiDung.remove(dsNguoiDung[v]);
+      dsChon.remove(dsChon[v]);
+    } else if (isUpdate) {
+      int v = dsNguoiDung.indexOf(nguoiDungTam!);
+      dsNguoiDung[v] = await NguoiDung.docTheoID(nguoiDungTam!.id);
+      dsChon[v] = false;
+    }
+    setState(() {
+      isReadonly = true;
+      isInsert = false;
+      isUpdate = false;
+      taoBang();
+    });
   }
 }
 
 class NguoiDungDataTableSource extends DataTableSource {
   List<NguoiDung> dsNguoiDung = [];
-  List<bool> selectedRowIndexs = [];
+  List<bool> dsChon = [];
   void Function(int) notifyParent;
   NguoiDungDataTableSource({
     required this.dsNguoiDung,
-    required this.selectedRowIndexs,
+    required this.dsChon,
     required this.notifyParent,
   });
   @override
   DataRow? getRow(int index) {
     return DataRow2(
       onSelectChanged: (value) {
-        selectedRowIndexs[index] = value!;
+        dsChon[index] = value!;
         notifyListeners();
         notifyParent(index);
       },
-      selected: selectedRowIndexs[index],
+      selected: dsChon[index],
       cells: [
         DataCell(Text(dsNguoiDung[index].id.toString())),
         DataCell(Text(dsNguoiDung[index].email)),

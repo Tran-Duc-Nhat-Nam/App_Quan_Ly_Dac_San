@@ -28,7 +28,7 @@ class NguoiDung {
       email: json['email'],
       ten: json['ten'],
       isNam: json['is_nam'],
-      ngaySinh: json['ngay_sinh'],
+      ngaySinh: DateTime.fromMillisecondsSinceEpoch(json['ngay_sinh']),
       diaChi: DiaChi.fromJson(json['dia_chi']),
       soDienThoai: json['so_dien_thoai'],
     );
@@ -47,18 +47,22 @@ class NguoiDung {
     return dsNguoiDung;
   }
 
-  static Future<NguoiDung?> them(String ten, String email, bool isNam,
-      String soDienThoai, DiaChi diaChi, DateTime ngaySinh) async {
+  static Future<NguoiDung> docTheoID(int id) async {
+    var result = await docAPI("$url/$id");
+    return NguoiDung.fromJson(result);
+  }
+
+  static Future<NguoiDung?> them(NguoiDung nguoiDung) async {
     final response = await taoAPI(
       url,
       jsonEncode(<String, dynamic>{
         'id': 0,
-        'email': email,
-        'ten': ten,
-        'is_nam': isNam,
-        'ngay_sinh': ngaySinh,
-        'dia_chi': diaChi.toJson(),
-        'so_dien_thoai': soDienThoai,
+        'email': nguoiDung.email,
+        'ten': nguoiDung.ten,
+        'is_nam': nguoiDung.isNam,
+        'ngay_sinh': nguoiDung.ngaySinh.millisecondsSinceEpoch,
+        'dia_chi': nguoiDung.diaChi.toJson(),
+        'so_dien_thoai': nguoiDung.soDienThoai,
       }),
     );
 
@@ -70,17 +74,17 @@ class NguoiDung {
     }
   }
 
-  static Future<bool> capNhat(NguoiDung nguoidung) async {
+  static Future<bool> capNhat(NguoiDung nguoiDung) async {
     final response = await capNhatAPI(
       url,
       jsonEncode(<String, dynamic>{
-        'id': nguoidung.id,
-        'email': nguoidung.email,
-        'ten': nguoidung.ten,
-        'is_nam': nguoidung.isNam,
-        'ngay_sinh': nguoidung.ngaySinh,
-        'dia_chi': nguoidung.diaChi.toJson(),
-        'so_dien_thoai': nguoidung.soDienThoai,
+        'id': nguoiDung.id,
+        'email': nguoiDung.email,
+        'ten': nguoiDung.ten,
+        'is_nam': nguoiDung.isNam,
+        'ngay_sinh': nguoiDung.ngaySinh,
+        'dia_chi': nguoiDung.diaChi.toJson(),
+        'so_dien_thoai': nguoiDung.soDienThoai,
       }),
     );
 
