@@ -2,6 +2,7 @@ import 'package:app_dac_san/class/vung_mien.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../gui_helper.dart';
 
@@ -9,6 +10,8 @@ class TrangVungMien extends StatefulWidget {
   TrangVungMien({super.key});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final PaginatorController pageController = PaginatorController();
   @override
   State<TrangVungMien> createState() => _TrangVungMienState();
 }
@@ -78,7 +81,56 @@ class _TrangVungMienState extends State<TrangVungMien> {
                 child: AbsorbPointer(
                   absorbing: isUpdate || isInsert,
                   child: PaginatedDataTable2(
+                    controller: widget.pageController,
                     rowsPerPage: 10,
+                    header: Row(
+                      children: [
+                        const Flexible(flex: 1, child: Text("Vùng miền")),
+                        const SizedBox(width: 25),
+                        Flexible(
+                          flex: 1,
+                          child: TypeAheadField(
+                            controller: widget.textController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                onSubmitted: (value) {
+                                  int slot = dsVungMien.indexWhere(
+                                      (element) => element.ten == value);
+                                  if (slot != -1) {
+                                    widget.pageController.goToRow(slot);
+                                    dsChon[slot] = true;
+                                  }
+                                },
+                                controller: widget.textController,
+                                focusNode: focusNode,
+                                autofocus: false,
+                                decoration: roundSearchBarInputDecoration(),
+                              );
+                            },
+                            loadingBuilder: (context) =>
+                                loadingCircle(size: 50),
+                            emptyBuilder: (context) => const ListTile(
+                              title: Text("Không có nguyên liệu trùng khớp"),
+                            ),
+                            itemBuilder: (context, item) {
+                              return ListTile(
+                                title: Text(item.ten),
+                              );
+                            },
+                            onSelected: (value) {
+                              int slot = dsVungMien.indexWhere(
+                                  (element) => element.ten == value.ten);
+                              widget.pageController.goToRow(slot);
+                              dsChon[slot] = true;
+                            },
+                            suggestionsCallback: (search) => dsVungMien
+                                .where(
+                                    (element) => element.ten.contains(search))
+                                .toList(),
+                          ),
+                        )
+                      ],
+                    ),
                     columns: const [
                       DataColumn2(
                         label: Text('ID'),

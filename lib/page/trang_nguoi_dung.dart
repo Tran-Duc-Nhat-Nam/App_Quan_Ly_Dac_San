@@ -582,7 +582,8 @@ class NguoiDungDataTableSource extends DataTableSource {
         DataCell(Text(dsNguoiDung[index].email)),
         DataCell(Text(dsNguoiDung[index].ten)),
         DataCell(Text(dsNguoiDung[index].isNam ? "Nam" : "Nữ")),
-        DataCell(Text(dsNguoiDung[index].ngaySinh.toString())),
+        DataCell(Text(DateFormat("dd/MM/yyy")
+            .format(dsNguoiDung[index].ngaySinh.toLocal()))),
         DataCell(Text(dsNguoiDung[index].diaChi.toString())),
         DataCell(Text(dsNguoiDung[index].soDienThoai)),
       ],

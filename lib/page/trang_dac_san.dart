@@ -7,6 +7,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../class/dac_san.dart';
 import '../class/hinh_anh.dart';
@@ -23,6 +24,7 @@ class TrangDacSan extends StatefulWidget {
   final TextEditingController tenHinhAnhController = TextEditingController();
   final TextEditingController moTaHinhAnhController = TextEditingController();
   final TextEditingController urlHinhAnhController = TextEditingController();
+  final TextEditingController textDacsanController = TextEditingController();
   final PaginatorController dacSanController = PaginatorController();
   @override
   State<TrangDacSan> createState() => _TrangDacSanState();
@@ -150,10 +152,13 @@ class _TrangDacSanState extends State<TrangDacSan> {
                 constraints: const BoxConstraints(maxHeight: 600),
                 child: Row(children: [
                   BangDacSan(
-                      isUpdate: isUpdate,
-                      isInsert: isInsert,
-                      widget: widget,
-                      bangDacSan: bangDacSan),
+                    dsDacSan: dsDacSan,
+                    dsChon: dsChonDacSan,
+                    isUpdate: isUpdate,
+                    isInsert: isInsert,
+                    widget: widget,
+                    duLieuDacSan: bangDacSan,
+                  ),
                   BangThanhPhan(
                       dsChonDacSan: dsChonDacSan, bangThanhPhan: bangThanhPhan),
                 ]),
@@ -168,7 +173,8 @@ class _TrangDacSanState extends State<TrangDacSan> {
                   child: Column(
                     children: [
                       Visibility(
-                        visible: !isReadonly,
+                        visible:
+                            !isReadonly, // Chỉ hiển thị khi thêm hoặc cập nhật
                         child: Column(
                           children: [
                             TextFormField(
@@ -292,12 +298,9 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                   flex: 2,
                                   child: DropdownSearch<MuaDacSan>(
                                     enabled: !isReadonly,
-                                    validator: (value) {
-                                      if (dsMuaDacSanTam.isEmpty) {
-                                        return "Vui lòng thêm ít nhất 1 mùa";
-                                      }
-                                      return null;
-                                    },
+                                    validator: (value) => dsMuaDacSanTam.isEmpty
+                                        ? "Vui lòng thêm ít nhất 1 mùa"
+                                        : null,
                                     popupProps: const PopupProps.menu(
                                       title: Padding(
                                         padding:
@@ -316,18 +319,12 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                       dropdownSearchDecoration:
                                           roundInputDecoration("Mùa", ""),
                                     ),
-                                    compareFn: (item1, item2) {
-                                      return item1 == item2;
-                                    },
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        muaDacSan = value;
-                                      }
-                                    },
+                                    compareFn: (item1, item2) => item1 == item2,
+                                    onChanged: (value) => value != null
+                                        ? muaDacSan = value
+                                        : null,
                                     items: dsMuaDacSan,
-                                    itemAsString: (value) {
-                                      return value.ten;
-                                    },
+                                    itemAsString: (value) => value.ten,
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -385,12 +382,10 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                         flex: 2,
                                         child: DropdownSearch<NguyenLieu>(
                                           enabled: !isReadonly,
-                                          validator: (value) {
-                                            if (dsThanhPhanTam.isEmpty) {
-                                              return "Vui lòng thêm ít nhất 1 nguyên liệu";
-                                            }
-                                            return null;
-                                          },
+                                          validator: (value) => dsThanhPhan
+                                                  .isEmpty
+                                              ? "Vui lòng thêm ít nhất 1 nguyên liệu"
+                                              : null,
                                           popupProps: const PopupProps.menu(
                                             title: Padding(
                                               padding: EdgeInsets.symmetric(
@@ -408,34 +403,17 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                           dropdownDecoratorProps:
                                               DropDownDecoratorProps(
                                             dropdownSearchDecoration:
-                                                InputDecoration(
-                                              label: const Text("Nguyên liệu"),
-                                              contentPadding:
-                                                  const EdgeInsetsDirectional
-                                                      .only(
-                                                start: 25,
-                                                top: 15,
-                                                bottom: 15,
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(25),
-                                              ),
-                                            ),
+                                                roundInputDecoration(
+                                                    "Nguyên liệu", ""),
                                           ),
-                                          compareFn: (item1, item2) {
-                                            return item1 == item2;
-                                          },
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              nguyenLieu = value;
-                                            }
-                                          },
+                                          compareFn: (item1, item2) =>
+                                              item1 == item2,
+                                          onChanged: (value) => value != null
+                                              ? nguyenLieu = value
+                                              : null,
                                           selectedItem: nguyenLieu,
                                           items: dsNguyenLieu,
-                                          itemAsString: (value) {
-                                            return value.ten;
-                                          },
+                                          itemAsString: (value) => value.ten,
                                         ),
                                       ),
                                       const SizedBox(width: 10),
@@ -476,31 +454,32 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                         fit: FlexFit.tight,
                                         child: FilledButton(
                                           style: roundButtonStyle(),
-                                          onPressed: !isReadonly
-                                              ? () {
-                                                  try {
-                                                    ThanhPhan thanhPhan =
-                                                        ThanhPhan(
-                                                      nguyenLieu: nguyenLieu!,
-                                                      soLuong: double.parse(
-                                                          widget
-                                                              .soLuongController
-                                                              .text),
-                                                      donViTinh: widget
-                                                          .donViTinhController
-                                                          .text,
-                                                    );
-                                                    setState(() {
-                                                      dsThanhPhanTam
-                                                          .add(thanhPhan);
-                                                      taoBangDacSan();
-                                                    });
-                                                  } catch (e) {
-                                                    showNotify(context,
-                                                        "Dữ liệu không hợp lệ");
-                                                  }
+                                          onPressed: () {
+                                            if (!isReadonly) {
+                                              {
+                                                try {
+                                                  ThanhPhan thanhPhan =
+                                                      ThanhPhan(
+                                                    nguyenLieu: nguyenLieu!,
+                                                    soLuong: double.parse(widget
+                                                        .soLuongController
+                                                        .text),
+                                                    donViTinh: widget
+                                                        .donViTinhController
+                                                        .text,
+                                                  );
+                                                  setState(() {
+                                                    dsThanhPhan.add(thanhPhan);
+                                                    taoBangDacSan();
+                                                    taoBangThanhPhan();
+                                                  });
+                                                } catch (e) {
+                                                  showNotify(context,
+                                                      "Dữ liệu không hợp lệ");
                                                 }
-                                              : null,
+                                              }
+                                            }
+                                          },
                                           child: const Text("Thêm"),
                                         ),
                                       ),
@@ -509,26 +488,23 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                         fit: FlexFit.tight,
                                         child: FilledButton(
                                           style: roundButtonStyle(),
-                                          onPressed: !isReadonly
-                                              ? () {
-                                                  try {
-                                                    setState(() {
-                                                      dsThanhPhanTam.remove(
-                                                          dsThanhPhanTam.firstWhere(
-                                                              (element) =>
-                                                                  element
-                                                                      .nguyenLieu
-                                                                      .id ==
-                                                                  nguyenLieu!
-                                                                      .id));
-                                                    });
-                                                    taoBangDacSan();
-                                                  } catch (e) {
-                                                    showNotify(context,
-                                                        "Thành phần chưa tồn tại trong thông tin đặc sản");
-                                                  }
-                                                }
-                                              : null,
+                                          onPressed: () {
+                                            if (!isReadonly) {
+                                              try {
+                                                setState(() {
+                                                  dsThanhPhan.remove(dsThanhPhan
+                                                      .firstWhere((element) =>
+                                                          element
+                                                              .nguyenLieu.id ==
+                                                          nguyenLieu!.id));
+                                                });
+                                                taoBangDacSan();
+                                              } catch (e) {
+                                                showNotify(context,
+                                                    "Thành phần chưa tồn tại trong thông tin đặc sản");
+                                              }
+                                            }
+                                          },
                                           child: const Text("Xóa"),
                                         ),
                                       ),
@@ -575,28 +551,28 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                   fit: FlexFit.tight,
                                   child: FilledButton(
                                     style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            try {
-                                              HinhAnh hinhAnh = HinhAnh(
-                                                id: 0,
-                                                ten: widget
-                                                    .tenHinhAnhController.text,
-                                                moTa: widget
-                                                    .moTaHinhAnhController.text,
-                                                urlHinhAnh: widget
-                                                    .urlHinhAnhController.text,
-                                              );
-                                              setState(() {
-                                                dsHinhAnhTam.add(hinhAnh);
-                                              });
-                                              taoBangDacSan();
-                                            } catch (e) {
-                                              showNotify(context,
-                                                  "Dữ liệu không hợp lệ");
-                                            }
-                                          }
-                                        : null,
+                                    onPressed: () {
+                                      if (!isReadonly) {
+                                        try {
+                                          HinhAnh hinhAnh = HinhAnh(
+                                            id: 0,
+                                            ten: widget
+                                                .tenHinhAnhController.text,
+                                            moTa: widget
+                                                .moTaHinhAnhController.text,
+                                            urlHinhAnh: widget
+                                                .urlHinhAnhController.text,
+                                          );
+                                          setState(() {
+                                            dsHinhAnhTam.add(hinhAnh);
+                                          });
+                                          taoBangDacSan();
+                                        } catch (e) {
+                                          showNotify(
+                                              context, "Dữ liệu không hợp lệ");
+                                        }
+                                      }
+                                    },
                                     child: const Text("Thêm"),
                                   ),
                                 ),
@@ -605,24 +581,23 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                   fit: FlexFit.tight,
                                   child: FilledButton(
                                     style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            try {
-                                              setState(() {
-                                                dsHinhAnhTam.remove(dsHinhAnhTam
-                                                    .firstWhere((element) =>
-                                                        element.ten ==
-                                                        widget
-                                                            .tenHinhAnhController
-                                                            .text));
-                                              });
-                                              taoBangDacSan();
-                                            } catch (e) {
-                                              showNotify(context,
-                                                  "Hình ảnh chưa tồn tại trong thông tin đặc sản");
-                                            }
-                                          }
-                                        : null,
+                                    onPressed: () {
+                                      if (!isReadonly) {
+                                        try {
+                                          setState(() {
+                                            dsHinhAnhTam.remove(dsHinhAnhTam
+                                                .firstWhere((element) =>
+                                                    element.ten ==
+                                                    widget.tenHinhAnhController
+                                                        .text));
+                                          });
+                                          taoBangDacSan();
+                                        } catch (e) {
+                                          showNotify(context,
+                                              "Hình ảnh chưa tồn tại trong thông tin đặc sản");
+                                        }
+                                      }
+                                    },
                                     child: const Text("Xóa"),
                                   ),
                                 ),
@@ -631,26 +606,26 @@ class _TrangDacSanState extends State<TrangDacSan> {
                                   fit: FlexFit.tight,
                                   child: FilledButton(
                                     style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            try {
-                                              HinhAnh hinhAnh = HinhAnh(
-                                                id: 0,
-                                                ten: widget
-                                                    .tenHinhAnhController.text,
-                                                moTa: widget
-                                                    .moTaHinhAnhController.text,
-                                                urlHinhAnh: widget
-                                                    .urlHinhAnhController.text,
-                                              );
-                                              hinhDaiDien = hinhAnh;
-                                              taoBangDacSan();
-                                            } catch (e) {
-                                              showNotify(context,
-                                                  "Dữ liệu không hợp lệ");
-                                            }
-                                          }
-                                        : null,
+                                    onPressed: () {
+                                      if (!isReadonly) {
+                                        try {
+                                          HinhAnh hinhAnh = HinhAnh(
+                                            id: 0,
+                                            ten: widget
+                                                .tenHinhAnhController.text,
+                                            moTa: widget
+                                                .moTaHinhAnhController.text,
+                                            urlHinhAnh: widget
+                                                .urlHinhAnhController.text,
+                                          );
+                                          hinhDaiDien = hinhAnh;
+                                          taoBangDacSan();
+                                        } catch (e) {
+                                          showNotify(
+                                              context, "Dữ liệu không hợp lệ");
+                                        }
+                                      }
+                                    },
                                     child: const Text("Cập nhật hình đại diện"),
                                   ),
                                 ),
@@ -741,13 +716,13 @@ class _TrangDacSanState extends State<TrangDacSan> {
         cachCheBien: widget.cachCheBienController.text,
         vungMien: dsVungMienTam,
         muaDacSan: dsMuaDacSanTam,
-        thanhPhan: dsThanhPhanTam,
+        thanhPhan: dsThanhPhan,
         hinhAnh: dsHinhAnhTam,
         hinhDaiDien: hinhDaiDien!,
       )).then((value) {
         if (value != null) {
           // Gọi hàm API thêm các thành phần
-          for (ThanhPhan tp in dsThanhPhanTam) {
+          for (ThanhPhan tp in dsThanhPhan) {
             ThanhPhan.them(tp);
           }
           // Cập nhật danh sách và bảng đặc sán nếu thành công
@@ -774,18 +749,21 @@ class _TrangDacSanState extends State<TrangDacSan> {
         cachCheBien: widget.cachCheBienController.text,
         vungMien: dsVungMienTam,
         muaDacSan: dsMuaDacSanTam,
-        thanhPhan: dsThanhPhanTam,
+        thanhPhan: dsThanhPhan,
         hinhAnh: dsHinhAnh,
         hinhDaiDien: hinhDaiDien!,
       );
       dsDacSan.add(dacSanTam!);
       dsChonDacSan.add(true);
+      dsThanhPhan = [];
+      dsChonThanhPhan = [];
       // Cập nhật tình trạng thêm của trang
       setState(() {
         isReadonly = !isReadonly;
         isInsert = !isInsert;
       });
       taoBangDacSan();
+      taoBangThanhPhan();
     }
   }
 
@@ -805,7 +783,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
             cachCheBien: widget.cachCheBienController.text,
             vungMien: dsVungMienTam,
             muaDacSan: dsMuaDacSanTam,
-            thanhPhan: dsThanhPhanTam,
+            thanhPhan: dsThanhPhan,
             hinhAnh: dsHinhAnhTam,
             hinhDaiDien: hinhDaiDien!,
           );
@@ -841,7 +819,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
           widget.urlHinhAnhController.text = temp.hinhDaiDien.urlHinhAnh;
           dsVungMienTam = temp.vungMien;
           dsMuaDacSanTam = temp.muaDacSan;
-          dsThanhPhanTam = temp.thanhPhan;
+          dsThanhPhan = temp.thanhPhan;
           dsHinhAnhTam = temp.hinhAnh;
           hinhDaiDien = temp.hinhDaiDien;
 
@@ -943,16 +921,20 @@ class BangThanhPhan extends StatelessWidget {
 class BangDacSan extends StatelessWidget {
   const BangDacSan({
     super.key,
+    required this.dsDacSan,
+    required this.dsChon,
     required this.isUpdate,
     required this.isInsert,
     required this.widget,
-    required this.bangDacSan,
+    required this.duLieuDacSan,
   });
 
+  final List<DacSan> dsDacSan;
+  final List<bool> dsChon;
   final bool isUpdate;
   final bool isInsert;
   final TrangDacSan widget;
-  final DacSanDataTableSource bangDacSan;
+  final DacSanDataTableSource duLieuDacSan;
 
   @override
   Widget build(BuildContext context) {
@@ -963,6 +945,52 @@ class BangDacSan extends StatelessWidget {
         child: PaginatedDataTable2(
           controller: widget.dacSanController,
           rowsPerPage: 10,
+          header: Row(
+            children: [
+              const Flexible(flex: 1, child: Text("Mùa")),
+              const SizedBox(width: 25),
+              Flexible(
+                flex: 1,
+                child: TypeAheadField(
+                  controller: widget.textDacsanController,
+                  builder: (context, controller, focusNode) {
+                    return TextField(
+                      onSubmitted: (value) {
+                        int slot = dsDacSan
+                            .indexWhere((element) => element.ten == value);
+                        if (slot != -1) {
+                          widget.dacSanController.goToRow(slot);
+                          dsChon[slot] = true;
+                        }
+                      },
+                      controller: widget.textDacsanController,
+                      focusNode: focusNode,
+                      autofocus: false,
+                      decoration: roundSearchBarInputDecoration(),
+                    );
+                  },
+                  loadingBuilder: (context) => loadingCircle(size: 50),
+                  emptyBuilder: (context) => const ListTile(
+                    title: Text("Không có mùa trùng khớp"),
+                  ),
+                  itemBuilder: (context, item) {
+                    return ListTile(
+                      title: Text(item.ten),
+                    );
+                  },
+                  onSelected: (value) {
+                    int slot = dsDacSan
+                        .indexWhere((element) => element.ten == value.ten);
+                    widget.dacSanController.goToRow(slot);
+                    dsChon[slot] = true;
+                  },
+                  suggestionsCallback: (search) => dsDacSan
+                      .where((element) => element.ten.contains(search))
+                      .toList(),
+                ),
+              )
+            ],
+          ),
           columns: const [
             DataColumn2(
               label: Text('ID'),
@@ -977,7 +1005,7 @@ class BangDacSan extends StatelessWidget {
               size: ColumnSize.L,
             ),
             DataColumn2(
-              label: Text('Địa chỉ'),
+              label: Text('Cách chế biến'),
               size: ColumnSize.L,
             ),
             DataColumn2(
@@ -1004,7 +1032,7 @@ class BangDacSan extends StatelessWidget {
               numeric: true,
             ),
           ],
-          source: bangDacSan,
+          source: duLieuDacSan,
         ),
       ),
     );

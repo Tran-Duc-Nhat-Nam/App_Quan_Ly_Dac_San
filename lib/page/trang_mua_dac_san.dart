@@ -1,6 +1,7 @@
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../class/mua_dac_san.dart';
 import '../gui_helper.dart';
@@ -9,6 +10,8 @@ class TrangMuaDacSan extends StatefulWidget {
   TrangMuaDacSan({super.key});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final PaginatorController pageController = PaginatorController();
   @override
   State<TrangMuaDacSan> createState() => _TrangMuaDacSanState();
 }
@@ -78,7 +81,56 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                 child: AbsorbPointer(
                   absorbing: isUpdate || isInsert,
                   child: PaginatedDataTable2(
+                    controller: widget.pageController,
                     rowsPerPage: 10,
+                    header: Row(
+                      children: [
+                        const Flexible(flex: 1, child: Text("Mùa")),
+                        const SizedBox(width: 25),
+                        Flexible(
+                          flex: 1,
+                          child: TypeAheadField(
+                            controller: widget.textController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                onSubmitted: (value) {
+                                  int slot = dsMuaDacSan.indexWhere(
+                                      (element) => element.ten == value);
+                                  if (slot != -1) {
+                                    widget.pageController.goToRow(slot);
+                                    dsChon[slot] = true;
+                                  }
+                                },
+                                controller: widget.textController,
+                                focusNode: focusNode,
+                                autofocus: false,
+                                decoration: roundSearchBarInputDecoration(),
+                              );
+                            },
+                            loadingBuilder: (context) =>
+                                loadingCircle(size: 50),
+                            emptyBuilder: (context) => const ListTile(
+                              title: Text("Không có mùa trùng khớp"),
+                            ),
+                            itemBuilder: (context, item) {
+                              return ListTile(
+                                title: Text(item.ten),
+                              );
+                            },
+                            onSelected: (value) {
+                              int slot = dsMuaDacSan.indexWhere(
+                                  (element) => element.ten == value.ten);
+                              widget.pageController.goToRow(slot);
+                              dsChon[slot] = true;
+                            },
+                            suggestionsCallback: (search) => dsMuaDacSan
+                                .where(
+                                    (element) => element.ten.contains(search))
+                                .toList(),
+                          ),
+                        )
+                      ],
+                    ),
                     columns: const [
                       DataColumn2(
                         label: Text('ID'),
@@ -104,9 +156,8 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                         visible: !isReadonly,
                         child: TextFormField(
                           controller: widget.tenController,
-                          validator: (value) => value == null || value.isEmpty
-                              ? "Vui lòng nhập tên mùa "
-                              : null,
+                          validator: (value) => textFieldValidator(
+                              value, "Vui lòng nhập tên mùa"),
                           decoration:
                               roundInputDecoration("Tên mùa ", "Nhập tên mùa "),
                         ),

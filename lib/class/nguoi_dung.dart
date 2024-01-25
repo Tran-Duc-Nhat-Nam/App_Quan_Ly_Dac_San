@@ -28,7 +28,7 @@ class NguoiDung {
       email: json['email'],
       ten: json['ten'],
       isNam: json['is_nam'],
-      ngaySinh: DateTime.fromMillisecondsSinceEpoch(json['ngay_sinh']),
+      ngaySinh: DateTime.parse(json['ngay_sinh']),
       diaChi: DiaChi.fromJson(json['dia_chi']),
       soDienThoai: json['so_dien_thoai'],
     );
@@ -60,7 +60,7 @@ class NguoiDung {
         'email': nguoiDung.email,
         'ten': nguoiDung.ten,
         'is_nam': nguoiDung.isNam,
-        'ngay_sinh': nguoiDung.ngaySinh.millisecondsSinceEpoch,
+        'ngay_sinh': nguoiDung.ngaySinh.toIso8601String(),
         'dia_chi': nguoiDung.diaChi.toJson(),
         'so_dien_thoai': nguoiDung.soDienThoai,
       }),

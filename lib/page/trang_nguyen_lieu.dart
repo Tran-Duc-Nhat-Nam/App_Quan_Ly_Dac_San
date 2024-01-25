@@ -2,6 +2,7 @@ import 'package:app_dac_san/class/nguyen_lieu.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../gui_helper.dart';
 
@@ -9,6 +10,8 @@ class TrangNguyenLieu extends StatefulWidget {
   TrangNguyenLieu({super.key});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final PaginatorController pageController = PaginatorController();
   @override
   State<TrangNguyenLieu> createState() => _TrangNguyenLieuState();
 }
@@ -78,7 +81,57 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                 child: AbsorbPointer(
                   absorbing: isUpdate || isInsert,
                   child: PaginatedDataTable2(
+                    controller: widget.pageController,
                     rowsPerPage: 10,
+                    header: Row(
+                      children: [
+                        const Flexible(
+                            fit: FlexFit.loose, child: Text("Nguyên liệu")),
+                        const SizedBox(width: 25),
+                        Flexible(
+                          fit: FlexFit.tight,
+                          child: TypeAheadField(
+                            controller: widget.textController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                onSubmitted: (value) {
+                                  int slot = dsNguyenLieu.indexWhere(
+                                      (element) => element.ten == value);
+                                  if (slot != -1) {
+                                    widget.pageController.goToRow(slot);
+                                    dsChon[slot] = true;
+                                  }
+                                },
+                                controller: widget.textController,
+                                focusNode: focusNode,
+                                autofocus: false,
+                                decoration: roundSearchBarInputDecoration(),
+                              );
+                            },
+                            loadingBuilder: (context) =>
+                                loadingCircle(size: 50),
+                            emptyBuilder: (context) => const ListTile(
+                              title: Text("Không có nguyên liệu trùng khớp"),
+                            ),
+                            itemBuilder: (context, item) {
+                              return ListTile(
+                                title: Text(item.ten),
+                              );
+                            },
+                            onSelected: (value) {
+                              int slot = dsNguyenLieu.indexWhere(
+                                  (element) => element.ten == value.ten);
+                              widget.pageController.goToRow(slot);
+                              dsChon[slot] = true;
+                            },
+                            suggestionsCallback: (search) => dsNguyenLieu
+                                .where(
+                                    (element) => element.ten.contains(search))
+                                .toList(),
+                          ),
+                        )
+                      ],
+                    ),
                     columns: const [
                       DataColumn2(
                         label: Text('ID'),
@@ -104,9 +157,8 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                         visible: !isReadonly,
                         child: TextFormField(
                           controller: widget.tenController,
-                          validator: (value) => value == null || value.isEmpty
-                              ? "Vui lòng nhập tên nguyên liệu"
-                              : null,
+                          validator: (value) => textFieldValidator(
+                              value, "Vui lòng nhập tên nguyên liệu"),
                           decoration: roundInputDecoration(
                               "Tên nguyên liệu", "Nhập tên nguyên liệu"),
                         ),
@@ -190,6 +242,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
             setState(() {
               dsNguyenLieu.add(value);
               dsChon.add(false);
+              widget.tenController.clear();
             });
             huy();
           } else {
@@ -232,6 +285,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
               setState(() {
                 dsNguyenLieu[i] = nguyenLieu;
                 taoBang();
+                widget.tenController.clear();
               });
             } else {
               showNotify(context, "Cập nhật nguyên liệu thất bại");

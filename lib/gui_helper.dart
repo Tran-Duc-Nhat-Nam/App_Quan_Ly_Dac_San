@@ -5,9 +5,10 @@ void showNotify(BuildContext context, String content) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
 }
 
-Widget loadingCircle() {
+Widget loadingCircle({double size = 100}) {
   return Center(
-    child: LoadingAnimationWidget.discreteCircle(color: Colors.cyan, size: 100),
+    child:
+        LoadingAnimationWidget.discreteCircle(color: Colors.cyan, size: size),
   );
 }
 
@@ -35,5 +36,29 @@ InputDecoration roundInputDecoration(String label, String hintText) {
       borderRadius: BorderRadius.circular(35),
     ),
     hoverColor: null,
+  );
+}
+
+String? textFieldValidator(String? value, String notify) =>
+    value == null || value.isEmpty ? notify : null;
+
+InputDecoration roundSearchBarInputDecoration() {
+  return const InputDecoration(
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(width: 2, color: Colors.white70),
+      borderRadius: BorderRadius.all(
+        Radius.circular(35),
+      ),
+    ),
+    focusColor: Color.fromARGB(20, 65, 105, 225),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(width: 2, color: Colors.white60),
+      borderRadius: BorderRadius.all(
+        Radius.circular(35),
+      ),
+    ),
+    filled: true,
+    fillColor: Color.fromARGB(20, 0, 114, 225),
+    contentPadding: EdgeInsets.symmetric(horizontal: 25),
   );
 }

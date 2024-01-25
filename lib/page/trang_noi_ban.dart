@@ -6,6 +6,7 @@ import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../class/phuong_xa.dart';
 import '../class/quan_huyen.dart';
@@ -18,6 +19,8 @@ class TrangNoiBan extends StatefulWidget {
   final TextEditingController moTaController = TextEditingController();
   final TextEditingController soNhaController = TextEditingController();
   final TextEditingController tenDuongController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final PaginatorController noiBanController = PaginatorController();
   @override
   State<TrangNoiBan> createState() => _TrangNoiBanState();
 }
@@ -127,7 +130,57 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                       child: AbsorbPointer(
                         absorbing: isUpdate || isInsert,
                         child: PaginatedDataTable2(
+                          controller: widget.noiBanController,
                           rowsPerPage: 10,
+                          header: Row(
+                            children: [
+                              const Flexible(flex: 1, child: Text("Mùa")),
+                              const SizedBox(width: 25),
+                              Flexible(
+                                flex: 1,
+                                child: TypeAheadField(
+                                  controller: widget.textController,
+                                  builder: (context, controller, focusNode) {
+                                    return TextField(
+                                      onSubmitted: (value) {
+                                        int slot = dsDacSan.indexWhere(
+                                            (element) => element.ten == value);
+                                        if (slot != -1) {
+                                          widget.noiBanController.goToRow(slot);
+                                          dsChonNoiBan[slot] = true;
+                                        }
+                                      },
+                                      controller: widget.textController,
+                                      focusNode: focusNode,
+                                      autofocus: false,
+                                      decoration:
+                                          roundSearchBarInputDecoration(),
+                                    );
+                                  },
+                                  loadingBuilder: (context) =>
+                                      loadingCircle(size: 50),
+                                  emptyBuilder: (context) => const ListTile(
+                                    title: Text("Không có mùa trùng khớp"),
+                                  ),
+                                  itemBuilder: (context, item) {
+                                    return ListTile(
+                                      title: Text(item.ten),
+                                    );
+                                  },
+                                  onSelected: (value) {
+                                    int slot = dsDacSan.indexWhere(
+                                        (element) => element.ten == value.ten);
+                                    widget.noiBanController.goToRow(slot);
+                                    dsChonNoiBan[slot] = true;
+                                  },
+                                  suggestionsCallback: (search) => dsDacSan
+                                      .where((element) =>
+                                          element.ten.contains(search))
+                                      .toList(),
+                                ),
+                              )
+                            ],
+                          ),
                           columns: const [
                             DataColumn2(
                               label: Text('ID'),
