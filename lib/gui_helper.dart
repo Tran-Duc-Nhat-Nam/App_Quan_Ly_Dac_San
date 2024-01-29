@@ -23,14 +23,15 @@ ButtonStyle roundButtonStyle() {
   );
 }
 
-InputDecoration roundInputDecoration(String label, String hintText) {
+InputDecoration roundInputDecoration(String label, String hintText,
+    {double height = 25}) {
   return InputDecoration(
     label: Text(label),
     hintText: hintText,
-    contentPadding: const EdgeInsetsDirectional.only(
+    contentPadding: EdgeInsetsDirectional.only(
       start: 25,
-      top: 15,
-      bottom: 15,
+      top: height / 2,
+      bottom: height / 2,
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(35),

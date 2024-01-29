@@ -110,7 +110,7 @@ class _TrangVungMienState extends State<TrangVungMien> {
                             loadingBuilder: (context) =>
                                 loadingCircle(size: 50),
                             emptyBuilder: (context) => const ListTile(
-                              title: Text("Không có nguyên liệu trùng khớp"),
+                              title: Text("Không có vùng miền trùng khớp"),
                             ),
                             itemBuilder: (context, item) {
                               return ListTile(

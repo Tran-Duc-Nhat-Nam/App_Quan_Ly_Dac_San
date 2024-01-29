@@ -9,10 +9,10 @@ class HinhAnh {
   String urlHinhAnh;
   static const String url = "${ApiHelper.baseUrl}thanhphan";
   HinhAnh({
-    required this.id,
-    required this.ten,
-    this.moTa,
-    required this.urlHinhAnh,
+    this.id = -1,
+    this.ten = "",
+    this.moTa = "",
+    this.urlHinhAnh = "",
   });
 
   factory HinhAnh.fromJson(Map<String, dynamic> json) {

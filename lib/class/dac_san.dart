@@ -23,14 +23,14 @@ class DacSan {
   static const String url = "${ApiHelper.baseUrl}dacsan";
 
   DacSan({
-    required this.id,
-    required this.ten,
+    this.id = -1,
+    this.ten = "",
     this.moTa,
     this.cachCheBien,
-    required this.vungMien,
-    required this.muaDacSan,
-    required this.thanhPhan,
-    required this.hinhAnh,
+    this.vungMien = const [],
+    this.muaDacSan = const [],
+    this.thanhPhan = const [],
+    this.hinhAnh = const [],
     required this.hinhDaiDien,
   });
 

@@ -7,6 +7,7 @@ import 'package:date_field/date_field.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:intl/intl.dart';
 
 import '../class/dia_chi.dart';
@@ -21,6 +22,8 @@ class TrangNguoiDung extends StatefulWidget {
   final TextEditingController soDienThoaiController = TextEditingController();
   final TextEditingController soNhaController = TextEditingController();
   final TextEditingController tenDuongController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final PaginatorController pageController = PaginatorController();
   @override
   State<TrangNguoiDung> createState() => _TrangNguoiDungState();
 }
@@ -89,7 +92,56 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                 child: AbsorbPointer(
                   absorbing: isUpdate || isInsert,
                   child: PaginatedDataTable2(
+                    controller: widget.pageController,
                     rowsPerPage: 10,
+                    header: Row(
+                      children: [
+                        const Flexible(flex: 1, child: Text("Người dùng")),
+                        const SizedBox(width: 25),
+                        Flexible(
+                          flex: 1,
+                          child: TypeAheadField(
+                            controller: widget.textController,
+                            builder: (context, controller, focusNode) {
+                              return TextField(
+                                onSubmitted: (value) {
+                                  int slot = dsNguoiDung.indexWhere(
+                                      (element) => element.ten == value);
+                                  if (slot != -1) {
+                                    widget.pageController.goToRow(slot);
+                                    dsChon[slot] = true;
+                                  }
+                                },
+                                controller: widget.textController,
+                                focusNode: focusNode,
+                                autofocus: false,
+                                decoration: roundSearchBarInputDecoration(),
+                              );
+                            },
+                            loadingBuilder: (context) =>
+                                loadingCircle(size: 50),
+                            emptyBuilder: (context) => const ListTile(
+                              title: Text("Không có người dùng trùng khớp"),
+                            ),
+                            itemBuilder: (context, item) {
+                              return ListTile(
+                                title: Text(item.ten),
+                              );
+                            },
+                            onSelected: (value) {
+                              int slot = dsNguoiDung.indexWhere(
+                                  (element) => element.ten == value.ten);
+                              widget.pageController.goToRow(slot);
+                              dsChon[slot] = true;
+                            },
+                            suggestionsCallback: (search) => dsNguoiDung
+                                .where(
+                                    (element) => element.ten.contains(search))
+                                .toList(),
+                          ),
+                        )
+                      ],
+                    ),
                     columns: const [
                       DataColumn2(
                         label: Text('ID'),
@@ -395,7 +447,6 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
     if (isInsert &&
         widget.formKey.currentState!.validate() &&
         phuongXa != null) {
-      print(ngaySinh.toUtc().toIso8601String());
       // Gọi hàm API thêm đặc sàn
       NguoiDung.them(NguoiDung(
         id: 0,

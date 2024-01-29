@@ -144,11 +144,11 @@ class _TrangDacSanState extends State<TrangDacSan> {
         // Widget hiển thị trong quá trình đọc dữ liệu từ API
         waiting: (context) => loadingCircle(),
         // Widget hiển thị sau khi đọc dữ liệu từ API thành công
-        builder: (context, value) => Column(
-          children: [
-            Flexible(
-              flex: 1,
-              child: Container(
+        builder: (context, value) => Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              Container(
                 constraints: const BoxConstraints(maxHeight: 600),
                 child: Row(children: [
                   BangDacSan(
@@ -163,537 +163,574 @@ class _TrangDacSanState extends State<TrangDacSan> {
                       dsChonDacSan: dsChonDacSan, bangThanhPhan: bangThanhPhan),
                 ]),
               ),
-            ),
-            Form(
-              key: widget.formKey,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: [
-                      Visibility(
-                        visible:
-                            !isReadonly, // Chỉ hiển thị khi thêm hoặc cập nhật
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              readOnly: isReadonly,
-                              controller: widget.tenController,
-                              validator: (value) =>
-                                  value == null || value.isEmpty
-                                      ? "Vui lòng nhập tên đặc sản"
-                                      : null,
-                              decoration: roundInputDecoration(
-                                  "Tên đặc sản", "Nhập tên đặc sản"),
-                            ),
-                            const SizedBox(height: 15),
-                            TextFormField(
-                              readOnly: isReadonly,
-                              controller: widget.moTaController,
-                              decoration: roundInputDecoration(
-                                  "Mô tả đặc sản", "Nhập thông tin mô tả"),
-                            ),
-                            const SizedBox(height: 15),
-                            TextFormField(
-                              readOnly: isReadonly,
-                              controller: widget.cachCheBienController,
-                              decoration: roundInputDecoration(
-                                  "Cách chế biến đặc sản",
-                                  "Nhập thông tin chế biến"),
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                Flexible(
-                                  flex: 2,
-                                  child: DropdownSearch<VungMien>(
-                                    enabled: !isReadonly,
-                                    validator: (value) {
-                                      if (dsVungMienTam.isEmpty) {
-                                        return "Vui lòng thêm ít nhất 1 vùng miền";
-                                      }
-                                      return null;
-                                    },
-                                    popupProps: const PopupProps.menu(
-                                      title: Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 10),
-                                        child: Center(
-                                          child: Text(
-                                            "Danh sách vùng miền",
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-                                      ),
-                                      showSelectedItems: true,
-                                    ),
-                                    dropdownDecoratorProps:
-                                        DropDownDecoratorProps(
-                                      dropdownSearchDecoration:
-                                          roundInputDecoration("Vùng miền", ""),
-                                    ),
-                                    compareFn: (item1, item2) {
-                                      return item1 == item2;
-                                    },
-                                    onChanged: (value) async {
-                                      if (value != null) {
-                                        vungMien = value;
-                                      }
-                                    },
-                                    items: dsVungMien,
-                                    itemAsString: (value) {
-                                      return value.ten;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            if (vungMien != null) {
-                                              setState(() {
-                                                dsVungMienTam.add(vungMien!);
-                                                taoBangDacSan();
-                                              });
-                                            } else {
-                                              showNotify(context,
-                                                  "Vui lòng chọn vùng miền");
-                                            }
-                                          }
+              Flexible(
+                flex: 1,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Form(
+                    key: widget.formKey,
+                    child: Column(
+                      children: [
+                        Visibility(
+                          visible:
+                              !isReadonly, // Chỉ hiển thị khi thêm hoặc cập nhật
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 15),
+                              TextFormField(
+                                readOnly: isReadonly,
+                                controller: widget.tenController,
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                        ? "Vui lòng nhập tên đặc sản"
                                         : null,
-                                    child: const Text("Thêm"),
+                                decoration: roundInputDecoration(
+                                    "Tên đặc sản", "Nhập tên đặc sản"),
+                              ),
+                              const SizedBox(height: 15),
+                              SizedBox(
+                                height: 200,
+                                child: TextFormField(
+                                  maxLines: 1000,
+                                  textInputAction: TextInputAction.newline,
+                                  keyboardType: TextInputType.multiline,
+                                  readOnly: isReadonly,
+                                  controller: widget.moTaController,
+                                  decoration: roundInputDecoration(
+                                      "Mô tả đặc sản", "Nhập thông tin mô tả"),
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              SizedBox(
+                                height: 200,
+                                child: TextFormField(
+                                  maxLines: 1000,
+                                  textInputAction: TextInputAction.newline,
+                                  keyboardType: TextInputType.multiline,
+                                  readOnly: isReadonly,
+                                  controller: widget.cachCheBienController,
+                                  decoration: roundInputDecoration(
+                                    "Cách chế biến đặc sản",
+                                    "Nhập thông tin chế biến",
+                                    height: 100,
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            if (vungMien != null) {
-                                              setState(() {
-                                                dsVungMienTam.remove(vungMien!);
-                                                taoBangDacSan();
-                                              });
-                                            } else {
-                                              showNotify(context,
-                                                  "Vui lòng chọn vùng miền");
-                                            }
-                                          }
-                                        : null,
-                                    child: const Text("Xóa"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                Flexible(
-                                  flex: 2,
-                                  child: DropdownSearch<MuaDacSan>(
-                                    enabled: !isReadonly,
-                                    validator: (value) => dsMuaDacSanTam.isEmpty
-                                        ? "Vui lòng thêm ít nhất 1 mùa"
-                                        : null,
-                                    popupProps: const PopupProps.menu(
-                                      title: Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 10),
-                                        child: Center(
-                                          child: Text(
-                                            "Danh sách mùa",
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-                                      ),
-                                      showSelectedItems: true,
-                                    ),
-                                    dropdownDecoratorProps:
-                                        DropDownDecoratorProps(
-                                      dropdownSearchDecoration:
-                                          roundInputDecoration("Mùa", ""),
-                                    ),
-                                    compareFn: (item1, item2) => item1 == item2,
-                                    onChanged: (value) => value != null
-                                        ? muaDacSan = value
-                                        : null,
-                                    items: dsMuaDacSan,
-                                    itemAsString: (value) => value.ten,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            if (muaDacSan != null) {
-                                              setState(() {
-                                                dsMuaDacSanTam.add(muaDacSan!);
-                                                taoBangDacSan();
-                                              });
-                                            } else {
-                                              showNotify(
-                                                  context, "Vui lòng chọn mùa");
-                                            }
-                                          }
-                                        : null,
-                                    child: const Text("Thêm"),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: !isReadonly
-                                        ? () {
-                                            if (muaDacSan != null) {
-                                              setState(() {
-                                                dsMuaDacSan.remove(muaDacSan!);
-                                                taoBangDacSan();
-                                              });
-                                            } else {
-                                              showNotify(
-                                                  context, "Vui lòng chọn mùa");
-                                            }
-                                          }
-                                        : null,
-                                    child: const Text("Xóa"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                Flexible(
-                                  flex: 1,
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        flex: 2,
-                                        child: DropdownSearch<NguyenLieu>(
-                                          enabled: !isReadonly,
-                                          validator: (value) => dsThanhPhan
-                                                  .isEmpty
-                                              ? "Vui lòng thêm ít nhất 1 nguyên liệu"
-                                              : null,
-                                          popupProps: const PopupProps.menu(
-                                            title: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 10),
-                                              child: Center(
-                                                child: Text(
-                                                  "Danh sách nguyên liệu",
-                                                  style:
-                                                      TextStyle(fontSize: 16),
-                                                ),
-                                              ),
-                                            ),
-                                            showSelectedItems: true,
-                                          ),
-                                          dropdownDecoratorProps:
-                                              DropDownDecoratorProps(
-                                            dropdownSearchDecoration:
-                                                roundInputDecoration(
-                                                    "Nguyên liệu", ""),
-                                          ),
-                                          compareFn: (item1, item2) =>
-                                              item1 == item2,
-                                          onChanged: (value) => value != null
-                                              ? nguyenLieu = value
-                                              : null,
-                                          selectedItem: nguyenLieu,
-                                          items: dsNguyenLieu,
-                                          itemAsString: (value) => value.ten,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        flex: 2,
-                                        child: TextFormField(
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly
-                                          ],
-                                          readOnly: isReadonly,
-                                          controller: widget.soLuongController,
-                                          decoration: roundInputDecoration(
-                                              "Số lượng", "Nhập số lượng"),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        flex: 2,
-                                        child: TextFormField(
-                                          readOnly: isReadonly,
-                                          controller:
-                                              widget.donViTinhController,
-                                          decoration: roundInputDecoration(
-                                              "Đơn vị tính",
-                                              "Nhập đơn vị tính"),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Flexible(
-                                  flex: 1,
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        fit: FlexFit.tight,
-                                        child: FilledButton(
-                                          style: roundButtonStyle(),
-                                          onPressed: () {
-                                            if (!isReadonly) {
-                                              {
-                                                try {
-                                                  ThanhPhan thanhPhan =
-                                                      ThanhPhan(
-                                                    nguyenLieu: nguyenLieu!,
-                                                    soLuong: double.parse(widget
-                                                        .soLuongController
-                                                        .text),
-                                                    donViTinh: widget
-                                                        .donViTinhController
-                                                        .text,
-                                                  );
-                                                  setState(() {
-                                                    dsThanhPhan.add(thanhPhan);
-                                                    taoBangDacSan();
-                                                    taoBangThanhPhan();
-                                                  });
-                                                } catch (e) {
-                                                  showNotify(context,
-                                                      "Dữ liệu không hợp lệ");
-                                                }
-                                              }
-                                            }
-                                          },
-                                          child: const Text("Thêm"),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        fit: FlexFit.tight,
-                                        child: FilledButton(
-                                          style: roundButtonStyle(),
-                                          onPressed: () {
-                                            if (!isReadonly) {
-                                              try {
-                                                setState(() {
-                                                  dsThanhPhan.remove(dsThanhPhan
-                                                      .firstWhere((element) =>
-                                                          element
-                                                              .nguyenLieu.id ==
-                                                          nguyenLieu!.id));
-                                                });
-                                                taoBangDacSan();
-                                              } catch (e) {
-                                                showNotify(context,
-                                                    "Thành phần chưa tồn tại trong thông tin đặc sản");
-                                              }
-                                            }
-                                          },
-                                          child: const Text("Xóa"),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                              children: [
-                                Flexible(
-                                  flex: 1,
-                                  child: TextFormField(
-                                    readOnly: isReadonly,
-                                    controller: widget.tenHinhAnhController,
-                                    decoration: roundInputDecoration(
-                                        "Tên hình ảnh", "Nhập tên hình ảnh"),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  flex: 1,
-                                  child: TextFormField(
-                                    readOnly: isReadonly,
-                                    controller: widget.moTaHinhAnhController,
-                                    decoration: roundInputDecoration(
-                                        "Mô tả hình ảnh",
-                                        "Nhập thông tin mô tả"),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  flex: 1,
-                                  child: TextFormField(
-                                    readOnly: isReadonly,
-                                    controller: widget.urlHinhAnhController,
-                                    decoration: roundInputDecoration(
-                                        "URL", "Nhập đường dẫn hình ảnh"),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: () {
-                                      if (!isReadonly) {
-                                        try {
-                                          HinhAnh hinhAnh = HinhAnh(
-                                            id: 0,
-                                            ten: widget
-                                                .tenHinhAnhController.text,
-                                            moTa: widget
-                                                .moTaHinhAnhController.text,
-                                            urlHinhAnh: widget
-                                                .urlHinhAnhController.text,
-                                          );
-                                          setState(() {
-                                            dsHinhAnhTam.add(hinhAnh);
-                                          });
-                                          taoBangDacSan();
-                                        } catch (e) {
-                                          showNotify(
-                                              context, "Dữ liệu không hợp lệ");
-                                        }
-                                      }
-                                    },
-                                    child: const Text("Thêm"),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: () {
-                                      if (!isReadonly) {
-                                        try {
-                                          setState(() {
-                                            dsHinhAnhTam.remove(dsHinhAnhTam
-                                                .firstWhere((element) =>
-                                                    element.ten ==
-                                                    widget.tenHinhAnhController
-                                                        .text));
-                                          });
-                                          taoBangDacSan();
-                                        } catch (e) {
-                                          showNotify(context,
-                                              "Hình ảnh chưa tồn tại trong thông tin đặc sản");
-                                        }
-                                      }
-                                    },
-                                    child: const Text("Xóa"),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: FilledButton(
-                                    style: roundButtonStyle(),
-                                    onPressed: () {
-                                      if (!isReadonly) {
-                                        try {
-                                          HinhAnh hinhAnh = HinhAnh(
-                                            id: 0,
-                                            ten: widget
-                                                .tenHinhAnhController.text,
-                                            moTa: widget
-                                                .moTaHinhAnhController.text,
-                                            urlHinhAnh: widget
-                                                .urlHinhAnhController.text,
-                                          );
-                                          hinhDaiDien = hinhAnh;
-                                          taoBangDacSan();
-                                        } catch (e) {
-                                          showNotify(
-                                              context, "Dữ liệu không hợp lệ");
-                                        }
-                                      }
-                                    },
-                                    child: const Text("Cập nhật hình đại diện"),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        children: [
-                          Flexible(
-                            fit: FlexFit.tight,
-                            child: FilledButton(
-                              style: roundButtonStyle(),
-                              onPressed: isReadonly || isInsert
-                                  ? () => them(context)
-                                  : null,
-                              child: const Text("Thêm"),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            fit: FlexFit.tight,
-                            child: FilledButton(
-                              style: roundButtonStyle(),
-                              onPressed: isReadonly || isUpdate
-                                  ? () => capNhat(context)
-                                  : null,
-                              child: const Text("Cập nhật"),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            fit: FlexFit.tight,
-                            child: FilledButton(
-                              style: roundButtonStyle(),
-                              onPressed: isReadonly ? () => xoa(context) : null,
-                              child: const Text("Xóa"),
-                            ),
-                          ),
-                          Visibility(
-                            visible: !isReadonly,
-                            child: Flexible(
-                              fit: FlexFit.tight,
-                              child: Row(
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
                                 children: [
+                                  Flexible(
+                                    flex: 2,
+                                    child: DropdownSearch<VungMien>(
+                                      enabled: !isReadonly,
+                                      validator: (value) {
+                                        if (dsVungMienTam.isEmpty) {
+                                          return "Vui lòng thêm ít nhất 1 vùng miền";
+                                        }
+                                        return null;
+                                      },
+                                      popupProps: const PopupProps.menu(
+                                        title: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          child: Center(
+                                            child: Text(
+                                              "Danh sách vùng miền",
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ),
+                                        ),
+                                        showSelectedItems: true,
+                                      ),
+                                      dropdownDecoratorProps:
+                                          DropDownDecoratorProps(
+                                        dropdownSearchDecoration:
+                                            roundInputDecoration(
+                                                "Vùng miền", ""),
+                                      ),
+                                      compareFn: (item1, item2) {
+                                        return item1 == item2;
+                                      },
+                                      onChanged: (value) async {
+                                        if (value != null) {
+                                          vungMien = value;
+                                        }
+                                      },
+                                      items: dsVungMien,
+                                      itemAsString: (value) {
+                                        return value.ten;
+                                      },
+                                    ),
+                                  ),
                                   const SizedBox(width: 10),
                                   Flexible(
                                     fit: FlexFit.tight,
                                     child: FilledButton(
                                       style: roundButtonStyle(),
-                                      onPressed: () => huy(),
-                                      child: const Text("Hủy"),
+                                      onPressed: !isReadonly
+                                          ? () {
+                                              if (vungMien != null) {
+                                                setState(() {
+                                                  dsVungMienTam.add(vungMien!);
+                                                  taoBangDacSan();
+                                                });
+                                              } else {
+                                                showNotify(context,
+                                                    "Vui lòng chọn vùng miền");
+                                              }
+                                            }
+                                          : null,
+                                      child: const Text("Thêm"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: !isReadonly
+                                          ? () {
+                                              if (vungMien != null) {
+                                                setState(() {
+                                                  dsVungMienTam
+                                                      .remove(vungMien!);
+                                                  taoBangDacSan();
+                                                });
+                                              } else {
+                                                showNotify(context,
+                                                    "Vui lòng chọn vùng miền");
+                                              }
+                                            }
+                                          : null,
+                                      child: const Text("Xóa"),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
+                              const SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    flex: 2,
+                                    child: DropdownSearch<MuaDacSan>(
+                                      enabled: !isReadonly,
+                                      validator: (value) =>
+                                          dsMuaDacSanTam.isEmpty
+                                              ? "Vui lòng thêm ít nhất 1 mùa"
+                                              : null,
+                                      popupProps: const PopupProps.menu(
+                                        title: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 10),
+                                          child: Center(
+                                            child: Text(
+                                              "Danh sách mùa",
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ),
+                                        ),
+                                        showSelectedItems: true,
+                                      ),
+                                      dropdownDecoratorProps:
+                                          DropDownDecoratorProps(
+                                        dropdownSearchDecoration:
+                                            roundInputDecoration("Mùa", ""),
+                                      ),
+                                      compareFn: (item1, item2) =>
+                                          item1 == item2,
+                                      onChanged: (value) => value != null
+                                          ? muaDacSan = value
+                                          : null,
+                                      items: dsMuaDacSan,
+                                      itemAsString: (value) => value.ten,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: !isReadonly
+                                          ? () {
+                                              if (muaDacSan != null) {
+                                                setState(() {
+                                                  dsMuaDacSanTam
+                                                      .add(muaDacSan!);
+                                                  taoBangDacSan();
+                                                });
+                                              } else {
+                                                showNotify(context,
+                                                    "Vui lòng chọn mùa");
+                                              }
+                                            }
+                                          : null,
+                                      child: const Text("Thêm"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: !isReadonly
+                                          ? () {
+                                              if (muaDacSan != null) {
+                                                setState(() {
+                                                  dsMuaDacSan
+                                                      .remove(muaDacSan!);
+                                                  taoBangDacSan();
+                                                });
+                                              } else {
+                                                showNotify(context,
+                                                    "Vui lòng chọn mùa");
+                                              }
+                                            }
+                                          : null,
+                                      child: const Text("Xóa"),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          flex: 2,
+                                          child: DropdownSearch<NguyenLieu>(
+                                            validator: (value) => dsThanhPhan
+                                                    .isEmpty
+                                                ? "Vui lòng thêm ít nhất 1 nguyên liệu"
+                                                : null,
+                                            popupProps: const PopupProps.menu(
+                                              title: Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 10),
+                                                child: Center(
+                                                  child: Text(
+                                                    "Danh sách nguyên liệu",
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                  ),
+                                                ),
+                                              ),
+                                              showSelectedItems: true,
+                                              showSearchBox: true,
+                                            ),
+                                            dropdownDecoratorProps:
+                                                DropDownDecoratorProps(
+                                              dropdownSearchDecoration:
+                                                  roundInputDecoration(
+                                                      "Nguyên liệu", ""),
+                                            ),
+                                            compareFn: (item1, item2) =>
+                                                item1 == item2,
+                                            onChanged: (value) => value != null
+                                                ? nguyenLieu = value
+                                                : null,
+                                            selectedItem: nguyenLieu,
+                                            asyncItems: (text) => Future(() =>
+                                                dsNguyenLieu
+                                                    .where((element) => element
+                                                        .ten
+                                                        .contains(text))
+                                                    .toList()),
+                                            itemAsString: (value) => value.ten,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          flex: 2,
+                                          child: TextFormField(
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly
+                                            ],
+                                            readOnly: isReadonly,
+                                            controller:
+                                                widget.soLuongController,
+                                            decoration: roundInputDecoration(
+                                                "Số lượng", "Nhập số lượng"),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          flex: 2,
+                                          child: TextFormField(
+                                            readOnly: isReadonly,
+                                            controller:
+                                                widget.donViTinhController,
+                                            decoration: roundInputDecoration(
+                                                "Đơn vị tính",
+                                                "Nhập đơn vị tính"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Flexible(
+                                    flex: 1,
+                                    child: Row(
+                                      children: [
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          fit: FlexFit.tight,
+                                          child: FilledButton(
+                                            style: roundButtonStyle(),
+                                            onPressed: () {
+                                              if (!isReadonly) {
+                                                {
+                                                  try {
+                                                    ThanhPhan thanhPhan =
+                                                        ThanhPhan(
+                                                      nguyenLieu: nguyenLieu!,
+                                                      soLuong: double.parse(
+                                                          widget
+                                                              .soLuongController
+                                                              .text),
+                                                      donViTinh: widget
+                                                          .donViTinhController
+                                                          .text,
+                                                    );
+                                                    setState(() {
+                                                      dsThanhPhan
+                                                          .add(thanhPhan);
+                                                      dsChonThanhPhan
+                                                          .add(false);
+                                                      taoBangDacSan();
+                                                      taoBangThanhPhan();
+                                                    });
+                                                  } catch (e) {
+                                                    showNotify(context,
+                                                        "Dữ liệu không hợp lệ");
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            child: const Text("Thêm"),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          fit: FlexFit.tight,
+                                          child: FilledButton(
+                                            style: roundButtonStyle(),
+                                            onPressed: () {
+                                              if (!isReadonly) {
+                                                try {
+                                                  setState(() {
+                                                    dsThanhPhan.remove(
+                                                        dsThanhPhan.firstWhere(
+                                                            (element) =>
+                                                                element
+                                                                    .nguyenLieu
+                                                                    .id ==
+                                                                nguyenLieu!
+                                                                    .id));
+                                                  });
+                                                  taoBangDacSan();
+                                                } catch (e) {
+                                                  showNotify(context,
+                                                      "Thành phần chưa tồn tại trong thông tin đặc sản");
+                                                }
+                                              }
+                                            },
+                                            child: const Text("Xóa"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    flex: 1,
+                                    child: TextFormField(
+                                      readOnly: isReadonly,
+                                      controller: widget.tenHinhAnhController,
+                                      decoration: roundInputDecoration(
+                                          "Tên hình ảnh", "Nhập tên hình ảnh"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    flex: 1,
+                                    child: TextFormField(
+                                      readOnly: isReadonly,
+                                      controller: widget.moTaHinhAnhController,
+                                      decoration: roundInputDecoration(
+                                          "Mô tả hình ảnh",
+                                          "Nhập thông tin mô tả"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    flex: 1,
+                                    child: TextFormField(
+                                      readOnly: isReadonly,
+                                      controller: widget.urlHinhAnhController,
+                                      decoration: roundInputDecoration(
+                                          "URL", "Nhập đường dẫn hình ảnh"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: () {
+                                        if (!isReadonly) {
+                                          try {
+                                            HinhAnh hinhAnh = HinhAnh(
+                                              id: 0,
+                                              ten: widget
+                                                  .tenHinhAnhController.text,
+                                              moTa: widget
+                                                  .moTaHinhAnhController.text,
+                                              urlHinhAnh: widget
+                                                  .urlHinhAnhController.text,
+                                            );
+                                            setState(() {
+                                              dsHinhAnhTam.add(hinhAnh);
+                                            });
+                                            taoBangDacSan();
+                                          } catch (e) {
+                                            showNotify(context,
+                                                "Dữ liệu không hợp lệ");
+                                          }
+                                        }
+                                      },
+                                      child: const Text("Thêm"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: () {
+                                        if (!isReadonly) {
+                                          try {
+                                            setState(() {
+                                              dsHinhAnhTam.remove(dsHinhAnhTam
+                                                  .firstWhere((element) =>
+                                                      element.ten ==
+                                                      widget
+                                                          .tenHinhAnhController
+                                                          .text));
+                                            });
+                                            taoBangDacSan();
+                                          } catch (e) {
+                                            showNotify(context,
+                                                "Hình ảnh chưa tồn tại trong thông tin đặc sản");
+                                          }
+                                        }
+                                      },
+                                      child: const Text("Xóa"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: FilledButton(
+                                      style: roundButtonStyle(),
+                                      onPressed: () {
+                                        if (!isReadonly) {
+                                          try {
+                                            HinhAnh hinhAnh = HinhAnh(
+                                              id: 0,
+                                              ten: widget
+                                                  .tenHinhAnhController.text,
+                                              moTa: widget
+                                                  .moTaHinhAnhController.text,
+                                              urlHinhAnh: widget
+                                                  .urlHinhAnhController.text,
+                                            );
+                                            hinhDaiDien = hinhAnh;
+                                            taoBangDacSan();
+                                          } catch (e) {
+                                            showNotify(context,
+                                                "Dữ liệu không hợp lệ");
+                                          }
+                                        }
+                                      },
+                                      child:
+                                          const Text("Cập nhật hình đại diện"),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          children: [
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: FilledButton(
+                                style: roundButtonStyle(),
+                                onPressed: isReadonly || isInsert
+                                    ? () => them(context)
+                                    : null,
+                                child: const Text("Thêm"),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: FilledButton(
+                                style: roundButtonStyle(),
+                                onPressed: isReadonly || isUpdate
+                                    ? () => capNhat(context)
+                                    : null,
+                                child: const Text("Cập nhật"),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              fit: FlexFit.tight,
+                              child: FilledButton(
+                                style: roundButtonStyle(),
+                                onPressed:
+                                    isReadonly ? () => xoa(context) : null,
+                                child: const Text("Xóa"),
+                              ),
+                            ),
+                            Visibility(
+                              visible: !isReadonly,
+                              child: Flexible(
+                                fit: FlexFit.tight,
+                                child: Row(
+                                  children: [
+                                    const SizedBox(width: 10),
+                                    Flexible(
+                                      fit: FlexFit.tight,
+                                      child: FilledButton(
+                                        style: roundButtonStyle(),
+                                        onPressed: () => huy(),
+                                        child: const Text("Hủy"),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         // Widget hiển thị sau khi đọc dữ liệu từ API thất bại
         error: (context, error, stackTrace) =>
@@ -729,30 +766,20 @@ class _TrangDacSanState extends State<TrangDacSan> {
           setState(() {
             dsDacSan.add(value);
             dsChonDacSan.add(false);
+            huy();
           });
-          huy();
         } else {
           showNotify(context, "Thêm đặc sản thất bại");
         }
       });
     } else if (!isInsert) {
       // Gán giá trị cho các biến tạm
-      hinhDaiDien = HinhAnh(
-        id: -1,
-        ten: "",
-        urlHinhAnh: "",
-      );
+      hinhDaiDien = HinhAnh();
       dacSanTam = DacSan(
-        id: -1,
-        ten: widget.tenController.text,
-        moTa: widget.moTaController.text,
-        cachCheBien: widget.cachCheBienController.text,
-        vungMien: dsVungMienTam,
-        muaDacSan: dsMuaDacSanTam,
-        thanhPhan: dsThanhPhan,
-        hinhAnh: dsHinhAnh,
-        hinhDaiDien: hinhDaiDien!,
-      );
+          vungMien: dsVungMienTam,
+          muaDacSan: dsMuaDacSanTam,
+          thanhPhan: dsThanhPhan,
+          hinhDaiDien: hinhDaiDien!);
       dsDacSan.add(dacSanTam!);
       dsChonDacSan.add(true);
       dsThanhPhan = [];
@@ -795,6 +822,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
               setState(() {
                 dsDacSan[i] = dacSan;
                 taoBangDacSan();
+                huy();
               });
             } else {
               showNotify(context, "Cập nhật đặc sản thất bại");
@@ -872,6 +900,17 @@ class _TrangDacSanState extends State<TrangDacSan> {
       isReadonly = true;
       isInsert = false;
       isUpdate = false;
+      widget.tenController.clear();
+      widget.moTaController.clear();
+      widget.cachCheBienController.clear();
+      widget.tenHinhAnhController.clear();
+      widget.moTaHinhAnhController.clear();
+      widget.urlHinhAnhController.clear();
+      dsVungMienTam = [];
+      dsMuaDacSanTam = [];
+      dsThanhPhan = [];
+      dsHinhAnhTam = [];
+      hinhDaiDien = null;
       taoBangDacSan();
     });
   }
@@ -947,7 +986,7 @@ class BangDacSan extends StatelessWidget {
           rowsPerPage: 10,
           header: Row(
             children: [
-              const Flexible(flex: 1, child: Text("Mùa")),
+              const Flexible(flex: 1, child: Text("Đặc sản")),
               const SizedBox(width: 25),
               Flexible(
                 flex: 1,
@@ -971,7 +1010,7 @@ class BangDacSan extends StatelessWidget {
                   },
                   loadingBuilder: (context) => loadingCircle(size: 50),
                   emptyBuilder: (context) => const ListTile(
-                    title: Text("Không có mùa trùng khớp"),
+                    title: Text("Không có đặc sản trùng khớp"),
                   ),
                   itemBuilder: (context, item) {
                     return ListTile(

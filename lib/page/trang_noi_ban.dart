@@ -134,7 +134,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                           rowsPerPage: 10,
                           header: Row(
                             children: [
-                              const Flexible(flex: 1, child: Text("Mùa")),
+                              const Flexible(flex: 1, child: Text("Nơi bán")),
                               const SizedBox(width: 25),
                               Flexible(
                                 flex: 1,
@@ -160,7 +160,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                                   loadingBuilder: (context) =>
                                       loadingCircle(size: 50),
                                   emptyBuilder: (context) => const ListTile(
-                                    title: Text("Không có mùa trùng khớp"),
+                                    title: Text("Không có nơi bán trùng khớp"),
                                   ),
                                   itemBuilder: (context, item) {
                                     return ListTile(
