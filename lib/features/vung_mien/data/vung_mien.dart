@@ -1,30 +1,34 @@
 import 'dart:convert';
 
-import '../json_helper.dart';
+import 'package:equatable/equatable.dart';
 
-class MuaDacSan {
+import '../../../core/json_helper.dart';
+
+class VungMien extends Equatable {
   int id;
   String ten;
-  static const String url = "${ApiHelper.baseUrl}muadacsan";
-  MuaDacSan({
+  static const String url = "${ApiHelper.baseUrl}vungmien";
+
+  VungMien({
     required this.id,
     required this.ten,
   });
 
-  factory MuaDacSan.fromJson(Map<String, dynamic> json) {
-    return MuaDacSan(
+  factory VungMien.fromJson(Map<String, dynamic> json) {
+    return VungMien(
       id: json["id"],
       ten: json["ten"],
     );
   }
-  static List<MuaDacSan> fromJsonList(List<dynamic> json) {
-    List<MuaDacSan> dsMuaDacSan = [];
+
+  static List<VungMien> fromJsonList(List<dynamic> json) {
+    List<VungMien> dsVungMien = [];
 
     for (var value in json) {
-      dsMuaDacSan.add(MuaDacSan.fromJson(value));
+      dsVungMien.add(VungMien.fromJson(value));
     }
 
-    return dsMuaDacSan;
+    return dsVungMien;
   }
 
   Map<String, dynamic> toJson() => {
@@ -32,35 +36,35 @@ class MuaDacSan {
         'ten': ten,
       };
 
-  static List<dynamic> toJsonList(List<MuaDacSan> dsMuaDacSan) {
+  static List<dynamic> toJsonList(List<VungMien> dsVungMien) {
     List<dynamic> dsJson = [];
 
-    for (var muaDacSan in dsMuaDacSan) {
-      dsJson.add(muaDacSan.toJson());
+    for (var vungMien in dsVungMien) {
+      dsJson.add(vungMien.toJson());
     }
 
     return dsJson;
   }
 
-  static Future<List<MuaDacSan>> doc() async {
-    List<MuaDacSan> dsMuaDacSan = [];
+  static Future<List<VungMien>> doc() async {
+    List<VungMien> dsVungMien = [];
 
     var result = await docAPI(url);
 
     for (var document in result) {
-      MuaDacSan nguyenLieu = MuaDacSan.fromJson(document);
-      dsMuaDacSan.add(nguyenLieu);
+      VungMien nguyenLieu = VungMien.fromJson(document);
+      dsVungMien.add(nguyenLieu);
     }
 
-    return dsMuaDacSan;
+    return dsVungMien;
   }
 
-  static Future<MuaDacSan> docTheoID(int id) async {
+  static Future<VungMien> docTheoID(int id) async {
     var result = await docAPI("$url/$id");
-    return MuaDacSan.fromJson(result);
+    return VungMien.fromJson(result);
   }
 
-  static Future<MuaDacSan?> them(String ten) async {
+  static Future<VungMien?> them(String ten) async {
     final response = await taoAPI(
       url,
       jsonEncode(<String, dynamic>{
@@ -70,19 +74,19 @@ class MuaDacSan {
     );
 
     if (response.statusCode == 201) {
-      return MuaDacSan.fromJson(
+      return VungMien.fromJson(
           jsonDecode(response.body) as Map<String, dynamic>);
     } else {
       return null;
     }
   }
 
-  static Future<bool> capNhat(MuaDacSan muaDacSan) async {
+  static Future<bool> capNhat(VungMien vungMien) async {
     final response = await capNhatAPI(
       url,
       jsonEncode(<String, dynamic>{
-        'id': muaDacSan.id,
-        'ten': muaDacSan.ten,
+        'id': vungMien.id,
+        'ten': vungMien.ten,
       }),
     );
 
@@ -99,4 +103,7 @@ class MuaDacSan {
 
     return response.statusCode == 200;
   }
+
+  @override
+  List<Object?> get props => [id, ten];
 }

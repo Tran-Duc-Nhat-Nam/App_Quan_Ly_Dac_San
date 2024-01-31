@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 import 'dia_chi.dart';
 
 class NguoiDung {
@@ -12,6 +12,7 @@ class NguoiDung {
   DiaChi diaChi;
   String soDienThoai;
   static const String url = "${ApiHelper.baseUrl}nguoidung";
+
   NguoiDung({
     required this.id,
     required this.email,

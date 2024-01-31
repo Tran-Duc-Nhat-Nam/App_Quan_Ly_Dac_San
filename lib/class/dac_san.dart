@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:app_dac_san/class/hinh_anh.dart';
-import 'package:app_dac_san/class/mua_dac_san.dart';
 import 'package:app_dac_san/class/thanh_phan.dart';
-import 'package:app_dac_san/class/vung_mien.dart';
+import 'package:app_dac_san/features/mua_dac_san/data/mua_dac_san.dart';
+import 'package:app_dac_san/features/vung_mien/data/vung_mien.dart';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 
 class DacSan {
   int id;

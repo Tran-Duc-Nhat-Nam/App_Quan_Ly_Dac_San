@@ -2,13 +2,14 @@ import 'dart:convert';
 
 import 'package:app_dac_san/class/quan_huyen.dart';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 
 class PhuongXa {
   int id;
   String ten;
   QuanHuyen quanHuyen;
   static const String url = "${ApiHelper.baseUrl}phuongxa";
+
   PhuongXa({
     required this.id,
     required this.ten,

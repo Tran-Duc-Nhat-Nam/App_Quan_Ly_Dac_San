@@ -1,14 +1,12 @@
 import 'dart:convert';
 
-import 'package:data_table_2/data_table_2.dart';
-import 'package:flutter/material.dart';
-
-import '../json_helper.dart';
+import '../../../core/json_helper.dart';
 
 class TinhThanh {
   int id;
   String ten;
   static const String url = "${ApiHelper.baseUrl}tinhthanh";
+
   TinhThanh({
     required this.id,
     required this.ten,
@@ -83,40 +81,4 @@ class TinhThanh {
 
     return response.statusCode == 200;
   }
-}
-
-class TinhThanhDataTableSource extends DataTableSource {
-  List<TinhThanh> dsTinhThanh = [];
-  List<bool> dsChon = [];
-  void Function(int) notifyParent;
-  TinhThanhDataTableSource({
-    required this.dsTinhThanh,
-    required this.dsChon,
-    required this.notifyParent,
-  });
-  @override
-  DataRow? getRow(int index) {
-    // TODO: implement getRow
-    return DataRow2(
-      onSelectChanged: (value) {
-        dsChon[index] = value!;
-        notifyListeners();
-        notifyParent(index);
-      },
-      selected: dsChon[index],
-      cells: [
-        DataCell(Text(dsTinhThanh[index].id.toString())),
-        DataCell(Text(dsTinhThanh[index].ten)),
-      ],
-    );
-  }
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get rowCount => dsTinhThanh.length;
-
-  @override
-  int get selectedRowCount => 0;
 }

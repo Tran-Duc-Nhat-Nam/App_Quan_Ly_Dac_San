@@ -1,16 +1,13 @@
-# app_dac_san
+# Ứng dụng web quản lý thông tin đặc sản
 
-A Flutter web app for manage food infomations.
+Ứng dụng quản lý thông tin đặc sản trên nên tảng web web sử dụng Flutter Framework. Ứng dụng này quản lý các dữ liệu lưu trữ trong cơ sở dữ liệu MySQL
 
-## Getting Started
+## Chức năng
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Quản lý thông tin đặc sản
+- Quản lý thông tin nơi bán
+- Quản lý thông tin người dùng
+- Quản lý thông tin nguyên liệu
+- Quản lý thông tin mùa
+- Quản lý thông tin vùng miền
+- Xem thống kê (WIP)

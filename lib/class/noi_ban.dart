@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:app_dac_san/class/dia_chi.dart';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 import 'dac_san.dart';
 
 class NoiBan {
@@ -10,15 +10,19 @@ class NoiBan {
   String ten;
   String? moTa;
   DiaChi diaChi;
+  List<int> dsDacSan = [];
   int luotXem = 0;
   double diemDanhGia = 0;
   int luotDanhGia = 0;
   static const String url = "${ApiHelper.baseUrl}noiban";
+  static const String dacSanUrl = "${ApiHelper.baseUrl}noibandacsan";
+
   NoiBan({
     required this.id,
     required this.ten,
     this.moTa,
     required this.diaChi,
+    required this.dsDacSan,
   });
 
   factory NoiBan.fromJson(Map<String, dynamic> json) {
@@ -27,7 +31,18 @@ class NoiBan {
       ten: json['ten'],
       moTa: json['mo_ta'],
       diaChi: DiaChi.fromJson(json['dia_chi']),
+      dsDacSan: idFromJsonList(json['ds_dac_san']),
     );
+  }
+
+  static List<int> idFromJsonList(List<dynamic> json) {
+    List<int> dsID = [];
+
+    for (var value in json) {
+      dsID.add(value);
+    }
+
+    return dsID;
   }
 
   static Future<List<NoiBan>> doc() async {
@@ -69,6 +84,7 @@ class NoiBan {
         'ten': noiBan.ten,
         'mo_ta': noiBan.moTa ?? "Chưa có thông tin",
         'dia_chi': noiBan.diaChi.toJson(),
+        'ds_dac_san': noiBan.dsDacSan,
       }),
     );
 

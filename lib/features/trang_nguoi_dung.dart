@@ -1,6 +1,6 @@
 import 'package:app_dac_san/class/phuong_xa.dart';
 import 'package:app_dac_san/class/quan_huyen.dart';
-import 'package:app_dac_san/class/tinh_thanh.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/tinh_thanh.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:date_field/date_field.dart';
@@ -12,10 +12,11 @@ import 'package:intl/intl.dart';
 
 import '../class/dia_chi.dart';
 import '../class/nguoi_dung.dart';
-import '../gui_helper.dart';
+import '../core/gui_helper.dart';
 
 class TrangNguoiDung extends StatefulWidget {
   TrangNguoiDung({super.key});
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController tenController = TextEditingController();
@@ -24,6 +25,7 @@ class TrangNguoiDung extends StatefulWidget {
   final TextEditingController tenDuongController = TextEditingController();
   final TextEditingController textController = TextEditingController();
   final PaginatorController pageController = PaginatorController();
+
   @override
   State<TrangNguoiDung> createState() => _TrangNguoiDungState();
 }
@@ -51,7 +53,11 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
   bool isUpdate = false;
 
   late NguoiDungDataTableSource dataTableSource;
-  late Future myFuture;
+
+  // Các biến Future lưu tiến trình đọc API
+  late Future futureDocAPI;
+  late Future<List<QuanHuyen>> futureDocQuanHuyen;
+  late Future<List<PhuongXa>> futureDocPhuongXa;
 
   void notifyParent(int index) {
     setState(() {});
@@ -67,7 +73,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
 
   @override
   void initState() {
-    myFuture = Future.delayed(const Duration(seconds: 1), () async {
+    futureDocAPI = Future.delayed(const Duration(seconds: 1), () async {
       dsNguoiDung = await NguoiDung.doc();
       dsTinhThanh = await TinhThanh.doc();
       dsChon = dsNguoiDung.map((e) => false).toList();
@@ -81,7 +87,7 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
     return Flexible(
       flex: 1,
       child: AsyncBuilder(
-        future: myFuture,
+        future: futureDocAPI,
         waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
@@ -285,14 +291,18 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                                               "Tỉnh thành", ""),
                                     ),
                                     compareFn: (item1, item2) => item1 == item2,
-                                    onChanged: (value) => value != null
-                                        ? tinhThanh = value
-                                        : null,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        tinhThanh = value;
+                                        futureDocQuanHuyen =
+                                            QuanHuyen.doc(tinhThanh!.id);
+                                      }
+                                    },
                                     items: dsTinhThanh,
                                     itemAsString: (value) => value.ten,
                                     selectedItem: tinhThanh,
                                   ),
-                                ),
+                                ), // Trường tỉnh thành
                                 const SizedBox(width: 10),
                                 Flexible(
                                   fit: FlexFit.tight,
@@ -323,16 +333,18 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                                     onBeforePopupOpening:
                                         (selectedItem) async =>
                                             Future(() => tinhThanh != null),
-                                    onChanged: (value) => value != null
-                                        ? quanHuyen = value
-                                        : null,
-                                    asyncItems: (text) => tinhThanh != null
-                                        ? QuanHuyen.doc(tinhThanh!.id)
-                                        : Future(() => []),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        quanHuyen = value;
+                                        futureDocPhuongXa =
+                                            PhuongXa.doc(quanHuyen!.id);
+                                      }
+                                    },
+                                    asyncItems: (text) => futureDocQuanHuyen,
                                     itemAsString: (value) => value.ten,
                                     selectedItem: quanHuyen,
                                   ),
-                                ),
+                                ), // Trường quận huyện
                                 const SizedBox(width: 10),
                                 Flexible(
                                   fit: FlexFit.tight,
@@ -364,13 +376,11 @@ class _TrangNguoiDungState extends State<TrangNguoiDung> {
                                             Future(() => quanHuyen != null),
                                     onChanged: (value) =>
                                         value != null ? phuongXa = value : null,
-                                    asyncItems: (text) => quanHuyen != null
-                                        ? PhuongXa.doc(quanHuyen!.id)
-                                        : Future(() => []),
+                                    asyncItems: (text) => futureDocPhuongXa,
                                     itemAsString: (value) => value.ten,
                                     selectedItem: phuongXa,
                                   ),
-                                ),
+                                ), //
                               ],
                             ),
                             const SizedBox(height: 15),
@@ -614,11 +624,13 @@ class NguoiDungDataTableSource extends DataTableSource {
   List<NguoiDung> dsNguoiDung = [];
   List<bool> dsChon = [];
   void Function(int) notifyParent;
+
   NguoiDungDataTableSource({
     required this.dsNguoiDung,
     required this.dsChon,
     required this.notifyParent,
   });
+
   @override
   DataRow? getRow(int index) {
     return DataRow2(

@@ -1,14 +1,15 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/class/tinh_thanh.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/tinh_thanh.dart';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 
 class QuanHuyen {
   int id;
   String ten;
   TinhThanh tinhThanh;
   static const String url = "${ApiHelper.baseUrl}quanhuyen";
+
   QuanHuyen({
     required this.id,
     required this.ten,
@@ -22,11 +23,13 @@ class QuanHuyen {
       tinhThanh: TinhThanh.fromJson(json["tinh_thanh"]),
     );
   }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'ten': ten,
         'tinh_thanh': tinhThanh.toJson(),
       };
+
   static Future<List<QuanHuyen>> doc(int idTinhThanh) async {
     List<QuanHuyen> dsQuanHuyen = [];
 

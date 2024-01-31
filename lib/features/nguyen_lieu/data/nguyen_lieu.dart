@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/json_helper.dart';
+import 'package:app_dac_san/core/json_helper.dart';
 
 class NguyenLieu {
   int id;
   String ten;
   static const String url = "${ApiHelper.baseUrl}nguyenlieu";
+
   NguyenLieu({
     required this.id,
     required this.ten,

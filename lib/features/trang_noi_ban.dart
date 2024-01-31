@@ -1,7 +1,7 @@
 import 'package:app_dac_san/class/dac_san.dart';
 import 'package:app_dac_san/class/dia_chi.dart';
 import 'package:app_dac_san/class/noi_ban.dart';
-import 'package:app_dac_san/class/tinh_thanh.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/tinh_thanh.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -10,10 +10,11 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../class/phuong_xa.dart';
 import '../class/quan_huyen.dart';
-import '../gui_helper.dart';
+import '../core/gui_helper.dart';
 
 class TrangNoiBan extends StatefulWidget {
   TrangNoiBan({super.key});
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController tenController = TextEditingController();
   final TextEditingController moTaController = TextEditingController();
@@ -21,6 +22,7 @@ class TrangNoiBan extends StatefulWidget {
   final TextEditingController tenDuongController = TextEditingController();
   final TextEditingController textController = TextEditingController();
   final PaginatorController noiBanController = PaginatorController();
+
   @override
   State<TrangNoiBan> createState() => _TrangNoiBanState();
 }
@@ -28,19 +30,20 @@ class TrangNoiBan extends StatefulWidget {
 class _TrangNoiBanState extends State<TrangNoiBan> {
   // Các danh sách lấy từ API
   List<NoiBan> dsNoiBan = [];
+  List<DacSan> dsDacSanNoiBan = [];
   List<DacSan> dsDacSan = [];
   List<TinhThanh> dsTinhThanh = [];
   List<QuanHuyen> dsQuanHuyen = [];
   List<PhuongXa> dsPhuongXa = [];
-
   List<bool> dsChonNoiBan = [];
-  List<bool> dsChonDacSan = [];
+  List<bool> dsChonDacSanNoiBan = [];
 
   // Các biến tạm thời
   TinhThanh? tinhThanh;
   QuanHuyen? quanHuyen;
   PhuongXa? phuongXa;
   NoiBan? noiBanTam;
+  DacSan? dacSanNoiBan;
   DacSan? dacSan;
 
   // Các biến để lưu tình trạng thêm hoặc cập nhật của trang
@@ -48,64 +51,65 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
   bool isInsert = false;
   bool isUpdate = false;
 
-  late Future myFuture;
+  // Các biến Future lưu tiến trình đọc API
+  late Future futureDocAPI;
+  late Future<List<QuanHuyen>> futureDocQuanHuyen;
+  late Future<List<PhuongXa>> futureDocPhuongXa;
 
-  late NoiBanDataTableSource bangNoiBan;
-  late DacSanDataTableSource bangDacSan;
+  // Datasource
+  late NoiBanDataTableSource duLieuBangNoiBan;
+  late DacSanDataTableSource duLieuBangDacSan;
 
+  // Cập nhật khi có dòng trong bảng nơi bán được chọn
   void notifyParentNB(int index) async {
-    if (dsChonNoiBan[index]) {
-      // Nếu dòng này được chọn thì cập nhật thông tin thành phần theo dòng này
-      if (dsChonNoiBan.where((element) => element).length > 1) {
-        dsDacSan = [];
+    // Nếu tổng số dòng được chọn lớn bằng 1 thì hiển thị bảng đặc sản của nơi bán được chọn
+    if (dsChonNoiBan.where((element) => element).length == 1) {
+      // Nếu nơi bán được chọn là nơi bán vừa được cập nhật
+      if (dsChonNoiBan[index]) {
+        dsDacSanNoiBan = await dsNoiBan[index].docDacSan();
       } else {
-        dsDacSan = await dsNoiBan[index].docDacSan();
+        dsDacSanNoiBan = await dsNoiBan[dsChonNoiBan.indexOf(true)].docDacSan();
       }
-      dsChonDacSan = dsDacSan.map((e) => false).toList();
     } else {
-      // Nếu dòng này không được chọn thì cập nhật thông tin thành phần theo dòng được chọn khác
-      if (dsChonNoiBan.where((element) => element).length == 1) {
-        dsDacSan = await dsNoiBan[dsChonNoiBan.indexOf(true)].docDacSan();
-      } else {
-        dsDacSan = [];
-      }
-      dsChonDacSan = dsDacSan.map((e) => false).toList();
+      dsDacSanNoiBan = [];
     }
     setState(() {
+      dsChonDacSanNoiBan = dsDacSanNoiBan.map((e) => false).toList();
       taoBangDacSan();
     });
   }
 
   void notifyParentDS(int index) {
     setState(() {
-      dacSan = dsDacSan[index];
+      dacSanNoiBan = dsDacSanNoiBan[index];
     });
   }
 
   void taoBangNoiBan() {
-    bangNoiBan = NoiBanDataTableSource(
+    duLieuBangNoiBan = NoiBanDataTableSource(
       dsNoiBan: dsNoiBan,
       dsChon: dsChonNoiBan,
       notifyParent: notifyParentNB,
     );
+    taoBangDacSan();
   }
 
   void taoBangDacSan() {
-    bangDacSan = DacSanDataTableSource(
-      dsDacSan: dsDacSan,
-      dsChon: dsChonDacSan,
+    duLieuBangDacSan = DacSanDataTableSource(
+      dsDacSan: dsDacSanNoiBan,
+      dsChon: dsChonDacSanNoiBan,
       notifyParent: notifyParentDS,
     );
   }
 
   @override
   void initState() {
-    myFuture = Future.delayed(const Duration(seconds: 1), () async {
+    futureDocAPI = Future.delayed(const Duration(seconds: 1), () async {
       dsNoiBan = await NoiBan.doc();
+      dsDacSan = await DacSan.doc();
       dsTinhThanh = await TinhThanh.doc();
       dsChonNoiBan = dsNoiBan.map((e) => false).toList();
       taoBangNoiBan();
-      taoBangDacSan();
     });
     super.initState();
   }
@@ -115,7 +119,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
     return Flexible(
       flex: 1,
       child: AsyncBuilder(
-        future: myFuture,
+        future: futureDocAPI,
         waiting: (context) => loadingCircle(),
         builder: (context, value) => Column(
           children: [
@@ -127,125 +131,24 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                   children: [
                     Flexible(
                       flex: 4,
-                      child: AbsorbPointer(
-                        absorbing: isUpdate || isInsert,
-                        child: PaginatedDataTable2(
-                          controller: widget.noiBanController,
-                          rowsPerPage: 10,
-                          header: Row(
-                            children: [
-                              const Flexible(flex: 1, child: Text("Nơi bán")),
-                              const SizedBox(width: 25),
-                              Flexible(
-                                flex: 1,
-                                child: TypeAheadField(
-                                  controller: widget.textController,
-                                  builder: (context, controller, focusNode) {
-                                    return TextField(
-                                      onSubmitted: (value) {
-                                        int slot = dsDacSan.indexWhere(
-                                            (element) => element.ten == value);
-                                        if (slot != -1) {
-                                          widget.noiBanController.goToRow(slot);
-                                          dsChonNoiBan[slot] = true;
-                                        }
-                                      },
-                                      controller: widget.textController,
-                                      focusNode: focusNode,
-                                      autofocus: false,
-                                      decoration:
-                                          roundSearchBarInputDecoration(),
-                                    );
-                                  },
-                                  loadingBuilder: (context) =>
-                                      loadingCircle(size: 50),
-                                  emptyBuilder: (context) => const ListTile(
-                                    title: Text("Không có nơi bán trùng khớp"),
-                                  ),
-                                  itemBuilder: (context, item) {
-                                    return ListTile(
-                                      title: Text(item.ten),
-                                    );
-                                  },
-                                  onSelected: (value) {
-                                    int slot = dsDacSan.indexWhere(
-                                        (element) => element.ten == value.ten);
-                                    widget.noiBanController.goToRow(slot);
-                                    dsChonNoiBan[slot] = true;
-                                  },
-                                  suggestionsCallback: (search) => dsDacSan
-                                      .where((element) =>
-                                          element.ten.contains(search))
-                                      .toList(),
-                                ),
-                              )
-                            ],
-                          ),
-                          columns: const [
-                            DataColumn2(
-                              label: Text('ID'),
-                              size: ColumnSize.S,
-                            ),
-                            DataColumn2(
-                              label: Text('Tên'),
-                              size: ColumnSize.M,
-                            ),
-                            DataColumn2(
-                              label: Text('Mô tả'),
-                              size: ColumnSize.L,
-                            ),
-                            DataColumn2(
-                              label: Text('Địa chỉ'),
-                              size: ColumnSize.L,
-                            ),
-                            DataColumn2(
-                              label: Text('Lượt xem'),
-                              size: ColumnSize.S,
-                              numeric: true,
-                            ),
-                            DataColumn2(
-                              label: Text('Điểm đánh giá'),
-                              size: ColumnSize.S,
-                              numeric: true,
-                            ),
-                            DataColumn2(
-                              label: Text('Lượt đánh giá'),
-                              size: ColumnSize.S,
-                              numeric: true,
-                            ),
-                          ],
-                          source: bangNoiBan,
-                        ),
-                      ),
+                      child: BangNoiBan(
+                          isUpdate: isUpdate,
+                          isInsert: isInsert,
+                          widget: widget,
+                          dsDacSanNoiBan: dsDacSanNoiBan,
+                          dsChonNoiBan: dsChonNoiBan,
+                          bangNoiBan: duLieuBangNoiBan),
                     ),
                     Flexible(
                       flex: 1,
-                      child: PaginatedDataTable2(
-                        empty: Center(
-                          child: Text(
-                              dsChonDacSan.where((element) => element).length >
-                                      1
-                                  ? "Vui lòng chỉ chọn một dòng dữ liệu"
-                                  : "Không có dữ liệu đặc sản của nơi này"),
-                        ),
-                        rowsPerPage: 10,
-                        columns: const [
-                          DataColumn2(
-                            label: Text('ID'),
-                            size: ColumnSize.S,
-                          ),
-                          DataColumn2(
-                            label: Text('Tên'),
-                            size: ColumnSize.M,
-                          ),
-                        ],
-                        source: bangDacSan,
-                      ),
+                      child: BangDacSan(
+                          dsChonDacSanNoiBan: dsChonDacSanNoiBan,
+                          bangDacSan: duLieuBangDacSan),
                     ),
                   ],
                 ),
               ),
-            ),
+            ), // Khu vực chứa bảng dữ liệu
             Form(
               key: widget.formKey,
               child: SingleChildScrollView(
@@ -267,12 +170,14 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                               decoration: roundInputDecoration(
                                   "Tên nơi bán", "Nhập tên nơi bán"),
                             ),
+                            // Trường tên nơi bán
                             const SizedBox(height: 15),
                             TextFormField(
                               controller: widget.moTaController,
                               decoration: roundInputDecoration(
                                   "Mô tả nơi bán", "Nhập thông tin mô tả"),
                             ),
+                            // Trường mô tả nơi bán
                             const SizedBox(height: 15),
                             Row(
                               children: [
@@ -302,14 +207,18 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                                               "Tỉnh thành", ""),
                                     ),
                                     compareFn: (item1, item2) => item1 == item2,
-                                    onChanged: (value) => value != null
-                                        ? tinhThanh = value
-                                        : null,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        tinhThanh = value;
+                                        futureDocQuanHuyen =
+                                            QuanHuyen.doc(tinhThanh!.id);
+                                      }
+                                    },
                                     items: dsTinhThanh,
                                     itemAsString: (value) => value.ten,
                                     selectedItem: tinhThanh,
                                   ),
-                                ),
+                                ), // Trường tỉnh thành
                                 const SizedBox(width: 10),
                                 Flexible(
                                   fit: FlexFit.tight,
@@ -340,16 +249,18 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                                     onBeforePopupOpening:
                                         (selectedItem) async =>
                                             Future(() => tinhThanh != null),
-                                    onChanged: (value) => value != null
-                                        ? quanHuyen = value
-                                        : null,
-                                    asyncItems: (text) => tinhThanh != null
-                                        ? QuanHuyen.doc(tinhThanh!.id)
-                                        : Future(() => []),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        quanHuyen = value;
+                                        futureDocPhuongXa =
+                                            PhuongXa.doc(quanHuyen!.id);
+                                      }
+                                    },
+                                    asyncItems: (text) => futureDocQuanHuyen,
                                     itemAsString: (value) => value.ten,
                                     selectedItem: quanHuyen,
                                   ),
-                                ),
+                                ), // Trường quận huyện
                                 const SizedBox(width: 10),
                                 Flexible(
                                   fit: FlexFit.tight,
@@ -381,15 +292,14 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                                             Future(() => quanHuyen != null),
                                     onChanged: (value) =>
                                         value != null ? phuongXa = value : null,
-                                    asyncItems: (text) => quanHuyen != null
-                                        ? PhuongXa.doc(quanHuyen!.id)
-                                        : Future(() => []),
+                                    asyncItems: (text) => futureDocPhuongXa,
                                     itemAsString: (value) => value.ten,
                                     selectedItem: phuongXa,
                                   ),
-                                ),
+                                ), // Trường phường xã
                               ],
                             ),
+                            // Khu vực chứa cá trường chọn tỉnh thành, quận huyện, phường xã
                             const SizedBox(height: 15),
                             TextFormField(
                               controller: widget.soNhaController,
@@ -400,6 +310,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                               decoration:
                                   roundInputDecoration("Số nhà", "Nhập số nhà"),
                             ),
+                            // Trường số nhà
                             const SizedBox(height: 15),
                             TextFormField(
                               controller: widget.tenDuongController,
@@ -410,9 +321,98 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                               decoration: roundInputDecoration(
                                   "Tên đường", "Nhập tên đường"),
                             ),
+                            // Trường tên đường
+                            const SizedBox(height: 15),
+                            Row(
+                              children: [
+                                Flexible(
+                                  flex: 2,
+                                  child: DropdownSearch<DacSan>(
+                                    validator: (value) => dsDacSanNoiBan.isEmpty
+                                        ? "Vui lòng thêm ít nhất 1 đặc sản"
+                                        : null,
+                                    popupProps: const PopupProps.menu(
+                                      title: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 10),
+                                        child: Center(
+                                          child: Text(
+                                            "Danh sách đặc sản",
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                      showSelectedItems: true,
+                                      showSearchBox: true,
+                                    ),
+                                    dropdownDecoratorProps:
+                                        DropDownDecoratorProps(
+                                      dropdownSearchDecoration:
+                                          roundInputDecoration("Đặc sản", ""),
+                                    ),
+                                    compareFn: (item1, item2) => item1 == item2,
+                                    onChanged: (value) => value != null
+                                        ? dacSanNoiBan = value
+                                        : null,
+                                    selectedItem: dacSanNoiBan,
+                                    asyncItems: (text) => Future(() => dsDacSan
+                                        .where((element) =>
+                                            element.ten.contains(text))
+                                        .toList()),
+                                    itemAsString: (value) => value.ten,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: FilledButton(
+                                    style: roundButtonStyle(),
+                                    onPressed: !isReadonly
+                                        ? () {
+                                            if (dacSanNoiBan != null) {
+                                              setState(() {
+                                                dsDacSanNoiBan
+                                                    .add(dacSanNoiBan!);
+                                                dsChonDacSanNoiBan.add(false);
+                                                taoBangDacSan();
+                                              });
+                                            } else {
+                                              showNotify(context,
+                                                  "Vui lòng chọn đặc sản");
+                                            }
+                                          }
+                                        : null,
+                                    child: const Text("Thêm"),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  fit: FlexFit.tight,
+                                  child: FilledButton(
+                                    style: roundButtonStyle(),
+                                    onPressed: !isReadonly
+                                        ? () {
+                                            if (dacSanNoiBan != null) {
+                                              setState(() {
+                                                dsDacSanNoiBan
+                                                    .remove(dacSanNoiBan!);
+                                                taoBangDacSan();
+                                              });
+                                            } else {
+                                              showNotify(context,
+                                                  "Vui lòng chọn đặc sản");
+                                            }
+                                          }
+                                        : null,
+                                    child: const Text("Xóa"),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // Khu vực chọn đặc sản của nơi bán
                           ],
                         ),
-                      ),
+                      ), // Khu vực chứa các trường dữ liệu đầu vào
                       const SizedBox(height: 15),
                       Row(
                         children: [
@@ -462,12 +462,12 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                             ),
                           ),
                         ],
-                      ),
+                      ), // Khu vực chứa các nút
                     ],
                   ),
                 ),
               ),
-            ),
+            ), // Khu vực chứa các trường dữ liệu đầu vào và các nút
           ],
         ),
         error: (context, error, stackTrace) =>
@@ -484,15 +484,16 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
         phuongXa != null) {
       // Gọi hàm API thêm đặc sàn
       NoiBan.them(NoiBan(
-        id: 0,
-        ten: widget.tenController.text,
-        moTa: widget.moTaController.text,
-        diaChi: DiaChi(
-            id: 0,
-            soNha: widget.soNhaController.text,
-            tenDuong: widget.tenDuongController.text,
-            phuongXa: phuongXa!),
-      )).then((value) {
+              id: 0,
+              ten: widget.tenController.text,
+              moTa: widget.moTaController.text,
+              diaChi: DiaChi(
+                  id: 0,
+                  soNha: widget.soNhaController.text,
+                  tenDuong: widget.tenDuongController.text,
+                  phuongXa: phuongXa!),
+              dsDacSan: dsDacSanNoiBan.map((e) => e.id).toList()))
+          .then((value) {
         if (value != null) {
           // Cập nhật danh sách và bảng đặc sán nếu thành công
           setState(() {
@@ -505,8 +506,8 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
         }
       });
     } else if (!isInsert) {
+      // Hủy chọn toàn bộ bảng nơi bán
       dsChonNoiBan.setAll(0, dsChonNoiBan.map((e) => false));
-      taoBangNoiBan();
       // Gán giá trị cho biến tạm
       phuongXa = PhuongXa(
           id: 00,
@@ -514,19 +515,21 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
           quanHuyen:
               QuanHuyen(id: 0, ten: "", tinhThanh: TinhThanh(id: 0, ten: "")));
       noiBanTam = NoiBan(
-        id: -1,
-        ten: "",
-        moTa: "",
-        diaChi: DiaChi(id: 0, soNha: "", tenDuong: "", phuongXa: phuongXa!),
-      );
-      dsNoiBan.add(noiBanTam!);
-      dsChonNoiBan.add(true);
+          id: -1,
+          ten: "",
+          moTa: "",
+          diaChi: DiaChi(id: 0, soNha: "", tenDuong: "", phuongXa: phuongXa!),
+          dsDacSan: []);
       // Cập nhật tình trạng thêm của trang
       setState(() {
+        dsNoiBan.add(noiBanTam!);
+        dsChonNoiBan.add(true);
+        dsDacSanNoiBan = [];
+        dsChonDacSanNoiBan = [];
         isReadonly = !isReadonly;
         isInsert = !isInsert;
+        taoBangNoiBan();
       });
-      taoBangNoiBan();
     }
   }
 
@@ -548,6 +551,7 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
                 soNha: widget.soNhaController.text,
                 tenDuong: widget.tenDuongController.text,
                 phuongXa: phuongXa!),
+            dsDacSan: [],
           );
 
           // Gọi hàm API Cập nhật đặc sàn
@@ -616,20 +620,174 @@ class _TrangNoiBanState extends State<TrangNoiBan> {
   // Hàm để húy bỏ quá trình thêm hoặc cập nhật
   Future<void> huy() async {
     if (isInsert) {
+      // Nếu đang thêm thì xóa dòng mới tạm thêm
       int v = dsNoiBan.indexOf(noiBanTam!);
       dsNoiBan.remove(dsNoiBan[v]);
       dsChonNoiBan.remove(dsChonNoiBan[v]);
     } else if (isUpdate) {
+      // Nếu đăng cập nhật thì đọc lại thông tin dòng đang cập nhật
       int v = dsNoiBan.indexOf(noiBanTam!);
       dsNoiBan[v] = await NoiBan.docTheoID(noiBanTam!.id);
       dsChonNoiBan[v] = false;
     }
+    // Xóa thông tin đầu vào trong các trường
     setState(() {
       isReadonly = true;
       isInsert = false;
       isUpdate = false;
+      dsDacSanNoiBan = [];
+      dsChonDacSanNoiBan = [];
+      widget.tenController.clear();
+      widget.moTaController.clear();
+      tinhThanh = null;
+      quanHuyen = null;
+      phuongXa = null;
       taoBangNoiBan();
     });
+  }
+}
+
+class BangDacSan extends StatelessWidget {
+  const BangDacSan({
+    super.key,
+    required this.dsChonDacSanNoiBan,
+    required this.bangDacSan,
+  });
+
+  final List<bool> dsChonDacSanNoiBan;
+  final DacSanDataTableSource bangDacSan;
+
+  @override
+  Widget build(BuildContext context) {
+    return PaginatedDataTable2(
+      empty: Center(
+        child: Text(dsChonDacSanNoiBan.where((element) => element).length > 1
+            ? "Vui lòng chỉ chọn một dòng dữ liệu"
+            : "Không có dữ liệu đặc sản của nơi này"),
+      ),
+      rowsPerPage: 10,
+      columns: const [
+        DataColumn2(
+          label: Text('ID'),
+          size: ColumnSize.S,
+        ),
+        DataColumn2(
+          label: Text('Tên'),
+          size: ColumnSize.M,
+        ),
+      ],
+      source: bangDacSan,
+    );
+  }
+}
+
+class BangNoiBan extends StatelessWidget {
+  const BangNoiBan({
+    super.key,
+    required this.isUpdate,
+    required this.isInsert,
+    required this.widget,
+    required this.dsDacSanNoiBan,
+    required this.dsChonNoiBan,
+    required this.bangNoiBan,
+  });
+
+  final bool isUpdate;
+  final bool isInsert;
+  final TrangNoiBan widget;
+  final List<DacSan> dsDacSanNoiBan;
+  final List<bool> dsChonNoiBan;
+  final NoiBanDataTableSource bangNoiBan;
+
+  @override
+  Widget build(BuildContext context) {
+    return AbsorbPointer(
+      absorbing: isUpdate || isInsert,
+      child: PaginatedDataTable2(
+        controller: widget.noiBanController,
+        rowsPerPage: 10,
+        header: Row(
+          children: [
+            const Flexible(flex: 1, child: Text("Nơi bán")),
+            const SizedBox(width: 25),
+            Flexible(
+              flex: 1,
+              child: TypeAheadField(
+                controller: widget.textController,
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    onSubmitted: (value) {
+                      int slot = dsDacSanNoiBan
+                          .indexWhere((element) => element.ten == value);
+                      if (slot != -1) {
+                        widget.noiBanController.goToRow(slot);
+                        dsChonNoiBan[slot] = true;
+                      }
+                    },
+                    controller: widget.textController,
+                    focusNode: focusNode,
+                    autofocus: false,
+                    decoration: roundSearchBarInputDecoration(),
+                  );
+                },
+                loadingBuilder: (context) => loadingCircle(size: 50),
+                emptyBuilder: (context) => const ListTile(
+                  title: Text("Không có nơi bán trùng khớp"),
+                ),
+                itemBuilder: (context, item) {
+                  return ListTile(
+                    title: Text(item.ten),
+                  );
+                },
+                onSelected: (value) {
+                  int slot = dsDacSanNoiBan
+                      .indexWhere((element) => element.ten == value.ten);
+                  widget.noiBanController.goToRow(slot);
+                  dsChonNoiBan[slot] = true;
+                },
+                suggestionsCallback: (search) => dsDacSanNoiBan
+                    .where((element) => element.ten.contains(search))
+                    .toList(),
+              ),
+            )
+          ],
+        ),
+        columns: const [
+          DataColumn2(
+            label: Text('ID'),
+            size: ColumnSize.S,
+          ),
+          DataColumn2(
+            label: Text('Tên'),
+            size: ColumnSize.M,
+          ),
+          DataColumn2(
+            label: Text('Mô tả'),
+            size: ColumnSize.L,
+          ),
+          DataColumn2(
+            label: Text('Địa chỉ'),
+            size: ColumnSize.L,
+          ),
+          DataColumn2(
+            label: Text('Lượt xem'),
+            size: ColumnSize.S,
+            numeric: true,
+          ),
+          DataColumn2(
+            label: Text('Điểm đánh giá'),
+            size: ColumnSize.S,
+            numeric: true,
+          ),
+          DataColumn2(
+            label: Text('Lượt đánh giá'),
+            size: ColumnSize.S,
+            numeric: true,
+          ),
+        ],
+        source: bangNoiBan,
+      ),
+    );
   }
 }
 
@@ -637,14 +795,17 @@ class NoiBanDataTableSource extends DataTableSource {
   List<NoiBan> dsNoiBan = [];
   List<bool> dsChon = [];
   void Function(int) notifyParent;
+
   NoiBanDataTableSource({
     required this.dsNoiBan,
     required this.dsChon,
     required this.notifyParent,
   });
+
   @override
   DataRow? getRow(int index) {
     return DataRow2(
+      // Thông báo cho widget cha sự kiện một dòng thay đổi trang thái được chọn
       onSelectChanged: (value) {
         dsChon[index] = value!;
         notifyListeners();
@@ -677,11 +838,13 @@ class DacSanDataTableSource extends DataTableSource {
   List<DacSan> dsDacSan = [];
   List<bool> dsChon = [];
   void Function(int) notifyParent;
+
   DacSanDataTableSource({
     required this.dsDacSan,
     required this.dsChon,
     required this.notifyParent,
   });
+
   @override
   DataRow? getRow(int index) {
     return DataRow2(

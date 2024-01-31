@@ -1,6 +1,6 @@
 import 'package:app_dac_san/class/phuong_xa.dart';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 
 class DiaChi {
   int id;
@@ -8,6 +8,7 @@ class DiaChi {
   String tenDuong;
   PhuongXa phuongXa;
   static const String url = "${ApiHelper.baseUrl}diachi";
+
   DiaChi({
     required this.id,
     required this.soNha,
@@ -30,6 +31,7 @@ class DiaChi {
         'ten_duong': tenDuong,
         'phuong_xa': phuongXa.toJson(),
       };
+
   @override
   String toString() {
     return "$soNha $tenDuong, ${phuongXa.ten}, ${phuongXa.quanHuyen.ten}, ${phuongXa.quanHuyen.tinhThanh.ten}";

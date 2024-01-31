@@ -1,31 +1,32 @@
 import 'dart:convert';
 
-import '../json_helper.dart';
+import '../../../core/json_helper.dart';
 
-class VungMien {
+class MuaDacSan {
   int id;
   String ten;
-  static const String url = "${ApiHelper.baseUrl}vungmien";
-  VungMien({
+  static const String url = "${ApiHelper.baseUrl}muadacsan";
+
+  MuaDacSan({
     required this.id,
     required this.ten,
   });
 
-  factory VungMien.fromJson(Map<String, dynamic> json) {
-    return VungMien(
+  factory MuaDacSan.fromJson(Map<String, dynamic> json) {
+    return MuaDacSan(
       id: json["id"],
       ten: json["ten"],
     );
   }
 
-  static List<VungMien> fromJsonList(List<dynamic> json) {
-    List<VungMien> dsVungMien = [];
+  static List<MuaDacSan> fromJsonList(List<dynamic> json) {
+    List<MuaDacSan> dsMuaDacSan = [];
 
     for (var value in json) {
-      dsVungMien.add(VungMien.fromJson(value));
+      dsMuaDacSan.add(MuaDacSan.fromJson(value));
     }
 
-    return dsVungMien;
+    return dsMuaDacSan;
   }
 
   Map<String, dynamic> toJson() => {
@@ -33,35 +34,35 @@ class VungMien {
         'ten': ten,
       };
 
-  static List<dynamic> toJsonList(List<VungMien> dsVungMien) {
+  static List<dynamic> toJsonList(List<MuaDacSan> dsMuaDacSan) {
     List<dynamic> dsJson = [];
 
-    for (var vungMien in dsVungMien) {
-      dsJson.add(vungMien.toJson());
+    for (var muaDacSan in dsMuaDacSan) {
+      dsJson.add(muaDacSan.toJson());
     }
 
     return dsJson;
   }
 
-  static Future<List<VungMien>> doc() async {
-    List<VungMien> dsVungMien = [];
+  static Future<List<MuaDacSan>> doc() async {
+    List<MuaDacSan> dsMuaDacSan = [];
 
     var result = await docAPI(url);
 
     for (var document in result) {
-      VungMien nguyenLieu = VungMien.fromJson(document);
-      dsVungMien.add(nguyenLieu);
+      MuaDacSan nguyenLieu = MuaDacSan.fromJson(document);
+      dsMuaDacSan.add(nguyenLieu);
     }
 
-    return dsVungMien;
+    return dsMuaDacSan;
   }
 
-  static Future<VungMien> docTheoID(int id) async {
+  static Future<MuaDacSan> docTheoID(int id) async {
     var result = await docAPI("$url/$id");
-    return VungMien.fromJson(result);
+    return MuaDacSan.fromJson(result);
   }
 
-  static Future<VungMien?> them(String ten) async {
+  static Future<MuaDacSan?> them(String ten) async {
     final response = await taoAPI(
       url,
       jsonEncode(<String, dynamic>{
@@ -71,19 +72,19 @@ class VungMien {
     );
 
     if (response.statusCode == 201) {
-      return VungMien.fromJson(
+      return MuaDacSan.fromJson(
           jsonDecode(response.body) as Map<String, dynamic>);
     } else {
       return null;
     }
   }
 
-  static Future<bool> capNhat(VungMien vungMien) async {
+  static Future<bool> capNhat(MuaDacSan muaDacSan) async {
     final response = await capNhatAPI(
       url,
       jsonEncode(<String, dynamic>{
-        'id': vungMien.id,
-        'ten': vungMien.ten,
+        'id': muaDacSan.id,
+        'ten': muaDacSan.ten,
       }),
     );
 

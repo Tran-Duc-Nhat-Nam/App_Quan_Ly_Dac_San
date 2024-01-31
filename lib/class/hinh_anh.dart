@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 
 class HinhAnh {
   int id;
@@ -8,6 +8,7 @@ class HinhAnh {
   String? moTa;
   String urlHinhAnh;
   static const String url = "${ApiHelper.baseUrl}thanhphan";
+
   HinhAnh({
     this.id = -1,
     this.ten = "",
@@ -23,6 +24,7 @@ class HinhAnh {
       urlHinhAnh: json['url'],
     );
   }
+
   static List<HinhAnh> fromJsonList(List<dynamic> json) {
     List<HinhAnh> dsHinhAnh = [];
 

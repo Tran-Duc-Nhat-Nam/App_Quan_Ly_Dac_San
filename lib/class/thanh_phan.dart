@@ -1,14 +1,15 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/class/nguyen_lieu.dart';
+import 'package:app_dac_san/features/nguyen_lieu/data/nguyen_lieu.dart';
 
-import '../json_helper.dart';
+import '../core/json_helper.dart';
 
 class ThanhPhan {
   NguyenLieu nguyenLieu;
   double soLuong;
   String donViTinh;
   static const String url = "${ApiHelper.baseUrl}thanhphan";
+
   ThanhPhan({
     required this.nguyenLieu,
     required this.soLuong,
@@ -22,6 +23,7 @@ class ThanhPhan {
       donViTinh: json['don_vi_tinh'],
     );
   }
+
   static List<ThanhPhan> fromJsonList(List<dynamic> json) {
     List<ThanhPhan> dsThanhPhan = [];
 
