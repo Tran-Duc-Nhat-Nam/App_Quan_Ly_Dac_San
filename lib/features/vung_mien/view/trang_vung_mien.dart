@@ -60,7 +60,7 @@ class _TrangVungMienState extends State<TrangVungMien> {
                       constraints: const BoxConstraints(maxHeight: 600),
                       child: AbsorbPointer(
                         absorbing: state.isUpdate || state.isInsert,
-                        child: BangThanhPhan(
+                        child: BangTinhThanh(
                             widget: widget,
                             dsVungMien: state.dsVungMien,
                             dsChon: dsChon,

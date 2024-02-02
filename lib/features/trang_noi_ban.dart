@@ -1,6 +1,6 @@
-import 'package:app_dac_san/class/dac_san.dart';
-import 'package:app_dac_san/class/dia_chi.dart';
 import 'package:app_dac_san/class/noi_ban.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/dia_chi.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/phuong_xa.dart';
 import 'package:app_dac_san/features/tinh_thanh/data/tinh_thanh.dart';
 import 'package:async_builder/async_builder.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -8,9 +8,9 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import '../class/phuong_xa.dart';
-import '../class/quan_huyen.dart';
 import '../core/gui_helper.dart';
+import 'dac_san/data/dac_san.dart';
+import 'tinh_thanh/data/quan_huyen.dart';
 
 class TrangNoiBan extends StatefulWidget {
   TrangNoiBan({super.key});

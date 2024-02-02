@@ -1,24 +1,25 @@
-import 'package:app_dac_san/features/tinh_thanh/view/trang_tinh_thanh.dart';
+import 'package:app_dac_san/features/nguoi_dung/view/trang_nguoi_dung.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/gui_helper.dart';
-import '../data/tinh_thanh.dart';
+import '../data/nguoi_dung.dart';
 
-class BangTinhThanh extends StatelessWidget {
-  const BangTinhThanh({
+class BangNguoiDung extends StatelessWidget {
+  const BangNguoiDung({
     super.key,
     required this.widget,
-    required this.dsTinhThanh,
+    required this.dsNguoiDung,
     required this.dsChon,
     required this.dataTableSource,
   });
 
-  final TrangTinhThanh widget;
-  final List<TinhThanh> dsTinhThanh;
+  final TrangNguoiDung widget;
+  final List<NguoiDung> dsNguoiDung;
   final List<bool> dsChon;
-  final TinhThanhDataTableSource dataTableSource;
+  final NguoiDungDataTableSource dataTableSource;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class BangTinhThanh extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          const Flexible(flex: 1, child: Text("Tỉnh thành")),
+          const Flexible(flex: 1, child: Text("Vùng miền")),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
@@ -36,7 +37,7 @@ class BangTinhThanh extends StatelessWidget {
               builder: (context, controller, focusNode) {
                 return TextField(
                   onSubmitted: (value) {
-                    int slot = dsTinhThanh
+                    int slot = dsNguoiDung
                         .indexWhere((element) => element.ten == value);
                     if (slot != -1) {
                       widget.pageController.goToRow(slot);
@@ -51,7 +52,7 @@ class BangTinhThanh extends StatelessWidget {
               },
               loadingBuilder: (context) => loadingCircle(size: 50),
               emptyBuilder: (context) => const ListTile(
-                title: Text("Không có tỉnh thành trùng khớp"),
+                title: Text("Không có người dùng trùng khớp"),
               ),
               itemBuilder: (context, item) {
                 return ListTile(
@@ -59,12 +60,12 @@ class BangTinhThanh extends StatelessWidget {
                 );
               },
               onSelected: (value) {
-                int slot = dsTinhThanh
+                int slot = dsNguoiDung
                     .indexWhere((element) => element.ten == value.ten);
                 widget.pageController.goToRow(slot);
                 dsChon[slot] = true;
               },
-              suggestionsCallback: (search) => dsTinhThanh
+              suggestionsCallback: (search) => dsNguoiDung
                   .where((element) => element.ten.contains(search))
                   .toList(),
             ),
@@ -75,8 +76,23 @@ class BangTinhThanh extends StatelessWidget {
         DataColumn2(
           label: Text('ID'),
         ),
-        DataColumn(
-          label: Text('Tên'),
+        DataColumn2(
+          label: Text('Email'),
+        ),
+        DataColumn2(
+          label: Text('Họ tên'),
+        ),
+        DataColumn2(
+          label: Text('Giới tính'),
+        ),
+        DataColumn2(
+          label: Text('Ngày sinh'),
+        ),
+        DataColumn2(
+          label: Text('SĐT'),
+        ),
+        DataColumn2(
+          label: Text('Địa chỉ'),
         ),
       ],
       source: dataTableSource,
@@ -84,14 +100,14 @@ class BangTinhThanh extends StatelessWidget {
   }
 }
 
-class TinhThanhDataTableSource extends DataTableSource {
-  List<TinhThanh> dsTinhThanh = [];
-  BuildContext context;
-  void Function(BuildContext, int) notifyParent;
+class NguoiDungDataTableSource extends DataTableSource {
+  List<NguoiDung> dsNguoiDung = [];
+  List<bool> dsChon = [];
+  void Function(List<bool>) notifyParent;
 
-  TinhThanhDataTableSource({
-    required this.dsTinhThanh,
-    required this.context,
+  NguoiDungDataTableSource({
+    required this.dsNguoiDung,
+    required this.dsChon,
     required this.notifyParent,
   });
 
@@ -99,12 +115,23 @@ class TinhThanhDataTableSource extends DataTableSource {
   DataRow? getRow(int index) {
     // TODO: implement getRow
     return DataRow2(
-      onTap: () {
-        notifyParent(context, dsTinhThanh[index].id);
+      onSelectChanged: (value) {
+        dsChon[index] = value!;
+        notifyListeners();
+        notifyParent(dsChon);
       },
+      selected: dsChon[index],
       cells: [
-        DataCell(Text(dsTinhThanh[index].id.toString())),
-        DataCell(Text(dsTinhThanh[index].ten)),
+        DataCell(Text(dsNguoiDung[index].id.toString())),
+        DataCell(Text(dsNguoiDung[index].email)),
+        DataCell(Text(dsNguoiDung[index].ten)),
+        DataCell(dsNguoiDung[index].isNam
+            ? const Icon(Icons.male, color: Colors.blue)
+            : const Icon(Icons.female, color: Colors.pink)),
+        DataCell(Text(DateFormat("dd/MM/yyy")
+            .format(dsNguoiDung[index].ngaySinh.toLocal()))),
+        DataCell(Text(dsNguoiDung[index].soDienThoai)),
+        DataCell(Text(dsNguoiDung[index].diaChi.toString())),
       ],
     );
   }
@@ -113,7 +140,7 @@ class TinhThanhDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsTinhThanh.length;
+  int get rowCount => dsNguoiDung.length;
 
   @override
   int get selectedRowCount => 0;

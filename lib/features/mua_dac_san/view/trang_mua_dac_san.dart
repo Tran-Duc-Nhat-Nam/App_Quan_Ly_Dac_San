@@ -21,7 +21,7 @@ class TrangMuaDacSan extends StatefulWidget {
 class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
   List<bool> dsChon = [];
 
-  // Hàm cập nhật bảng vùng miền để truyền vào DacSanDataTableSource
+  // Hàm cập nhật bảng mùa để truyền vào DacSanDataTableSource
   void notifyParent(List<bool> list) {
     dsChon = list;
   }
@@ -85,9 +85,9 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                               child: TextFormField(
                                 controller: tenController,
                                 validator: (value) => textFieldValidator(
-                                    value, "Vui lòng nhập tên vùng miền"),
+                                    value, "Vui lòng nhập tên mùa"),
                                 decoration: roundInputDecoration(
-                                    "Tên vùng miền", "Nhập tên vùng miền"),
+                                    "Tên mùa", "Nhập tên mùa"),
                               ),
                             ),
                             const SizedBox(height: 15),
@@ -102,14 +102,14 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                                             if (state.isInsert &&
                                                 widget.formKey.currentState!
                                                     .validate()) {
-                                              // Gọi hàm API thêm vùng miền
+                                              // Gọi hàm API thêm mùa
                                               context.read<MuaDacSanBloc>().add(
                                                   InsertEvent(MuaDacSan(
                                                       id: -1,
                                                       ten:
                                                           tenController.text)));
                                             } else if (!state.isInsert) {
-                                              // Gán giá trị cho biến vùng miền tạm
+                                              // Gán giá trị cho biến mùa tạm
                                               context
                                                   .read<MuaDacSanBloc>()
                                                   .add(StartInsertEvent());
@@ -150,7 +150,7 @@ class _TrangMuaDacSanState extends State<TrangMuaDacSan> {
                                               }
                                             } else {
                                               setState(() {
-                                                // Gán dữ liệu các thuộc tính của vùng miền vào các trường dữ liệu đẩu vào
+                                                // Gán dữ liệu các thuộc tính của mùa vào các trường dữ liệu đẩu vào
                                                 context
                                                     .read<MuaDacSanBloc>()
                                                     .add(StartUpdateEvent(state

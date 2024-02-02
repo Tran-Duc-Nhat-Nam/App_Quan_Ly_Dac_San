@@ -4,7 +4,7 @@ abstract class TinhThanhEvent extends Equatable {
   const TinhThanhEvent();
 }
 
-class LoadDataEvent extends TinhThanhEvent {
+class LoadTinhThanhEvent extends TinhThanhEvent {
   @override
   List<Object?> get props => [];
 }

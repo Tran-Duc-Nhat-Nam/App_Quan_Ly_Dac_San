@@ -12,6 +12,10 @@ class TinhThanh {
     required this.ten,
   });
 
+  TinhThanh.tam()
+      : id = -1,
+        ten = "";
+
   factory TinhThanh.fromJson(Map<String, dynamic> json) {
     return TinhThanh(
       id: json["id"],

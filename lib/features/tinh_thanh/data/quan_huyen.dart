@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:app_dac_san/features/tinh_thanh/data/tinh_thanh.dart';
 
-import '../core/json_helper.dart';
+import '../../../core/json_helper.dart';
 
 class QuanHuyen {
   int id;
@@ -15,6 +15,11 @@ class QuanHuyen {
     required this.ten,
     required this.tinhThanh,
   });
+
+  QuanHuyen.tam()
+      : id = -1,
+        ten = "",
+        tinhThanh = TinhThanh.tam();
 
   factory QuanHuyen.fromJson(Map<String, dynamic> json) {
     return QuanHuyen(

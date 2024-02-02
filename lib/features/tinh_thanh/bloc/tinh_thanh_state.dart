@@ -11,6 +11,8 @@ class TinhThanhInitial extends TinhThanhState {
 
 class TinhThanhLoaded extends TinhThanhState {
   final List<TinhThanh> dsTinhThanh;
+  final List<QuanHuyen> dsQuanHuyen;
+  final List<PhuongXa> dsPhuongXa;
   final List<bool> dsChon;
   final bool isInsert;
   final bool isUpdate;
@@ -21,7 +23,10 @@ class TinhThanhLoaded extends TinhThanhState {
     this.isInsert = false,
     this.isUpdate = false,
     this.errorMessage,
+    this.dsQuanHuyen = const [],
+    this.dsPhuongXa = const [],
   });
   @override
-  List<Object> get props => [dsTinhThanh, dsChon, isInsert, isUpdate];
+  List<Object> get props =>
+      [dsTinhThanh, dsChon, isInsert, isUpdate, dsQuanHuyen, dsPhuongXa];
 }

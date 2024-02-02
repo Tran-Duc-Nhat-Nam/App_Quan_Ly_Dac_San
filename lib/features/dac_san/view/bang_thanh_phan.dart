@@ -1,7 +1,7 @@
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
-import '../../class/thanh_phan.dart';
+import '../data/thanh_phan.dart';
 
 class BangThanhPhan extends StatelessWidget {
   const BangThanhPhan({
@@ -15,31 +15,28 @@ class BangThanhPhan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      flex: 1,
-      child: PaginatedDataTable2(
-        empty: Center(
-          child: Text(dsChonDacSan.where((element) => element).length > 1
-              ? "Vui lòng chỉ chọn một dòng dữ liệu"
-              : "Không có dữ liệu thành phần của đặc sản này"),
-        ),
-        rowsPerPage: 10,
-        columns: const [
-          DataColumn2(
-            label: Text('Tên'),
-            size: ColumnSize.M,
-          ),
-          DataColumn2(
-            label: Text('Số lượng'),
-            size: ColumnSize.S,
-          ),
-          DataColumn2(
-            label: Text('Đơn vị tính'),
-            size: ColumnSize.S,
-          ),
-        ],
-        source: bangThanhPhan,
+    return PaginatedDataTable2(
+      empty: Center(
+        child: Text(dsChonDacSan.where((element) => element).length > 1
+            ? "Vui lòng chỉ chọn một dòng dữ liệu"
+            : "Không có dữ liệu thành phần của đặc sản này"),
       ),
+      rowsPerPage: 10,
+      columns: const [
+        DataColumn2(
+          label: Text('Tên'),
+          size: ColumnSize.M,
+        ),
+        DataColumn2(
+          label: Text('Số lượng'),
+          size: ColumnSize.S,
+        ),
+        DataColumn2(
+          label: Text('Đơn vị tính'),
+          size: ColumnSize.S,
+        ),
+      ],
+      source: bangThanhPhan,
     );
   }
 }
@@ -47,7 +44,7 @@ class BangThanhPhan extends StatelessWidget {
 class ThanhPhanDataTableSource extends DataTableSource {
   List<ThanhPhan> dsThanhPhan = [];
   List<bool> dsChon = [];
-  void Function(int) notifyParent;
+  void Function(List<bool>) notifyParent;
 
   ThanhPhanDataTableSource({
     required this.dsThanhPhan,
@@ -61,7 +58,7 @@ class ThanhPhanDataTableSource extends DataTableSource {
       onSelectChanged: (value) {
         dsChon[index] = value!;
         notifyListeners();
-        notifyParent(index);
+        notifyParent(dsChon);
       },
       selected: dsChon[index],
       cells: [

@@ -51,7 +51,7 @@ class BangMuaDacSan extends StatelessWidget {
               },
               loadingBuilder: (context) => loadingCircle(size: 50),
               emptyBuilder: (context) => const ListTile(
-                title: Text("Không có vùng miền trùng khớp"),
+                title: Text("Không có mùa trùng khớp"),
               ),
               itemBuilder: (context, item) {
                 return ListTile(

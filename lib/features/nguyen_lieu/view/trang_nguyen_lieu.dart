@@ -21,7 +21,7 @@ class TrangNguyenLieu extends StatefulWidget {
 class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
   List<bool> dsChon = [];
 
-  // Hàm cập nhật bảng vùng miền để truyền vào DacSanDataTableSource
+  // Hàm cập nhật bảng nguyên liệu để truyền vào DacSanDataTableSource
   void notifyParent(List<bool> list) {
     dsChon = list;
   }
@@ -60,7 +60,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                       constraints: const BoxConstraints(maxHeight: 600),
                       child: AbsorbPointer(
                         absorbing: state.isUpdate || state.isInsert,
-                        child: BangThanhPhan(
+                        child: BangNguyenLieu(
                             widget: widget,
                             dsNguyenLieu: state.dsNguyenLieu,
                             dsChon: dsChon,
@@ -85,9 +85,9 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                               child: TextFormField(
                                 controller: tenController,
                                 validator: (value) => textFieldValidator(
-                                    value, "Vui lòng nhập tên vùng miền"),
+                                    value, "Vui lòng nhập tên nguyên liệu"),
                                 decoration: roundInputDecoration(
-                                    "Tên vùng miền", "Nhập tên vùng miền"),
+                                    "Tên nguyên liệu", "Nhập tên nguyên liệu"),
                               ),
                             ),
                             const SizedBox(height: 15),
@@ -102,7 +102,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                                             if (state.isInsert &&
                                                 widget.formKey.currentState!
                                                     .validate()) {
-                                              // Gọi hàm API thêm vùng miền
+                                              // Gọi hàm API thêm nguyên liệu
                                               context
                                                   .read<NguyenLieuBloc>()
                                                   .add(InsertEvent(NguyenLieu(
@@ -110,7 +110,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                                                       ten:
                                                           tenController.text)));
                                             } else if (!state.isInsert) {
-                                              // Gán giá trị cho biến vùng miền tạm
+                                              // Gán giá trị cho biến nguyên liệu tạm
                                               context
                                                   .read<NguyenLieuBloc>()
                                                   .add(StartInsertEvent());
@@ -151,7 +151,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                                               }
                                             } else {
                                               setState(() {
-                                                // Gán dữ liệu các thuộc tính của vùng miền vào các trường dữ liệu đẩu vào
+                                                // Gán dữ liệu các thuộc tính của nguyên liệu vào các trường dữ liệu đẩu vào
                                                 context
                                                     .read<NguyenLieuBloc>()
                                                     .add(StartUpdateEvent(state

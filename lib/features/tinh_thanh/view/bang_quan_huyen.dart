@@ -4,21 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../core/gui_helper.dart';
-import '../data/tinh_thanh.dart';
+import '../data/quan_huyen.dart';
 
-class BangTinhThanh extends StatelessWidget {
-  const BangTinhThanh({
+class BangQuanHuyen extends StatelessWidget {
+  const BangQuanHuyen({
     super.key,
     required this.widget,
-    required this.dsTinhThanh,
+    required this.dsQuanHuyen,
     required this.dsChon,
     required this.dataTableSource,
   });
 
   final TrangTinhThanh widget;
-  final List<TinhThanh> dsTinhThanh;
+  final List<QuanHuyen> dsQuanHuyen;
   final List<bool> dsChon;
-  final TinhThanhDataTableSource dataTableSource;
+  final QuanHuyenDataTableSource dataTableSource;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class BangTinhThanh extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          const Flexible(flex: 1, child: Text("Tỉnh thành")),
+          const Flexible(flex: 1, child: Text("Quận huyện")),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
@@ -36,7 +36,7 @@ class BangTinhThanh extends StatelessWidget {
               builder: (context, controller, focusNode) {
                 return TextField(
                   onSubmitted: (value) {
-                    int slot = dsTinhThanh
+                    int slot = dsQuanHuyen
                         .indexWhere((element) => element.ten == value);
                     if (slot != -1) {
                       widget.pageController.goToRow(slot);
@@ -51,7 +51,7 @@ class BangTinhThanh extends StatelessWidget {
               },
               loadingBuilder: (context) => loadingCircle(size: 50),
               emptyBuilder: (context) => const ListTile(
-                title: Text("Không có tỉnh thành trùng khớp"),
+                title: Text("Không có quận huyện trùng khớp"),
               ),
               itemBuilder: (context, item) {
                 return ListTile(
@@ -59,12 +59,12 @@ class BangTinhThanh extends StatelessWidget {
                 );
               },
               onSelected: (value) {
-                int slot = dsTinhThanh
+                int slot = dsQuanHuyen
                     .indexWhere((element) => element.ten == value.ten);
                 widget.pageController.goToRow(slot);
                 dsChon[slot] = true;
               },
-              suggestionsCallback: (search) => dsTinhThanh
+              suggestionsCallback: (search) => dsQuanHuyen
                   .where((element) => element.ten.contains(search))
                   .toList(),
             ),
@@ -84,27 +84,26 @@ class BangTinhThanh extends StatelessWidget {
   }
 }
 
-class TinhThanhDataTableSource extends DataTableSource {
-  List<TinhThanh> dsTinhThanh = [];
+class QuanHuyenDataTableSource extends DataTableSource {
+  List<QuanHuyen> dsQuanHuyen = [];
   BuildContext context;
   void Function(BuildContext, int) notifyParent;
 
-  TinhThanhDataTableSource({
-    required this.dsTinhThanh,
+  QuanHuyenDataTableSource({
+    required this.dsQuanHuyen,
     required this.context,
     required this.notifyParent,
   });
 
   @override
   DataRow? getRow(int index) {
-    // TODO: implement getRow
     return DataRow2(
       onTap: () {
-        notifyParent(context, dsTinhThanh[index].id);
+        notifyParent(context, dsQuanHuyen[index].id);
       },
       cells: [
-        DataCell(Text(dsTinhThanh[index].id.toString())),
-        DataCell(Text(dsTinhThanh[index].ten)),
+        DataCell(Text(dsQuanHuyen[index].id.toString())),
+        DataCell(Text(dsQuanHuyen[index].ten)),
       ],
     );
   }
@@ -113,7 +112,7 @@ class TinhThanhDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsTinhThanh.length;
+  int get rowCount => dsQuanHuyen.length;
 
   @override
   int get selectedRowCount => 0;

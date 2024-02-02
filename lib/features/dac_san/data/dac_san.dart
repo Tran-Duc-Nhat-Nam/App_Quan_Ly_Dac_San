@@ -1,13 +1,14 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/class/hinh_anh.dart';
-import 'package:app_dac_san/class/thanh_phan.dart';
+import 'package:app_dac_san/features/dac_san/data/thanh_phan.dart';
 import 'package:app_dac_san/features/mua_dac_san/data/mua_dac_san.dart';
 import 'package:app_dac_san/features/vung_mien/data/vung_mien.dart';
+import 'package:equatable/equatable.dart';
 
-import '../core/json_helper.dart';
+import '../../../core/json_helper.dart';
+import 'hinh_anh.dart';
 
-class DacSan {
+class DacSan extends Equatable {
   int id;
   String ten;
   String? moTa;
@@ -33,6 +34,28 @@ class DacSan {
     this.hinhAnh = const [],
     required this.hinhDaiDien,
   });
+
+  DacSan.tam()
+      : id = -1,
+        ten = "",
+        vungMien = const [],
+        muaDacSan = const [],
+        thanhPhan = const [],
+        hinhAnh = const [],
+        hinhDaiDien = HinhAnh.tam();
+
+  DacSan copy() {
+    return DacSan(
+        id: id,
+        ten: ten,
+        moTa: moTa,
+        cachCheBien: cachCheBien,
+        vungMien: vungMien,
+        muaDacSan: muaDacSan,
+        thanhPhan: thanhPhan,
+        hinhAnh: hinhAnh,
+        hinhDaiDien: hinhDaiDien);
+  }
 
   factory DacSan.fromJson(Map<String, dynamic> json) {
     return DacSan(
@@ -123,4 +146,8 @@ class DacSan {
 
     return response.statusCode == 200;
   }
+
+  @override
+  List<Object?> get props =>
+      [id, ten, vungMien, muaDacSan, hinhAnh, hinhDaiDien];
 }

@@ -6,8 +6,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../../core/gui_helper.dart';
 import '../data/nguyen_lieu.dart';
 
-class BangThanhPhan extends StatelessWidget {
-  const BangThanhPhan({
+class BangNguyenLieu extends StatelessWidget {
+  const BangNguyenLieu({
     super.key,
     required this.widget,
     required this.dsNguyenLieu,
@@ -51,7 +51,7 @@ class BangThanhPhan extends StatelessWidget {
               },
               loadingBuilder: (context) => loadingCircle(size: 50),
               emptyBuilder: (context) => const ListTile(
-                title: Text("Không có vùng miền trùng khớp"),
+                title: Text("Không có nguyên liệu trùng khớp"),
               ),
               itemBuilder: (context, item) {
                 return ListTile(

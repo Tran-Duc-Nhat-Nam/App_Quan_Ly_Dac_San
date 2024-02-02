@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../core/json_helper.dart';
+import '../../../core/json_helper.dart';
 
 class HinhAnh {
   int id;
@@ -15,6 +15,11 @@ class HinhAnh {
     this.moTa = "",
     this.urlHinhAnh = "",
   });
+
+  HinhAnh.tam()
+      : id = -1,
+        ten = "",
+        urlHinhAnh = "";
 
   factory HinhAnh.fromJson(Map<String, dynamic> json) {
     return HinhAnh(

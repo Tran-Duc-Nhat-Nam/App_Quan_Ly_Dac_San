@@ -1,6 +1,5 @@
-import 'package:app_dac_san/class/phuong_xa.dart';
-
-import '../core/json_helper.dart';
+import '../../../core/json_helper.dart';
+import 'phuong_xa.dart';
 
 class DiaChi {
   int id;
@@ -15,6 +14,12 @@ class DiaChi {
     required this.tenDuong,
     required this.phuongXa,
   });
+
+  DiaChi.tam()
+      : id = -1,
+        soNha = "",
+        tenDuong = "",
+        phuongXa = PhuongXa.tam();
 
   factory DiaChi.fromJson(Map<String, dynamic> json) {
     return DiaChi(

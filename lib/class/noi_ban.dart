@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:app_dac_san/class/dia_chi.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/dia_chi.dart';
 
 import '../core/json_helper.dart';
-import 'dac_san.dart';
+import '../features/dac_san/data/dac_san.dart';
 
 class NoiBan {
   int id;

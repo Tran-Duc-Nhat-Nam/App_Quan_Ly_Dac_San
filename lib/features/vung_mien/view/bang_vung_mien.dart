@@ -6,8 +6,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../../core/gui_helper.dart';
 import '../data/vung_mien.dart';
 
-class BangThanhPhan extends StatelessWidget {
-  const BangThanhPhan({
+class BangTinhThanh extends StatelessWidget {
+  const BangTinhThanh({
     super.key,
     required this.widget,
     required this.dsVungMien,

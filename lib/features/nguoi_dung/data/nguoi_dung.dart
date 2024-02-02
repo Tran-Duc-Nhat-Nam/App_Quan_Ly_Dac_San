@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import '../core/json_helper.dart';
-import 'dia_chi.dart';
+import '../../../core/json_helper.dart';
+import '../../tinh_thanh/data/dia_chi.dart';
 
 class NguoiDung {
   int id;
@@ -22,6 +22,15 @@ class NguoiDung {
     required this.diaChi,
     required this.soDienThoai,
   });
+
+  NguoiDung.tam()
+      : id = -1,
+        ten = "",
+        email = '',
+        isNam = false,
+        ngaySinh = DateTime.now(),
+        diaChi = DiaChi.tam(),
+        soDienThoai = '';
 
   factory NguoiDung.fromJson(Map<String, dynamic> json) {
     return NguoiDung(
@@ -61,7 +70,7 @@ class NguoiDung {
         'email': nguoiDung.email,
         'ten': nguoiDung.ten,
         'is_nam': nguoiDung.isNam,
-        'ngay_sinh': nguoiDung.ngaySinh.toIso8601String(),
+        'ngay_sinh': nguoiDung.ngaySinh.toUtc().toIso8601String(),
         'dia_chi': nguoiDung.diaChi.toJson(),
         'so_dien_thoai': nguoiDung.soDienThoai,
       }),

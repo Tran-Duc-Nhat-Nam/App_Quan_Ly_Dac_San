@@ -5,6 +5,10 @@ void showNotify(BuildContext context, String content) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
 }
 
+bool checkSingle(List<bool> dsChon) {
+  return dsChon.where((element) => element).toList().length == 1;
+}
+
 Widget loadingCircle({double size = 100}) {
   return Center(
     child:

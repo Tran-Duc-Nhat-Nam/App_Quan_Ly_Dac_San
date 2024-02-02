@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:app_dac_san/features/tinh_thanh/data/phuong_xa.dart';
+import 'package:app_dac_san/features/tinh_thanh/data/quan_huyen.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -10,7 +12,7 @@ part 'tinh_thanh_state.dart';
 
 class TinhThanhBloc extends Bloc<TinhThanhEvent, TinhThanhState> {
   TinhThanhBloc() : super(TinhThanhInitial()) {
-    on<LoadDataEvent>((event, emit) async {
+    on<LoadTinhThanhEvent>((event, emit) async {
       List<TinhThanh> dsTinhThanh = [];
       log("Getting data from API...");
       dsTinhThanh = await TinhThanh.doc();

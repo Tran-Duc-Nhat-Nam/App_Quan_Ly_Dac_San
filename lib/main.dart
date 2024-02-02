@@ -1,11 +1,12 @@
 import 'package:app_dac_san/features/mua_dac_san/view/trang_mua_dac_san.dart';
 import 'package:app_dac_san/features/nguyen_lieu/view/trang_nguyen_lieu.dart';
 import 'package:app_dac_san/features/tinh_thanh/view/trang_tinh_thanh.dart';
-import 'package:app_dac_san/features/trang_dac_san/trang_dac_san.dart';
-import 'package:app_dac_san/features/trang_nguoi_dung.dart';
 import 'package:app_dac_san/features/trang_noi_ban.dart';
 import 'package:app_dac_san/features/vung_mien/view/trang_vung_mien.dart';
 import 'package:flutter/material.dart';
+
+import 'features/dac_san/view/trang_dac_san.dart';
+import 'features/nguoi_dung/view/trang_nguoi_dung.dart';
 
 void main() {
   runApp(const MyApp());
