@@ -30,29 +30,29 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => NguyenLieuBloc()..add(LoadDataEvent()),
-      child: Flexible(
-        flex: 1,
-        child: BlocBuilder<NguyenLieuBloc, NguyenLieuState>(
-          // Widget hiển thị sau khi đọc dữ liệu từ API thành công
-          builder: (context, state) {
-            if (state is NguyenLieuInitial) {
-              return loadingCircle();
-            } else if (state is NguyenLieuLoaded) {
-              TextEditingController tenController = TextEditingController();
-              dsChon = state.dsChon;
+      child: BlocBuilder<NguyenLieuBloc, NguyenLieuState>(
+        // Widget hiển thị sau khi đọc dữ liệu từ API thành công
+        builder: (context, state) {
+          if (state is NguyenLieuInitial) {
+            return loadingCircle();
+          } else if (state is NguyenLieuLoaded) {
+            TextEditingController tenController = TextEditingController();
+            dsChon = state.dsChon;
 
-              if (dsChon.where((element) => element).toList().length == 1) {
-                tenController.text = state
-                    .dsNguyenLieu[dsChon.indexWhere((element) => element)].ten;
-              }
+            if (dsChon.where((element) => element).toList().length == 1) {
+              tenController.text = state
+                  .dsNguyenLieu[dsChon.indexWhere((element) => element)].ten;
+            }
 
-              if (state.errorMessage != null) {
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  showNotify(context, state.errorMessage!);
-                });
-              }
+            if (state.errorMessage != null) {
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                showNotify(context, state.errorMessage!);
+              });
+            }
 
-              return Column(
+            return Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
                 children: [
                   Flexible(
                     flex: 1,
@@ -77,7 +77,7 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: Column(
                           children: [
                             Visibility(
@@ -209,12 +209,12 @@ class _TrangNguyenLieuState extends State<TrangNguyenLieu> {
                     ),
                   ),
                 ],
-              );
-            } else {
-              return const Placeholder();
-            }
-          },
-        ),
+              ),
+            );
+          } else {
+            return const Placeholder();
+          }
+        },
       ),
     );
   }

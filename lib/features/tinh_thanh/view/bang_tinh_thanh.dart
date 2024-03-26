@@ -27,7 +27,7 @@ class BangTinhThanh extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          const Flexible(flex: 1, child: Text("Tỉnh thành")),
+          Text("Tỉnh thành"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
@@ -46,7 +46,6 @@ class BangTinhThanh extends StatelessWidget {
                   controller: widget.textController,
                   focusNode: focusNode,
                   autofocus: false,
-                  decoration: roundSearchBarInputDecoration(),
                 );
               },
               loadingBuilder: (context) => loadingCircle(size: 50),

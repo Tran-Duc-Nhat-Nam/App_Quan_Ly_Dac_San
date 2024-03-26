@@ -1,7 +1,9 @@
+import 'package:equatable/equatable.dart';
+
 import '../../../core/json_helper.dart';
 import 'phuong_xa.dart';
 
-class DiaChi {
+class DiaChi extends Equatable {
   int id;
   String soNha;
   String tenDuong;
@@ -41,4 +43,7 @@ class DiaChi {
   String toString() {
     return "$soNha $tenDuong, ${phuongXa.ten}, ${phuongXa.quanHuyen.ten}, ${phuongXa.quanHuyen.tinhThanh.ten}";
   }
+
+  @override
+  List<Object?> get props => [id, soNha, tenDuong, phuongXa];
 }

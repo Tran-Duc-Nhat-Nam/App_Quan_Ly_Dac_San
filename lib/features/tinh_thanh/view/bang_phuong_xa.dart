@@ -27,7 +27,7 @@ class BangPhuongXa extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          const Flexible(flex: 1, child: Text("Phường xã")),
+          Text("Phường xã"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
@@ -46,11 +46,11 @@ class BangPhuongXa extends StatelessWidget {
                   controller: widget.textController,
                   focusNode: focusNode,
                   autofocus: false,
-                  decoration: roundSearchBarInputDecoration(),
                 );
               },
               loadingBuilder: (context) => loadingCircle(size: 50),
-              emptyBuilder: (context) => const ListTile(
+              emptyBuilder: (context) =>
+              const ListTile(
                 title: Text("Không có phường xã trùng khớp"),
               ),
               itemBuilder: (context, item) {
@@ -64,9 +64,10 @@ class BangPhuongXa extends StatelessWidget {
                 widget.pageController.goToRow(slot);
                 dsChon[slot] = true;
               },
-              suggestionsCallback: (search) => dsPhuongXa
-                  .where((element) => element.ten.contains(search))
-                  .toList(),
+              suggestionsCallback: (search) =>
+                  dsPhuongXa
+                      .where((element) => element.ten.contains(search))
+                      .toList(),
             ),
           )
         ],

@@ -27,7 +27,7 @@ class BangQuanHuyen extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          const Flexible(flex: 1, child: Text("Quận huyện")),
+          Text("Quận huyện"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
@@ -46,7 +46,6 @@ class BangQuanHuyen extends StatelessWidget {
                   controller: widget.textController,
                   focusNode: focusNode,
                   autofocus: false,
-                  decoration: roundSearchBarInputDecoration(),
                 );
               },
               loadingBuilder: (context) => loadingCircle(size: 50),

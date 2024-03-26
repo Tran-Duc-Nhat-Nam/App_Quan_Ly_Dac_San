@@ -1,11 +1,12 @@
 import 'dart:convert';
 
+import 'package:app_dac_san/features/dac_san/data/dac_san.dart';
 import 'package:app_dac_san/features/tinh_thanh/data/dia_chi.dart';
+import 'package:equatable/equatable.dart';
 
-import '../core/json_helper.dart';
-import '../features/dac_san/data/dac_san.dart';
+import '../../../core/json_helper.dart';
 
-class NoiBan {
+class NoiBan extends Equatable {
   int id;
   String ten;
   String? moTa;
@@ -15,7 +16,7 @@ class NoiBan {
   double diemDanhGia = 0;
   int luotDanhGia = 0;
   static const String url = "${ApiHelper.baseUrl}noiban";
-  static const String dacSanUrl = "${ApiHelper.baseUrl}noibandacsan";
+  static const String noiBanUrl = "${ApiHelper.baseUrl}noibandacsan";
 
   NoiBan({
     required this.id,
@@ -24,6 +25,17 @@ class NoiBan {
     required this.diaChi,
     required this.dsDacSan,
   });
+
+  NoiBan.tam()
+      : id = -1,
+        ten = "",
+        diaChi = DiaChi.tam(),
+        dsDacSan = const [];
+
+  NoiBan copy() {
+    return NoiBan(
+        id: id, ten: ten, moTa: moTa, diaChi: diaChi, dsDacSan: dsDacSan);
+  }
 
   factory NoiBan.fromJson(Map<String, dynamic> json) {
     return NoiBan(
@@ -69,8 +81,8 @@ class NoiBan {
     var result = await docAPI("$url/$id/dacsan");
 
     for (var document in result) {
-      DacSan nguyenLieu = DacSan.fromJson(document);
-      dsDacSan.add(nguyenLieu);
+      DacSan dacSan = DacSan.fromJson(document);
+      dsDacSan.add(dacSan);
     }
 
     return dsDacSan;
@@ -119,4 +131,8 @@ class NoiBan {
 
     return response.statusCode == 200;
   }
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [id, ten, moTa, dsDacSan];
 }

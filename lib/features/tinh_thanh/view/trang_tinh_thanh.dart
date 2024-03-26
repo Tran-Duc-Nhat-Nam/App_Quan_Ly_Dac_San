@@ -47,14 +47,11 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
         BlocProvider(create: (context) => qh.QuanHuyenBloc()),
         BlocProvider(create: (context) => px.PhuongXaBloc()),
       ],
-      child: Flexible(
-        flex: 1,
-        child: BlocBuilder<TinhThanhBloc, TinhThanhState>(
-          // Widget hiển thị sau khi đọc dữ liệu từ API thành công
-          builder: (context, state) => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 1000),
-            child: buildPage(context, state),
-          ),
+      child: BlocBuilder<TinhThanhBloc, TinhThanhState>(
+        // Widget hiển thị sau khi đọc dữ liệu từ API thành công
+        builder: (context, state) => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 1000),
+          child: buildPage(context, state),
         ),
       ),
     );

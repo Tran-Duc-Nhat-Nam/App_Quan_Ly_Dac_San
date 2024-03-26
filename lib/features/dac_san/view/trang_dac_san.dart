@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/drop_down_title.dart';
 import '../../../core/gui_helper.dart';
+import '../../../core/widget/drop_down_title.dart';
 import '../../mua_dac_san/data/mua_dac_san.dart';
 import '../../nguyen_lieu/data/nguyen_lieu.dart';
 import '../../vung_mien/data/vung_mien.dart';
@@ -40,6 +40,7 @@ class TrangDacSan extends StatefulWidget {
 
 class _TrangDacSanState extends State<TrangDacSan> {
   List<bool> dsChonThanhPhan = [];
+
   // Các biến tạm để lưu thông tin khi thêm và cập nhật
   VungMien? vungMien;
   MuaDacSan? muaDacSan;
@@ -59,30 +60,36 @@ class _TrangDacSanState extends State<TrangDacSan> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => DacSanBloc()..add(LoadDacSanEvent()),
-      child: Flexible(
-        flex: 1,
-        child: BlocBuilder<DacSanBloc, DacSanState>(
-          // Widget hiển thị sau khi đọc dữ liệu từ API thành công
-          builder: (context, state) {
-            if (state is DacSanInitial) {
-              return loadingCircle();
-            } else if (state is DacSanLoaded) {
-              log(state.dacSanTam.vungMien.length.toString());
+      child: BlocBuilder<DacSanBloc, DacSanState>(
+        // Widget hiển thị sau khi đọc dữ liệu từ API thành công
+        builder: (context, state) {
+          if (state is DacSanInitial) {
+            return loadingCircle();
+          } else if (state is DacSanLoaded) {
+            log(state.dacSanTam.vungMien.length.toString());
 
-              if (state.errorMessage != null) {
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  showNotify(context, state.errorMessage!);
-                });
-              }
+            if (state.errorMessage != null) {
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                showNotify(context, state.errorMessage!);
+              });
+            }
 
-              if (state.isInsert) {
-                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                  widget.dacSanController
-                      .goToRow(state.dsChonDacSan.length - 1);
-                });
-              }
+            if (state.isInsert) {
+              WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                widget.dacSanController.goToRow(state.dsChonDacSan.length - 1);
+              });
+            }
 
-              return Column(
+            if (state.isUpdate) {
+              widget.tenController.text = state.dacSanTam.ten;
+              widget.moTaController.text = state.dacSanTam.moTa ?? "";
+              widget.cachCheBienController.text =
+                  state.dacSanTam.cachCheBien ?? "";
+            }
+
+            return Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
                 children: [
                   Expanded(
                     flex: 1,
@@ -133,7 +140,7 @@ class _TrangDacSanState extends State<TrangDacSan> {
                         child: Form(
                           key: widget.formKey,
                           child: Padding(
-                            padding: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
                             child: Column(
                               children: [
                                 Visibility(
@@ -747,12 +754,12 @@ class _TrangDacSanState extends State<TrangDacSan> {
                     ),
                   ),
                 ],
-              );
-            } else {
-              return const Placeholder();
-            }
-          },
-        ),
+              ),
+            );
+          } else {
+            return const Placeholder();
+          }
+        },
       ),
     );
   }

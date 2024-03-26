@@ -99,7 +99,7 @@ class NguoiDungBloc extends Bloc<NguoiDungEvent, NguoiDungState> {
       if (state is NguoiDungLoaded) {
         final state = this.state as NguoiDungLoaded;
         List<NguoiDung> dsNguoiDung = state.dsNguoiDung;
-        if (dsNguoiDung.last.id == -1) {
+        if (dsNguoiDung.last.id == "null") {
           dsNguoiDung.remove(dsNguoiDung.last);
         }
         emit(NguoiDungLoaded(

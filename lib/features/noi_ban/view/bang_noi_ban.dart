@@ -1,29 +1,29 @@
-import 'package:app_dac_san/features/dac_san/view/trang_dac_san.dart';
+import 'package:app_dac_san/features/noi_ban/view/trang_noi_ban.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../core/gui_helper.dart';
-import '../data/dac_san.dart';
+import '../data/noi_ban.dart';
 
-class BangDacSan extends StatelessWidget {
-  const BangDacSan({
+class BangNoiBan extends StatelessWidget {
+  const BangNoiBan({
     super.key,
-    required this.dsDacSan,
+    required this.dsNoiBan,
     required this.dsChon,
     required this.widget,
-    required this.duLieuDacSan,
+    required this.duLieuNoiBan,
   });
 
-  final List<DacSan> dsDacSan;
+  final List<NoiBan> dsNoiBan;
   final List<bool> dsChon;
-  final TrangDacSan widget;
-  final DacSanDataTableSource duLieuDacSan;
+  final TrangNoiBan widget;
+  final NoiBanDataTableSource duLieuNoiBan;
 
   @override
   Widget build(BuildContext context) {
     return PaginatedDataTable2(
-      controller: widget.dacSanController,
+      controller: widget.noiBanController,
       rowsPerPage: 10,
       header: Row(
         children: [
@@ -32,18 +32,18 @@ class BangDacSan extends StatelessWidget {
           Flexible(
             flex: 1,
             child: TypeAheadField(
-              controller: widget.textDacSanController,
+              controller: widget.textNoiBanController,
               builder: (context, controller, focusNode) {
                 return TextField(
                   onSubmitted: (value) {
                     int slot =
-                        dsDacSan.indexWhere((element) => element.ten == value);
+                        dsNoiBan.indexWhere((element) => element.ten == value);
                     if (slot != -1) {
-                      widget.dacSanController.goToRow(slot);
+                      widget.noiBanController.goToRow(slot);
                       dsChon[slot] = true;
                     }
                   },
-                  controller: widget.textDacSanController,
+                  controller: widget.textNoiBanController,
                   focusNode: focusNode,
                   autofocus: false,
                 );
@@ -59,11 +59,11 @@ class BangDacSan extends StatelessWidget {
               },
               onSelected: (value) {
                 int slot =
-                    dsDacSan.indexWhere((element) => element.ten == value.ten);
-                widget.dacSanController.goToRow(slot);
+                    dsNoiBan.indexWhere((element) => element.ten == value.ten);
+                widget.noiBanController.goToRow(slot);
                 dsChon[slot] = true;
               },
-              suggestionsCallback: (search) => dsDacSan
+              suggestionsCallback: (search) => dsNoiBan
                   .where((element) => element.ten.contains(search))
                   .toList(),
             ),
@@ -84,15 +84,7 @@ class BangDacSan extends StatelessWidget {
           size: ColumnSize.L,
         ),
         DataColumn2(
-          label: Text('Cách chế biến'),
-          size: ColumnSize.L,
-        ),
-        DataColumn2(
-          label: Text('Vùng miền'),
-          size: ColumnSize.L,
-        ),
-        DataColumn2(
-          label: Text('Mùa'),
+          label: Text('Địa chỉ'),
           size: ColumnSize.L,
         ),
         DataColumn2(
@@ -111,19 +103,19 @@ class BangDacSan extends StatelessWidget {
           numeric: true,
         ),
       ],
-      source: duLieuDacSan,
+      source: duLieuNoiBan,
     );
   }
 }
 
-class DacSanDataTableSource extends DataTableSource {
-  List<DacSan> dsDacSan = [];
+class NoiBanDataTableSource extends DataTableSource {
+  List<NoiBan> dsNoiBan = [];
   List<bool> dsChon = [];
   BuildContext context;
   void Function(BuildContext, int) notifyParent;
 
-  DacSanDataTableSource({
-    required this.dsDacSan,
+  NoiBanDataTableSource({
+    required this.dsNoiBan,
     required this.dsChon,
     required this.context,
     required this.notifyParent,
@@ -139,17 +131,13 @@ class DacSanDataTableSource extends DataTableSource {
       },
       selected: dsChon[index],
       cells: [
-        DataCell(Text(dsDacSan[index].id.toString())),
-        DataCell(Text(dsDacSan[index].ten)),
-        DataCell(Text(dsDacSan[index].moTa ?? "Chưa có thông tin")),
-        DataCell(Text(dsDacSan[index].cachCheBien ?? "Chưa có thông tin")),
-        DataCell(Text(
-            dsDacSan[index].vungMien.map((e) => e.ten).toList().join(", "))),
-        DataCell(Text(
-            dsDacSan[index].muaDacSan.map((e) => e.ten).toList().join(", "))),
-        DataCell(Text(dsDacSan[index].luotXem.toString())),
-        DataCell(Text(dsDacSan[index].diemDanhGia.toString())),
-        DataCell(Text(dsDacSan[index].luotDanhGia.toString())),
+        DataCell(Text(dsNoiBan[index].id.toString())),
+        DataCell(Text(dsNoiBan[index].ten)),
+        DataCell(Text(dsNoiBan[index].moTa ?? "Chưa có thông tin")),
+        DataCell(Text(dsNoiBan[index].diaChi.toString())),
+        DataCell(Text(dsNoiBan[index].luotXem.toString())),
+        DataCell(Text(dsNoiBan[index].diemDanhGia.toString())),
+        DataCell(Text(dsNoiBan[index].luotDanhGia.toString())),
       ],
     );
   }
@@ -158,7 +146,7 @@ class DacSanDataTableSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => dsDacSan.length;
+  int get rowCount => dsNoiBan.length;
 
   @override
   int get selectedRowCount => 0;

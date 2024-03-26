@@ -4,7 +4,7 @@ import '../../../core/json_helper.dart';
 import '../../tinh_thanh/data/dia_chi.dart';
 
 class NguoiDung {
-  int id;
+  String id;
   String email;
   String ten;
   bool isNam;
@@ -24,7 +24,7 @@ class NguoiDung {
   });
 
   NguoiDung.tam()
-      : id = -1,
+      : id = "",
         ten = "",
         email = '',
         isNam = false,
@@ -101,7 +101,7 @@ class NguoiDung {
     return response.statusCode == 200;
   }
 
-  static Future<bool> xoa(int id) async {
+  static Future<bool> xoa(String id) async {
     final response = await xoaAPI(
       url,
       jsonEncode(<String, dynamic>{
