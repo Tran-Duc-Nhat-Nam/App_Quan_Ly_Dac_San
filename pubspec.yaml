@@ -48,6 +48,8 @@ dependencies:
   equatable: ^2.0.5
   fluttertoast: ^8.2.4
   go_router: ^13.2.1
+  provider: ^6.1.2
+  fl_chart: ^0.66.2
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +60,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.1
+  flutter_lints: ^3.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

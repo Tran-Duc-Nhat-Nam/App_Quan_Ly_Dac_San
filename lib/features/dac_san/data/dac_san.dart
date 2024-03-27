@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:convert';
 
 import 'package:app_dac_san/features/dac_san/data/thanh_phan.dart';
@@ -28,9 +30,9 @@ class DacSan extends Equatable {
     this.ten = "",
     this.moTa,
     this.cachCheBien,
-  this.luotXem = 0,
-  this.diemDanhGia = 0,
-  this.luotDanhGia = 0,
+    this.luotXem = 0,
+    this.diemDanhGia = 0,
+    this.luotDanhGia = 0,
     this.vungMien = const [],
     this.muaDacSan = const [],
     this.thanhPhan = const [],
@@ -61,6 +63,23 @@ class DacSan extends Equatable {
         luotDanhGia: luotDanhGia,
         hinhAnh: hinhAnh,
         hinhDaiDien: hinhDaiDien);
+  }
+
+  Map<String, Object> toMap() {
+    return <String, Object>{
+      "id": id,
+      "ten": ten,
+      "moTa": moTa != null ? moTa! : "Chưa có thông tin",
+      "cachCheBien": cachCheBien != null ? cachCheBien! : "Chưa có thông tin",
+      "vungMien": vungMien,
+      "muaDacSan": muaDacSan,
+      "thanhPhan": thanhPhan,
+      "luotXem": luotXem,
+      "diemDanhGia": diemDanhGia,
+      "luotDanhGia": luotDanhGia,
+      "hinhAnh": hinhAnh,
+      "hinhDaiDien": hinhDaiDien,
+    };
   }
 
   factory DacSan.fromJson(Map<String, dynamic> json) {

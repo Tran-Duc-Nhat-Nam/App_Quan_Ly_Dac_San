@@ -27,7 +27,7 @@ class BangQuanHuyen extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          Text("Quận huyện"),
+          const Text("Quận huyện"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,

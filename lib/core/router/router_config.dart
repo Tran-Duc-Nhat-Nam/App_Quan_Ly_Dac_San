@@ -1,3 +1,4 @@
+import 'package:app_dac_san/features/thong_ke/view/trang_thong_ke.dart';
 import 'package:app_dac_san/main.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,15 +11,12 @@ import '../../features/tinh_thanh/view/trang_tinh_thanh.dart';
 import '../../features/vung_mien/view/trang_vung_mien.dart';
 
 final router = GoRouter(
+  initialExtra: null,
   initialLocation: "/dacsan",
   routes: [
     ShellRoute(
       builder: (context, state, navigationShell) {
-        return MyHomePage(
-            page: navigationShell,
-            changeTheme: () {
-              isDark = !isDark;
-            });
+        return MyHomePage(page: navigationShell);
       },
       routes: [
         GoRoute(
@@ -55,6 +53,11 @@ final router = GoRouter(
           path: "/muadacsan",
           name: "TrangMuaDacSan",
           builder: (context, state) => TrangMuaDacSan(),
+        ),
+        GoRoute(
+          path: "/thongke",
+          name: "TrangThongKe",
+          builder: (context, state) => const TrangThongKe(),
         ),
       ],
     )

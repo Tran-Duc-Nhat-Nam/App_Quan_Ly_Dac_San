@@ -27,7 +27,7 @@ class BangMuaDacSan extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          Text("Vùng miền"),
+          const Text("Vùng miền"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,

@@ -282,7 +282,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
     } else {
       return BangQuanHuyen(
           widget: widget,
-          dsQuanHuyen: [],
+          dsQuanHuyen: const [],
           dsChon: dsChon,
           dataTableSource: QuanHuyenDataTableSource(
             dsQuanHuyen: [],
@@ -309,7 +309,7 @@ class _TrangTinhThanhState extends State<TrangTinhThanh> {
     } else {
       return BangPhuongXa(
           widget: widget,
-          dsPhuongXa: [],
+          dsPhuongXa: const [],
           dsChon: dsChon,
           dataTableSource: PhuongXaDataTableSource(
             dsPhuongXa: [],

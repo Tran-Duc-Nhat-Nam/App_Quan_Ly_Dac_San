@@ -28,7 +28,7 @@ class BangNguoiDung extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          Text("Vùng miền"),
+          const Text("Vùng miền"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
@@ -50,8 +50,7 @@ class BangNguoiDung extends StatelessWidget {
                 );
               },
               loadingBuilder: (context) => loadingCircle(size: 50),
-              emptyBuilder: (context) =>
-              const ListTile(
+              emptyBuilder: (context) => const ListTile(
                 title: Text("Không có người dùng trùng khớp"),
               ),
               itemBuilder: (context, item) {
@@ -65,10 +64,9 @@ class BangNguoiDung extends StatelessWidget {
                 widget.pageController.goToRow(slot);
                 dsChon[slot] = true;
               },
-              suggestionsCallback: (search) =>
-                  dsNguoiDung
-                      .where((element) => element.ten.contains(search))
-                      .toList(),
+              suggestionsCallback: (search) => dsNguoiDung
+                  .where((element) => element.ten.contains(search))
+                  .toList(),
             ),
           )
         ],
