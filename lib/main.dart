@@ -1,13 +1,39 @@
 import 'dart:developer';
 
 import 'package:app_dac_san/core/router/router_config.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-bool isDark = false;
+import 'firebase_options.dart';
 
-void main() {
+bool isDark = false;
+String adminUID = "CvIh7wkVBzX0GE5EXPtevZeujoJ3";
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // try {
+  //   await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  //     email: "admindacsan@gmail.com",
+  //     password: "tranducnhatnam27",
+  //   );
+  // } on FirebaseAuthException catch (e) {
+  //   if (e.code == 'weak-password') {
+  //     log('The password provided is too weak.');
+  //   } else if (e.code == 'email-already-in-use') {
+  //     log('The account already exists for that email.');
+  //   }
+  // } catch (e) {
+  //   log(e.toString());
+  // }
+
+  // Admin UID = CvIh7wkVBzX0GE5EXPtevZeujoJ3
+
   runApp(ChangeNotifierProvider(
       create: (context) => DarkMode(), child: const MyApp()));
 }

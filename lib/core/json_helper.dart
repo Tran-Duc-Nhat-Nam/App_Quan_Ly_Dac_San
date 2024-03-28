@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 class ApiHelper {
-  // static const String baseUrl = "https://dacsanimage-b5os5eg63q-de.a.run.app/";
-  static const String baseUrl = "http://localhost:8080/";
+  static const String baseUrl = "https://dacsanimage-b5os5eg63q-de.a.run.app/";
+// static const String baseUrl = "http://localhost:8080/";
 }
 
 Future<dynamic> docAPI(String url) async {

@@ -102,7 +102,8 @@ class _TrangThongKeState extends State<TrangThongKe> {
                                             showTitles: true,
                                             getTitlesWidget: (value, meta) =>
                                                 Text(state
-                                                    .dsNguoiDung[value.toInt()]
+                                                    .dsNguoiDung[
+                                                        value.toInt() - 1]
                                                     .ten),
                                           )),
                                         ),
