@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/gui_helper.dart';
+
 class TrangDangNhap extends StatefulWidget {
   const TrangDangNhap({super.key});
 
@@ -24,7 +26,10 @@ class _TrangDangNhapState extends State<TrangDangNhap> {
     });
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text(
+          'Vina Food',
+          textAlign: TextAlign.center,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -48,46 +53,64 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextFormField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: 'Email'),
-            validator: (value) {
-              if (_emailController.text.isEmpty) {
-                return 'Please enter your email';
-              }
-              return null;
-            },
+      child: Center(
+        child: FractionallySizedBox(
+          widthFactor: 0.35,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: roundInputDecoration(
+                    "Email (admindacsan@gmail.com)", "admindacsan@gmail.com"),
+                validator: (value) {
+                  if (_emailController.text.isEmpty) {
+                    return 'Vui lòng nhập email';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20.0),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: roundInputDecoration(
+                    "Mật khẩu (tranducnhatnam27)", "tranducnhatnam27"),
+                validator: (value) {
+                  if (_passwordController.text.isEmpty) {
+                    return 'Vui lòng nhập mật khẩu';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (value) {
+                  if (_formKey.currentState != null) {
+                    if (_formKey.currentState!.validate()) {
+                      FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: _emailController.text,
+                          password: _passwordController.text);
+                    }
+                  }
+                },
+              ),
+              const SizedBox(height: 25.0),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState != null) {
+                    if (_formKey.currentState!.validate()) {
+                      FirebaseAuth.instance.signInWithEmailAndPassword(
+                          email: _emailController.text,
+                          password: _passwordController.text);
+                    }
+                  }
+                },
+                style: roundButtonStyle(),
+                child: const Text('Đăng nhập'),
+              ),
+            ],
           ),
-          const SizedBox(height: 20.0),
-          TextFormField(
-            controller: _passwordController,
-            obscureText: true,
-            decoration: const InputDecoration(labelText: 'Password'),
-            validator: (value) {
-              if (_passwordController.text.isEmpty) {
-                return 'Please enter your password';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 20.0),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState != null) {
-                if (_formKey.currentState!.validate()) {
-                  FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: _emailController.text,
-                      password: _passwordController.text);
-                }
-              }
-            },
-            child: const Text('Login'),
-          ),
-        ],
+        ),
       ),
     );
   }

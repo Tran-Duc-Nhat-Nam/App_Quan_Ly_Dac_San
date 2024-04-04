@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final themeMode = Provider.of<DarkMode>(context);
     return MaterialApp.router(
-      title: 'Trang web quản lý dữ liệu đặc sản Việt Nam',
+      title: 'Trang web quản lý dữ liệu Vina Food',
       theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
