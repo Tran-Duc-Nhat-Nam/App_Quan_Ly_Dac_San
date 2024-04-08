@@ -57,9 +57,9 @@ class NguoiDung {
       lichSuXemDacSan: LuotXemDacSan.fromJsonList(json['lich_su_xem_dac_san']),
       lichSuXemNoiBan: LuotXemNoiBan.fromJsonList(json['lich_su_xem_noi_ban']),
       lichSuDanhGiaDacSan:
-          LuotDanhGiaDacSan.fromJsonList(json['lich_su_xem_dac_san']),
+          LuotDanhGiaDacSan.fromJsonList(json['lich_su_danh_gia_dac_san']),
       lichSuDanhGiaNoiBan:
-          LuotDanhGiaNoiBan.fromJsonList(json['lich_su_xem_noi_ban']),
+          LuotDanhGiaNoiBan.fromJsonList(json['lich_su_danh_gia_noi_ban']),
     );
   }
 

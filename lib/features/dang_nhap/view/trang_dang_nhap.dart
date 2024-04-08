@@ -31,8 +31,8 @@ class _TrangDangNhapState extends State<TrangDangNhap> {
           textAlign: TextAlign.center,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      body: const Padding(
+        padding: EdgeInsets.all(20.0),
         child: LoginForm(),
       ),
     );
@@ -40,6 +40,8 @@ class _TrangDangNhapState extends State<TrangDangNhap> {
 }
 
 class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
@@ -51,6 +53,8 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    _emailController.text = "admindacsan@gmail.com";
+    _passwordController.text = "tranducnhatnam27";
     return Form(
       key: _formKey,
       child: Center(

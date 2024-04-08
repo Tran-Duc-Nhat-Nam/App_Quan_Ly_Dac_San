@@ -18,7 +18,7 @@ Widget loadingCircle({double size = 100}) {
 
 ButtonStyle roundButtonStyle() {
   return const ButtonStyle(
-    padding: MaterialStatePropertyAll(
+    padding: WidgetStatePropertyAll(
       EdgeInsetsDirectional.symmetric(
         horizontal: 25,
         vertical: 20,

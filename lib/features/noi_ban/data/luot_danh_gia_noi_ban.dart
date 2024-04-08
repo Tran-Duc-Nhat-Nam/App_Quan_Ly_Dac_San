@@ -22,7 +22,7 @@ class LuotDanhGiaNoiBan {
     return LuotDanhGiaNoiBan(
       idNguoiDung: json['id_nguoi_dung'],
       idNoiBan: json['id_noi_ban'],
-      thoiGianDanhGia: DateTime.parse(json['thoi_gian']),
+      thoiGianDanhGia: DateTime.parse(json['thoi_gian_danh_gia']),
       diemDanhGia: json['diem_danh_gia'],
       noiDung: json['noi_dung'],
     );
