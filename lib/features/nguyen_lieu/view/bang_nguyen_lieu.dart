@@ -27,7 +27,7 @@ class BangNguyenLieu extends StatelessWidget {
       rowsPerPage: 10,
       header: Row(
         children: [
-          const Text("Vùng miền"),
+          const Text("Nguyên liệu"),
           const SizedBox(width: 25),
           Flexible(
             flex: 1,
