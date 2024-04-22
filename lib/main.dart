@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Switch(
               value: themeMode.darkMode,
               onChanged: themeMode.changeMode,
-              thumbIcon: const WidgetStatePropertyAll(Icon(Icons.dark_mode))),
+              thumbIcon: const MaterialStatePropertyAll(Icon(Icons.dark_mode))),
         ],
       ),
       body: Row(
