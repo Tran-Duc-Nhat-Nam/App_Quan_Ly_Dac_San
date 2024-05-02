@@ -13,11 +13,7 @@
 <h3 align="center">VinaFood Web App</h3>
 
 <p align="center">
-  <a href="https://github.com/Tran-Duc-Nhat-Nam/AppDacSan/releases">Web app</a>
-  |
   <a href="https://github.com/Tran-Duc-Nhat-Nam/AppDacSan/issues">Report Bug</a>
-  |
-  <a href="https://github.com/Tran-Duc-Nhat-Nam/AppDacSan/issues">Request Feature</a>
   <br />
   <p>-------------------------------------------------------------------------------</p>
   <h4 align="center">VinaFood project</h3>
@@ -36,9 +32,6 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
     <li>
       <a href="#installation">Getting Started</a>
@@ -53,19 +46,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-A web app to manage Vietnam specialties information for the Vinafood android app
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-### Built With
+A web app to manage Vietnam specialties information for the Vinafood android app built with Flutter
 
 [![Dart][Dart-logo]][Dart-url]
 
 [![Flutter][Flutter-logo]][Flutter-url]
-
-[![Google Cloud web hosting][Google-cloud-logo]][Google-cloud-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -73,15 +58,9 @@ A web app to manage Vietnam specialties information for the Vinafood android app
 
 <!-- GETTING STARTED -->
 ## Installation
-### For user:
-
-  Go to [here](https://musicplayerz-63f2e.web.app/)
-
-### For developer:
-
-1. Open an IDE or code editor
-
-2. Clone the repo
+1. Follow the instruction [here](https://github.com/Tran-Duc-Nhat-Nam/DacSanAPI/blob/main/README.md)
+2. Open an IDE or code editor
+3. Clone the repo
    
    ```sh
    git clone https://github.com/Tran-Duc-Nhat-Nam/App_Quan_Ly_Dac_San.git
